@@ -43,6 +43,7 @@ test("built site does not emit root-relative asset paths that break GitHub Pages
 	const offenders = [];
 	const htmlForbiddenPatterns = [
 		/\/blog-astro-site\/src\/assets\/blog-placeholder[^"' )]*/g,
+		/\/blog-astro-site\/blog-astro-site\/(?:assets|images|favicon)\//g,
 		/src="\/(?:assets|images|favicon)\//g,
 		/href="\/(?:assets|images|favicon)\//g,
 		/url\(["']?\/(?:assets|images|favicon)\//g,
