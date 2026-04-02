@@ -1,0 +1,7 @@
+/*
+ * Tailwind v4's Vite plugin can crash on a comment-only CSS entry during build.
+ * Keep this file syntactically non-empty while the progress bar feature is disabled.
+ */
+:root {
+  --page-progress-bar-disabled: 1;
+}

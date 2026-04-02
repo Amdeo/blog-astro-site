@@ -1,0 +1,145 @@
+---
+import { PhotoCard } from "@components/features/albums";
+import SimpleMizukiLayout from "@layouts/SimpleMizukiLayout.astro";
+import { Icon } from "astro-icon/components";
+
+import { siteConfig } from "../../../config";
+import I18nKey from "../../../i18n/i18nKey";
+import { i18n } from "../../../i18n/translation";
+import type { AlbumGroup, Photo } from "../../../types/album";
+import { scanAlbums } from "../../../utils/album-scanner";
+
+if (!siteConfig.featurePages.albums) {
+	return Astro.redirect("/404/");
+}
+
+export const getStaticPaths = async () => {
+	const albumsData = await scanAlbums();
+	return albumsData.map((album) => ({
+		params: { id: album.id },
+		props: { album },
+	}));
+};
+
+interface Props {
+	album: AlbumGroup;
+}
+
+const { album } = Astro.props;
+
+if (!album) {
+	return Astro.redirect("/404/");
+}
+---
+
+<SimpleMizukiLayout title={album.title} description={album.description || album.title}>
+	<script>
+		import { loadIconify } from "../../../utils/icon-loader";
+
+		loadIconify().catch((error) => {
+			console.error("Failed to load Iconify:", error);
+		});
+	</script>
+
+	<div class="w-full overflow-hidden rounded-(--radius-large) relative">
+		{album.cover ? (
+			<div class="relative w-full aspect-[3/1] min-h-[200px] max-h-[360px]">
+				<img
+					src={album.cover}
+					alt={album.title}
+					class="h-full w-full object-cover"
+				/>
+				<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+				<a
+					href="/albums/"
+					class="absolute top-4 left-4 inline-flex items-center gap-1.5 rounded-lg bg-black/30 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white"
+				>
+					<Icon name="material-symbols:arrow-back" class="text-base" />
+					{i18n(I18nKey.albumsBackToList)}
+				</a>
+				<div class="absolute bottom-0 left-0 right-0 p-6">
+					<div class="mb-2 text-2xl font-bold text-white drop-shadow-lg sm:text-3xl">
+						{album.title}
+					</div>
+					{album.description && (
+						<p class="mb-2 max-w-2xl line-clamp-2 text-sm leading-relaxed text-white/75">
+							{album.description}
+						</p>
+					)}
+					<div class="flex flex-wrap items-center gap-4 text-sm text-white/80">
+						<span class="inline-flex items-center gap-1">
+							<Icon name="material-symbols:calendar-today" class="text-sm" />
+							{new Date(album.date).toLocaleDateString("zh-CN")}
+						</span>
+						{album.location && (
+							<span class="inline-flex items-center gap-1">
+								<Icon name="material-symbols:location-on" class="text-sm" />
+								{album.location}
+							</span>
+						)}
+						<span class="inline-flex items-center gap-1">
+							<Icon name="material-symbols:photo-library" class="text-sm" />
+							{album.photos.length} {i18n(I18nKey.albumsPhotosCount)}
+						</span>
+					</div>
+					{album.tags && album.tags.length > 0 && (
+						<div class="mt-2.5 flex flex-wrap gap-1.5">
+							{album.tags.map((tag: string) => (
+								<span class="rounded bg-white/20 px-2 py-0.5 text-xs text-white/90 backdrop-blur-sm">
+									{tag}
+								</span>
+							))}
+						</div>
+					)}
+				</div>
+			</div>
+		) : (
+			<div class="card-base px-6 py-4">
+				<a
+					href="/albums/"
+					class="mb-3 inline-flex items-center gap-1 text-sm text-(--primary) hover:underline"
+				>
+					<Icon name="material-symbols:arrow-back" class="text-base" />
+					{i18n(I18nKey.albumsBackToList)}
+				</a>
+				<div class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 sm:text-3xl">
+					{album.title}
+				</div>
+				<div class="mt-2 flex flex-wrap items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400">
+					<span class="inline-flex items-center gap-1">
+						<Icon name="material-symbols:calendar-today" class="text-sm" />
+						{new Date(album.date).toLocaleDateString("zh-CN")}
+					</span>
+					{album.location && (
+						<span class="inline-flex items-center gap-1">
+							<Icon name="material-symbols:location-on" class="text-sm" />
+							{album.location}
+						</span>
+					)}
+					<span>{album.photos.length} {i18n(I18nKey.albumsPhotosCount)}</span>
+				</div>
+			</div>
+		)}
+	</div>
+
+	<div class="mt-4 w-full overflow-hidden rounded-(--radius-large) relative">
+		<div class="card-base relative z-10 w-full px-6 py-6">
+			{album.photos.length > 0 ? (
+				<div class="gallery-masonry">
+					{album.photos.map((photo: Photo) => (
+						<PhotoCard
+							src={photo.src}
+							alt={photo.alt || photo.title || ""}
+							albumId={album.id}
+						/>
+					))}
+				</div>
+			) : (
+				<div class="flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
+					<Icon name="material-symbols:photo-library" class="mb-4 text-6xl opacity-50" />
+					<p class="text-lg">{i18n(I18nKey.albumsEmpty)}</p>
+				</div>
+			)}
+		</div>
+	</div>
+</SimpleMizukiLayout>

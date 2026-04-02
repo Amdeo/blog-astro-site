@@ -1,0 +1,221 @@
+---
+import SimpleMizukiLayout from "../layouts/SimpleMizukiLayout.astro";
+import {
+	getCategoryList,
+	getSortedPostsList,
+	getTagList,
+} from "../utils/content-utils";
+import { getTagUrl, url } from "../utils/url-utils";
+import { siteConfig } from "../config";
+
+const posts = await getSortedPostsList();
+const categories = await getCategoryList();
+const tags = await getTagList();
+const latestPosts = posts.slice(0, 8);
+const featuredPosts = posts.slice(0, 3);
+const topCategories = categories.slice(0, 6);
+const topTags = tags.slice(0, 10);
+---
+
+<SimpleMizukiLayout title={siteConfig.title} description={siteConfig.subtitle}>
+	<div class="grid gap-4 md:gap-5">
+		<section class="card-base px-5 py-6 md:px-8 md:py-8">
+			<div
+				class="inline-flex rounded-full border border-black/10 px-3 py-1 text-xs text-black/60 dark:border-white/10 dark:text-white/60"
+			>
+				长期维护中的中文技术博客
+			</div>
+			<h1
+				class="mt-4 text-3xl font-bold text-black/90 dark:text-white/90 md:text-5xl"
+			>
+				{siteConfig.title}
+			</h1>
+			<p
+				class="mt-4 max-w-3xl text-sm leading-7 text-black/65 dark:text-white/65 md:text-base"
+			>
+				{siteConfig.subtitle}
+			</p>
+			<div class="mt-6 flex flex-wrap gap-3 text-sm">
+				<a
+					href={url("/posts/")}
+					class="rounded-xl bg-[var(--primary)] px-4 py-2 text-white"
+					>开始阅读</a
+				>
+				<a
+					href={url("/archive/")}
+					class="rounded-xl border border-black/10 px-4 py-2 text-black/70 dark:border-white/10 dark:text-white/70"
+					>查看归档</a
+				>
+			</div>
+			<div class="mt-6 grid grid-cols-3 gap-3">
+				<div
+					class="rounded-2xl bg-black/[0.03] px-4 py-3 dark:bg-white/[0.04]"
+				>
+					<div class="text-xs text-black/45 dark:text-white/45">
+						文章
+					</div><div class="mt-1 text-xl font-semibold">
+						{posts.length}
+					</div>
+				</div>
+				<div
+					class="rounded-2xl bg-black/[0.03] px-4 py-3 dark:bg-white/[0.04]"
+				>
+					<div class="text-xs text-black/45 dark:text-white/45">
+						分类
+					</div><div class="mt-1 text-xl font-semibold">
+						{categories.length}
+					</div>
+				</div>
+				<div
+					class="rounded-2xl bg-black/[0.03] px-4 py-3 dark:bg-white/[0.04]"
+				>
+					<div class="text-xs text-black/45 dark:text-white/45">
+						标签
+					</div><div class="mt-1 text-xl font-semibold">
+						{tags.length}
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_320px]">
+			<div class="grid gap-4">
+				<section class="card-base px-5 py-5 md:px-6">
+					<div class="mb-4 flex items-end justify-between gap-3">
+						<div>
+							<h2
+								class="text-xl font-semibold text-black/90 dark:text-white/90"
+							>
+								先看这几篇
+							</h2>
+							<p
+								class="mt-1 text-sm text-black/55 dark:text-white/55"
+							>
+								先从几篇代表性内容开始，比一上来翻全部文章更轻松。
+							</p>
+						</div>
+					</div>
+					<div class="grid gap-3">
+						{
+							featuredPosts.map((post) => (
+								<a
+									href={post.url}
+									class="rounded-2xl border border-black/8 px-4 py-4 transition hover:bg-black/[0.02] dark:border-white/10 dark:hover:bg-white/[0.03]"
+								>
+									<div class="text-xs text-black/45 dark:text-white/45">
+										{post.data.category || "未分类"}
+									</div>
+									<div class="mt-1 text-lg font-semibold text-black/90 dark:text-white/90">
+										{post.data.title}
+									</div>
+									{post.data.description && (
+										<p class="mt-2 text-sm leading-6 text-black/60 dark:text-white/60">
+											{post.data.description}
+										</p>
+									)}
+								</a>
+							))
+						}
+					</div>
+				</section>
+
+				<section class="card-base px-5 py-5 md:px-6">
+					<div class="mb-4 flex items-end justify-between gap-3">
+						<div>
+							<h2
+								class="text-xl font-semibold text-black/90 dark:text-white/90"
+							>
+								最新文章
+							</h2>
+							<p
+								class="mt-1 text-sm text-black/55 dark:text-white/55"
+							>
+								按时间倒序整理，适合回来查最近更新的内容。
+							</p>
+						</div>
+						<a
+							href={url("/posts/")}
+							class="text-sm text-black/55 dark:text-white/55"
+							>全部文章 →</a
+						>
+					</div>
+					<div class="grid gap-3">
+						{
+							latestPosts.map((post, index) => (
+								<a
+									href={post.url}
+									class="rounded-2xl border border-black/8 px-4 py-4 transition hover:bg-black/[0.02] dark:border-white/10 dark:hover:bg-white/[0.03]"
+								>
+									<div class="flex items-center justify-between gap-3">
+										<div class="text-xs text-black/45 dark:text-white/45">
+											{post.data.category || "未分类"}
+										</div>
+										{post.data.published && (
+											<div class="text-xs text-black/35 dark:text-white/35">
+												{new Date(
+													post.data.published,
+												).toLocaleDateString("zh-CN")}
+											</div>
+										)}
+									</div>
+									<div
+										class={`mt-1 font-semibold text-black/90 dark:text-white/90 ${index === 0 ? "text-xl" : "text-lg"}`}
+									>
+										{post.data.title}
+									</div>
+									{post.data.description && (
+										<p class="mt-2 text-sm leading-6 text-black/60 dark:text-white/60">
+											{post.data.description}
+										</p>
+									)}
+								</a>
+							))
+						}
+					</div>
+				</section>
+			</div>
+
+			<aside class="grid gap-4">
+				<section class="card-base px-5 py-5">
+					<h2
+						class="text-lg font-semibold text-black/90 dark:text-white/90"
+					>
+						主要分类
+					</h2>
+					<div class="mt-4 flex flex-wrap gap-2">
+						{
+							topCategories.map((category) => (
+								<a
+									href={category.url}
+									class="rounded-full border border-black/8 px-3 py-1.5 text-sm text-black/65 dark:border-white/10 dark:text-white/65"
+								>
+									{category.name} · {category.count}
+								</a>
+							))
+						}
+					</div>
+				</section>
+
+				<section class="card-base px-5 py-5">
+					<h2
+						class="text-lg font-semibold text-black/90 dark:text-white/90"
+					>
+						常用标签
+					</h2>
+					<div class="mt-4 flex flex-wrap gap-2">
+						{
+							topTags.map((tag) => (
+								<a
+									href={getTagUrl(tag.name)}
+									class="rounded-full bg-black/[0.04] px-3 py-1.5 text-sm text-black/65 dark:bg-white/[0.05] dark:text-white/65"
+								>
+									#{tag.name}
+								</a>
+							))
+						}
+					</div>
+				</section>
+			</aside>
+		</section>
+	</div>
+</SimpleMizukiLayout>

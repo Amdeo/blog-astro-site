@@ -1,0 +1,186 @@
+---
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import SimpleMizukiLayout from "@layouts/SimpleMizukiLayout.astro";
+import { getSortedPosts } from "@utils/content-utils";
+import { formatDateToYYYYMMDD } from "@utils/date-utils";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+	type: "rss" | "atom";
+}
+
+const { type } = Astro.props;
+const posts = (await getSortedPosts()).filter((post) => !post.data.encrypted);
+const recentPosts = posts.slice(0, 6);
+
+const feedUrl = type === "rss" ? "rss.xml" : "atom.xml";
+const prefix = type === "rss" ? "rss" : "atom";
+
+const t = (key: string) => i18n(key as I18nKey);
+---
+
+<SimpleMizukiLayout title={t(`${prefix}`)}>
+	<div class="onload-animation">
+		<div class="card-base mb-6 rounded-[var(--radius-large)] p-8">
+			<div class="text-center">
+				<div class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--primary)]">
+					<Icon
+						name="material-symbols:rss-feed"
+						class="text-3xl text-white"
+					/>
+				</div>
+				<h1 class="mb-3 text-3xl font-bold text-[var(--primary)]">
+					{t(`${prefix}`)}
+				</h1>
+				<p class="mx-auto max-w-2xl text-75">
+					{t(`${prefix}Subtitle`)}
+				</p>
+			</div>
+		</div>
+
+		<div class="card-base mb-6 rounded-[var(--radius-large)] p-6">
+			<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+				<div class="flex items-center">
+					<div class="mr-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--primary)]">
+						<Icon
+							name="material-symbols:link"
+							class="text-xl text-white"
+						/>
+					</div>
+					<div>
+						<h3 class="mb-1 font-semibold text-90">
+							{t(`${prefix}Link`)}
+						</h3>
+						<p class="text-sm text-75">
+							{t(`${prefix}CopyToReader`)}
+						</p>
+					</div>
+				</div>
+				<div class="flex flex-col gap-3 sm:flex-row">
+					<code class="break-all rounded-lg border border-[var(--line-divider)] bg-[var(--card-bg)] px-3 py-2 text-sm font-mono text-75">
+						{Astro.site}{feedUrl}
+					</code>
+					<button
+						id={`copy-${prefix}-btn`}
+						class="whitespace-nowrap rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:opacity-80"
+						data-url={`${Astro.site}${feedUrl}`}
+					>
+						{t(`${prefix}CopyLink`)}
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="card-base mb-6 rounded-[var(--radius-large)] p-6">
+			<h2 class="mb-4 flex items-center text-xl font-bold text-90">
+				<Icon
+					name="material-symbols:article"
+					class="mr-2 text-[var(--primary)]"
+				/>
+				{t(`${prefix}LatestPosts`)}
+			</h2>
+			<div class="space-y-4">
+				{
+					recentPosts.map((post) => (
+						<article class="rounded-xl border border-[var(--line-divider)] bg-[var(--card-bg)] p-4 transition-all duration-300 hover:border-[var(--primary)]">
+							<h3 class="mb-2 text-lg font-semibold text-90 transition-colors hover:text-[var(--primary)]">
+								<a
+									href={`/posts/${post.id}/`}
+									class="hover:underline"
+								>
+									{post.data.title}
+								</a>
+							</h3>
+							{post.data.description && (
+								<p class="mb-3 line-clamp-2 text-75">
+									{post.data.description}
+								</p>
+							)}
+							<div class="flex items-center gap-4 text-sm text-60">
+								<time
+									datetime={post.data.published.toISOString()}
+									class="text-75"
+								>
+									{formatDateToYYYYMMDD(post.data.published)}
+								</time>
+							</div>
+						</article>
+					))
+				}
+			</div>
+		</div>
+
+		<div class="card-base rounded-[var(--radius-large)] p-6">
+			<h2 class="mb-4 flex items-center text-xl font-bold text-90">
+				<Icon
+					name="material-symbols:help-outline"
+					class="mr-2 text-[var(--primary)]"
+				/>
+				{
+					t(
+						`${prefix}WhatIs${prefix.charAt(0).toUpperCase() + prefix.slice(1)}`,
+					)
+				}
+			</h2>
+			<div class="space-y-3 text-75">
+				<p>
+					{
+						t(
+							`${prefix}WhatIs${prefix.charAt(0).toUpperCase() + prefix.slice(1)}Description`,
+						)
+					}
+				</p>
+				<ul class="ml-4 list-inside list-disc space-y-1">
+					<li>{t(`${prefix}Benefit1`)}</li>
+					<li>{t(`${prefix}Benefit2`)}</li>
+					<li>{t(`${prefix}Benefit3`)}</li>
+					<li>{t(`${prefix}Benefit4`)}</li>
+				</ul>
+				<p class="text-sm">
+					{t(`${prefix}HowToUse`)}
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const init = () => {
+			const btn =
+				document.getElementById("copy-rss-btn") ||
+				document.getElementById("copy-atom-btn");
+			if (btn) {
+				btn.addEventListener("click", async function () {
+					const url = this.getAttribute("data-url");
+					if (!url) {
+						return;
+					}
+					try {
+						await navigator.clipboard.writeText(url);
+						const originalText = this.textContent || "Copy Link";
+						this.textContent = url.includes("rss")
+							? "RSS link copied to clipboard!"
+							: "Atom link copied to clipboard!";
+						this.style.backgroundColor =
+							"var(--success-color, #10b981)";
+
+						setTimeout(() => {
+							this.textContent = originalText;
+							this.style.backgroundColor = "";
+						}, 2000);
+					} catch (err) {
+						console.error("复制失败:", err);
+						const originalText = this.textContent || "Copy Link";
+						this.textContent =
+							"Copy failed, please copy the link manually";
+						setTimeout(() => {
+							this.textContent = originalText;
+						}, 2000);
+					}
+				});
+			}
+		};
+		init();
+		document.addEventListener("astro:after-swap", init);
+	</script>
+</SimpleMizukiLayout>

@@ -1,0 +1,38 @@
+---
+import Pagination from "@components/control/Pagination.astro";
+import CategoryBar from "@components/features/posts/CategoryBar.astro";
+import PostPage from "@components/features/posts/PostPage.astro";
+import type { GetStaticPaths } from "astro";
+
+import { siteConfig } from "../config";
+import { PAGE_SIZE } from "../constants/constants";
+import SimpleMizukiLayout from "../layouts/SimpleMizukiLayout.astro";
+import { getSortedPosts } from "../utils/content-utils";
+import { initPostIdMap } from "../utils/permalink-utils";
+
+const showCategoryBar = siteConfig.postListLayout.categoryBar?.enable ?? false;
+
+export const getStaticPaths = (async ({ paginate }) => {
+	const allBlogPosts = await getSortedPosts();
+	initPostIdMap(allBlogPosts);
+	return paginate(allBlogPosts, { pageSize: PAGE_SIZE });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+
+const len = page.data.length;
+---
+
+<SimpleMizukiLayout title="文章">
+	<div class="grid gap-4">
+		{showCategoryBar && <CategoryBar />}
+		<div class="card-base px-3 py-4 md:px-5 md:py-5">
+			<PostPage page={page} />
+		</div>
+		<Pagination
+			class="mx-auto onload-animation"
+			page={page}
+			style={`animation-delay: calc(var(--content-delay) + ${len * 50}ms)`}
+		/>
+	</div>
+</SimpleMizukiLayout>

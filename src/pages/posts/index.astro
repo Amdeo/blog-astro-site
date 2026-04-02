@@ -1,0 +1,46 @@
+---
+import ArchivePanel from "@components/features/archive/ArchivePanel.svelte";
+import CategoryBar from "@components/features/posts/CategoryBar.astro";
+import SimpleMizukiLayout from "@layouts/SimpleMizukiLayout.astro";
+import { getSortedPostsList } from "@utils/content-utils";
+
+import { siteConfig } from "../../config";
+
+const sortedPostsList = await getSortedPostsList();
+
+const showCategoryBar = siteConfig.postListLayout.categoryBar?.enable ?? false;
+
+const posts = sortedPostsList.map((post) => ({
+	...post,
+	data: {
+		...post.data,
+		category: post.data.category === null ? undefined : post.data.category,
+	},
+}));
+
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+
+const categories = [
+	...new Set(
+		posts
+			.map((post) => post.data.category)
+			.filter(
+				(category): category is string => typeof category === "string",
+			),
+	),
+];
+---
+
+<SimpleMizukiLayout title="文章">
+	<div class="grid gap-4">
+		{showCategoryBar && <CategoryBar />}
+		<div class="card-base overflow-hidden px-2 py-2 md:px-3 md:py-3">
+			<ArchivePanel
+				sortedPosts={posts}
+				tags={tags}
+				categories={categories}
+				client:only="svelte"
+			/>
+		</div>
+	</div>
+</SimpleMizukiLayout>

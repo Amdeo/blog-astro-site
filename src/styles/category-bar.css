@@ -1,0 +1,78 @@
+.category-bar {
+  margin-bottom: 1rem;
+}
+
+.category-divider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(148, 163, 184, 0.35);
+}
+
+.scroll-area {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.scroll-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2.5rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease-in-out;
+  z-index: 1;
+}
+
+.scroll-fade[data-visible] {
+  opacity: 1;
+}
+
+.scroll-fade-left {
+  left: 0;
+  background: linear-gradient(to left, transparent, rgba(255, 255, 255, 0.96));
+}
+
+.scroll-fade-right {
+  right: 0;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.96));
+}
+
+body.wallpaper-transparent .scroll-fade {
+  display: none;
+}
+
+.category-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+}
+
+.category-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.category-pill {
+  border: 1.5px solid rgba(148, 163, 184, 0.35);
+  color: rgba(51, 65, 85, 0.9);
+  background: transparent;
+}
+
+.category-pill:hover {
+  border-color: #5b6cff;
+  color: #5b6cff;
+  background: transparent;
+}
+
+.category-pill[data-active] {
+  background: #5b6cff;
+  border-color: #5b6cff;
+  color: white;
+}
+
+.category-pill[data-active]:hover {
+  background: #5b6cff;
+  border-color: #5b6cff;
+  opacity: 0.9;
+}

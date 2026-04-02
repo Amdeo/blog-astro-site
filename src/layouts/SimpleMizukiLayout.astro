@@ -1,0 +1,52 @@
+---
+import { siteConfig } from "../config";
+import { url } from "../utils/url-utils";
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const { title, description } = Astro.props;
+const pageTitle =
+	!title || title === siteConfig.title
+		? siteConfig.title
+		: `${title} - ${siteConfig.title}`;
+---
+
+<!doctype html>
+<html lang="zh-CN" class="simple-mizuki-root">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			name="description"
+			content={description || siteConfig.subtitle || siteConfig.title}
+		/>
+		<title>{pageTitle}</title>
+	</head>
+	<body class="simple-mizuki-body">
+		<header class="topbar">
+			<div class="page-shell nav-row">
+				<a class="brand" href={url("/")}>{siteConfig.title}</a>
+				<nav class="nav-links" aria-label="主导航">
+					<a href={url("/")}>首页</a>
+					<a href={url("/posts/")}>文章</a>
+					<a href={url("/archive/")}>归档</a>
+					<a href={url("/about/")}>关于</a>
+				</nav>
+			</div>
+		</header>
+		<main class="main-wrap">
+			<div class="page-shell">
+				<slot />
+			</div>
+		</main>
+		<footer class="footer">
+			<div class="page-shell">
+				© {new Date().getFullYear()}
+				{siteConfig.title} · 基于 Astro 构建
+			</div>
+		</footer>
+	</body>
+</html>
