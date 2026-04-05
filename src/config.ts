@@ -337,6 +337,11 @@ export const navBarConfig: NavBarConfig = {
 					icon: "material-symbols:person",
 				},
 				{
+					name: "OpenCLI",
+					url: "/opencli/",
+					icon: "material-symbols:terminal",
+				},
+				{
 					name: "Friends",
 					url: "/friends/",
 					icon: "material-symbols:group",
