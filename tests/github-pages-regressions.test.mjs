@@ -83,6 +83,44 @@ test("built site does not emit root-relative asset paths that break GitHub Pages
 	);
 });
 
+test("built site no longer ships legacy body font assets after LXGW WenKai migration", () => {
+	assert.ok(fs.existsSync(distRoot), "expected dist/ to exist; run a build first");
+
+	const astroRoot = path.join(distRoot, "_astro");
+	assert.ok(fs.existsSync(astroRoot), "expected dist/_astro to exist");
+
+	const cssFiles = walkTextFiles(astroRoot).filter((filePath) =>
+		filePath.endsWith(".css"),
+	);
+	assert.ok(cssFiles.length > 0, "expected built CSS files to exist");
+
+	const offenders = [];
+	for (const filePath of cssFiles) {
+		const content = fs.readFileSync(filePath, "utf8");
+		for (const pattern of [
+			/ZenMaruGothic-Medium\.ttf/g,
+			/loli\.ttf/g,
+			/font-family:\s*"?ZenMaruGothic-Medium"?/g,
+			/font-family:\s*"?萝莉体 第二版"?/g,
+		]) {
+			const matches = content.match(pattern);
+			if (!matches) {
+				continue;
+			}
+			offenders.push({
+				file: path.relative(repoRoot, filePath),
+				match: matches[0],
+			});
+		}
+	}
+
+	assert.deepEqual(
+		offenders,
+		[],
+		`unexpected legacy font references in built CSS:\n${JSON.stringify(offenders, null, 2)}`,
+	);
+});
+
 test("floating controls inline script can be executed twice without redeclaration errors", () => {
 	const source = fs.readFileSync(floatingControlsPath, "utf8");
 	const script = extractInlineScript(source);
