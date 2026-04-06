@@ -336,12 +336,7 @@ export const navBarConfig: NavBarConfig = {
 					url: "/opencli/",
 					icon: "material-symbols:terminal",
 				},
-				{
-					name: "RTK",
-					url: "/rtk/",
-					icon: "material-symbols:article-outline",
-				},
-			],
+							],
 		},
 		{
 			name: "About",
