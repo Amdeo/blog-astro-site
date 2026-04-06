@@ -327,15 +327,10 @@ export const navBarConfig: NavBarConfig = {
 			],
 		},
 		{
-			name: "About",
+			name: "专题",
 			url: "/content/",
-			icon: "material-symbols:info",
+			icon: "material-symbols:dashboard-customize-outline",
 			children: [
-				{
-					name: "About",
-					url: "/about/",
-					icon: "material-symbols:person",
-				},
 				{
 					name: "OpenCLI",
 					url: "/opencli/",
@@ -345,6 +340,18 @@ export const navBarConfig: NavBarConfig = {
 					name: "RTK",
 					url: "/rtk/",
 					icon: "material-symbols:article-outline",
+				},
+			],
+		},
+		{
+			name: "About",
+			url: "/content/",
+			icon: "material-symbols:info",
+			children: [
+				{
+					name: "About",
+					url: "/about/",
+					icon: "material-symbols:person",
 				},
 				{
 					name: "Friends",
