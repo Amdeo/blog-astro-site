@@ -1,4 +1,4 @@
-﻿import type {
+import type {
 	AnnouncementConfig,
 	CommentConfig,
 	ExpressiveCodeConfig,
@@ -340,6 +340,11 @@ export const navBarConfig: NavBarConfig = {
 					name: "OpenCLI",
 					url: "/opencli/",
 					icon: "material-symbols:terminal",
+				},
+				{
+					name: "RTK",
+					url: "/rtk/",
+					icon: "material-symbols:article-outline",
 				},
 				{
 					name: "Friends",
