@@ -6,7 +6,7 @@ image: '/assets/desktop-banner/1.webp'
 tags: ['python', '编程语言']
 category: 'python'
 draft: false
-pinned: true
+pinned: false
 comment: true
 lang: 'zh-CN'
 ---
