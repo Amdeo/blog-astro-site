@@ -9,6 +9,7 @@ import { siteConfig } from "../config";
 import { PAGE_SIZE } from "../constants/constants";
 import { getSortedPosts } from "../utils/content-utils";
 import { initPostIdMap } from "../utils/permalink-utils";
+import { url } from "../utils/url-utils";
 
 const showCategoryBar = siteConfig.postListLayout.categoryBar?.enable ?? false;
 
@@ -23,10 +24,38 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page } = Astro.props;
 
 const len = page.data.length;
+const isHomePage = page.currentPage === 1;
+const opencliUrl = url("/opencli/");
 ---
 
 <MainGridLayout>
 	{showCategoryBar && <CategoryBar />}
+	{isHomePage && (
+		<a
+			href={opencliUrl}
+			class="card-base onload-animation group mb-4 block overflow-hidden rounded-[var(--radius-large)] border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-6 transition hover:border-[var(--primary)]/40 hover:shadow-[var(--card-shadow)]"
+			style="animation-delay: calc(var(--content-delay) + 20ms)"
+		>
+			<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+				<div class="space-y-3">
+					<div class="inline-flex items-center gap-2 rounded-full bg-[var(--primary)]/10 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-[var(--primary)]">
+						<span class="h-1.5 w-1.5 rounded-full bg-[var(--primary)]"></span>
+						专题页面
+					</div>
+					<h2 class="text-2xl font-bold text-[var(--card-fg)] transition group-hover:text-[var(--primary)]">
+						OpenCLI 是什么，适合谁用，怎么快速上手
+					</h2>
+					<p class="max-w-3xl text-sm leading-7 text-[var(--card-fg-muted)] md:text-[15px]">
+						这不是普通文章卡片，而是一页完整的介绍 + 使用指南。适合直接了解 OpenCLI 的定位、安装方式、典型场景和上手路径。
+					</p>
+				</div>
+				<div class="inline-flex items-center gap-2 self-start rounded-full border border-[var(--line-divider)] px-4 py-2 text-sm font-medium text-[var(--card-fg)] transition group-hover:border-[var(--primary)]/40 group-hover:text-[var(--primary)] md:self-center">
+					查看专题
+					<span aria-hidden="true" class="text-lg transition group-hover:translate-x-0.5">→</span>
+				</div>
+			</div>
+		</a>
+	)}
 	<PostPage page={page} />
 	<Pagination
 		class="mx-auto onload-animation"

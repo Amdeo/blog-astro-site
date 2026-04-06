@@ -4,6 +4,22 @@ import MainGridLayout from "../layouts/MainGridLayout.astro";
 const pageTitle = "OpenCLI：项目介绍与使用指南";
 const pageDescription =
 	"基于 jackwener/opencli 的功能定位、适用场景、安装方式与常见用法整理的一页中文介绍，已直接集成到博客中。";
+const searchKeywords = [
+	"OpenCLI",
+	"AI CLI",
+	"AI Agent",
+	"Claude Code",
+	"Cursor",
+	"浏览器自动化",
+	"Browser Bridge",
+	"Electron",
+	"Electron CLI",
+	"Chrome 登录态复用",
+	"网站转 CLI",
+	"命令行工具",
+	"自动化工具",
+	"CLI Hub",
+];
 ---
 
 <MainGridLayout title={pageTitle} description={pageDescription}>
@@ -11,9 +27,16 @@ const pageDescription =
 		import("../scripts/right-sidebar-layout.js");
 	</script>
 
-	<div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+	<div class="sr-only" aria-hidden="true" data-pagefind-meta="keywords">
+		{searchKeywords.join(" · ")}
+	</div>
+
+	<div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32" data-pagefind-body>
 		<div class="card-base z-10 px-6 py-6 md:px-9 md:py-8 relative w-full space-y-8">
 			<section class="space-y-4">
+				<div class="sr-only">
+					关键词：OpenCLI、AI CLI、AI Agent、Claude Code、Cursor、浏览器自动化、Browser Bridge、Electron CLI、Chrome 登录态复用、网站转 CLI、命令行工具、自动化工具、CLI Hub。
+				</div>
 				<div class="inline-flex items-center gap-2 rounded-full border border-[var(--line-divider)] bg-[var(--card-bg)] px-3 py-1 text-sm text-75">
 					<span class="h-2 w-2 rounded-full bg-[var(--primary)]"></span>
 					GitHub 项目解读
