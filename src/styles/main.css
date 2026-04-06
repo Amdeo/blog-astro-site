@@ -19,7 +19,7 @@
 
 /* Migrate from v3 config */
 @theme {
-  --font-sans: "Roboto", "sans-serif", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "LXGW WenKai", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   --breakpoint-md: 768px;
   --breakpoint-lg: 1280px;
@@ -38,6 +38,15 @@
 @font-face {
   font-family: "萝莉体 第二版";
   src: url("../assets/font/loli.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* 导入 LXGW WenKai 字体 */
+@font-face {
+  font-family: "LXGW WenKai";
+  src: url("/blog-astro-site/assets/font/LXGWWenKai-Regular.ttf") format("truetype");
   font-style: normal;
   font-weight: 400;
   font-display: swap;

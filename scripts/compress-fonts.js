@@ -1274,25 +1274,26 @@ async function updateCssFontReferences() {
 					let cssContent = fs.readFileSync(cssFile, "utf-8");
 					const originalContent = cssContent;
 
-					// 匹配 @font-face 规则中引用该字体的 src
-					// 匹配格式: url("/assets/font/xxx.ttf") 或 url("/assets/font/xxx.ttf") format("truetype")
+					// 匹配 @font-face 规则中引用该字体的 src，兼容 base path 与可选 format()
 					const ttfPattern = new RegExp(
-						`url\\(["']?/assets/font/${baseName}\\.ttf["']?\\)\\s*format\\(["']truetype["']\\)`,
+						`url\\((['"]?)([^"'()]*?/assets/font/)${baseName}\\.ttf\\1\\)(?:\\s*format\\((['"])truetype\\3\\))?`,
 						"g",
 					);
 
 					if (fontConfig.enableCompress) {
-						// 子集优化：直接替换为 woff2（子集化后的）
+						// 子集优化：直接替换为 woff2（子集化后的），保留原有 base path
 						cssContent = cssContent.replace(
 							ttfPattern,
-							`url("/assets/font/${woff2File}") format("woff2")`,
+							(_, quote = "", prefix) =>
+								`url(${quote}${prefix}${woff2File}${quote}) format("woff2")`,
 						);
 					} else {
 						// 未开启子集优化：使用原始 woff2（如果有），降级到 ttf
 						if (fs.existsSync(publicWoff2)) {
 							cssContent = cssContent.replace(
 								ttfPattern,
-								`url("/assets/font/${woff2File}") format("woff2"), url("/assets/font/${baseName}.ttf") format("truetype")`,
+								(_, quote = "", prefix) =>
+									`url(${quote}${prefix}${woff2File}${quote}) format("woff2"), url(${quote}${prefix}${baseName}.ttf${quote}) format("truetype")`,
 							);
 						}
 					}
@@ -1317,7 +1318,7 @@ async function updateCssFontReferences() {
 				for (const cssFile of cssFiles) {
 					let cssContent = fs.readFileSync(cssFile, "utf-8");
 					const ttfPattern = new RegExp(
-						`url\\(["']?/assets/font/${baseName}\\.ttf["']?\\)\\s*format\\(["']truetype["']\\)`,
+						`url\\((['"]?)([^"'()]*?/assets/font/)${baseName}\\.ttf\\1\\)(?:\\s*format\\((['"])truetype\\3\\))?`,
 						"g",
 					);
 
@@ -1325,7 +1326,8 @@ async function updateCssFontReferences() {
 						// 替换为 woff2 + ttf fallback
 						cssContent = cssContent.replace(
 							ttfPattern,
-							`url("/assets/font/${file}") format("woff2"), url("/assets/font/${ttfFile}") format("truetype")`,
+							(_, quote = "", prefix) =>
+								`url(${quote}${prefix}${file}${quote}) format("woff2"), url(${quote}${prefix}${ttfFile}${quote}) format("truetype")`,
 						);
 						fs.writeFileSync(cssFile, cssContent);
 						console.log(
