@@ -1,0 +1,246 @@
+---
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+
+const pageTitle = "RTK：面向 AI Agent 的工程化工具链，是什么、怎么用、适合谁";
+const pageDescription =
+  "基于 rtk-ai/rtk README 梳理 RTK 的定位、核心能力、安装方式、典型使用场景与接入建议，适合想快速理解 MCP / Agent 工具链的人。";
+const repoUrl = "https://github.com/rtk-ai/rtk";
+const docs = [
+  { label: "GitHub 仓库", href: repoUrl },
+  { label: "安装文档", href: "https://github.com/rtk-ai/rtk/blob/master/INSTALL.md" },
+  { label: "故障排查", href: "https://github.com/rtk-ai/rtk/blob/master/docs/TROUBLESHOOTING.md" },
+  { label: "架构说明", href: "https://github.com/rtk-ai/rtk/blob/master/docs/contributing/ARCHITECTURE.md" },
+];
+const keywords = [
+  "RTK",
+  "MCP",
+  "Model Context Protocol",
+  "AI Agent",
+  "Agent 工具链",
+  "LLM 工程",
+  "CLI",
+  "工具编排",
+  "registry",
+  "server",
+  "client",
+  "Claude Code",
+  "Codex",
+];
+---
+
+<MainGridLayout title={pageTitle} description={pageDescription}>
+  <script>
+    import("../scripts/right-sidebar-layout.js");
+  </script>
+
+  <div class="mb-6 rounded-[var(--radius-large)] border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-5 md:p-8" data-pagefind-body>
+    <div class="mb-6 flex flex-wrap items-center gap-3 text-sm">
+      <span class="inline-flex items-center rounded-full bg-[var(--primary)]/10 px-3 py-1 font-semibold text-[var(--primary)]">HTML TECH REPORT</span>
+      <span class="inline-flex items-center rounded-full border border-[var(--line-divider)] px-3 py-1 text-[var(--card-fg-muted)]">AI Agent / MCP / Tooling</span>
+      <span class="inline-flex items-center rounded-full border border-[var(--line-divider)] px-3 py-1 text-[var(--card-fg-muted)]">基于 README 整理</span>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_340px] lg:items-start">
+      <div>
+        <h1 class="text-3xl font-bold leading-tight text-[var(--card-fg)] md:text-5xl md:leading-[1.1]">
+          RTK：面向 AI Agent 的工程化工具链，
+          <span class="text-[var(--primary)]">是什么、怎么用、适合谁</span>
+        </h1>
+        <p class="mt-5 text-[15px] leading-8 text-[var(--card-fg-muted)] md:text-[17px]">
+          如果您最近在看 <strong>AI Agent、MCP、工具调用、模型编排</strong> 这一条线，RTK 不是那种只讲概念的项目，
+          更像一套偏工程化的底层工具链：帮助您把模型、工具、协议和交付流程真正接起来。
+        </p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a
+            href={repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center rounded-full bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            查看 GitHub ↗
+          </a>
+          <a
+            href="#quick-start"
+            class="inline-flex items-center rounded-full border border-[var(--line-divider)] px-5 py-2.5 text-sm font-semibold text-[var(--card-fg)] transition hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
+          >
+            直接看上手
+          </a>
+        </div>
+      </div>
+
+      <aside class="grid gap-3 rounded-[var(--radius-large)] border border-[var(--line-divider)]/70 bg-[var(--card-bg-soft)] p-4 md:p-5">
+        <div class="rounded-2xl border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--primary)]">一句话判断</p>
+          <p class="mt-2 text-sm leading-7 text-[var(--card-fg-muted)]">
+            RTK 不是“让 AI 跑起来”的 demo 工具，而是更接近 <strong>把 Agent 系统工程化</strong> 的一层工具链与工作流底座。
+          </p>
+        </div>
+        <div class="rounded-2xl border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--primary)]">适合谁</p>
+          <ul class="mt-2 space-y-2 text-sm leading-7 text-[var(--card-fg-muted)]">
+            <li>• 在做 Claude Code / Codex / Agent 工具整合的人</li>
+            <li>• 需要 MCP / server / registry / workflow 的工程团队</li>
+            <li>• 想把“能跑 demo”推进到“可维护系统”的人</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="grid gap-6">
+    <section class="rounded-[var(--radius-large)] border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-5 md:p-7">
+      <h2 class="text-2xl font-bold text-[var(--card-fg)]">它到底是什么</h2>
+      <p class="mt-4 text-[15px] leading-8 text-[var(--card-fg-muted)]">
+        从 README 的表述看，RTK 关注的是 <strong>模型如何稳定调用工具、工具如何被组织、协议如何接入、工作流如何落地</strong>。
+        它更像 AI Agent 体系中的工程层，而不是单个模型 SDK，也不是一个只演示 prompt 的玩具项目。
+      </p>
+      <div class="mt-5 grid gap-4 md:grid-cols-2">
+        <div class="rounded-2xl border border-[var(--line-divider)] bg-[var(--card-bg-soft)] p-4">
+          <h3 class="text-base font-semibold text-[var(--card-fg)]">更像“工具链底座”</h3>
+          <p class="mt-2 text-sm leading-7 text-[var(--card-fg-muted)]">当系统里有多个模型、多个工具、多个协议和多个运行环境时，RTK 的价值才真正显出来。</p>
+        </div>
+        <div class="rounded-2xl border border-[var(--line-divider)] bg-[var(--card-bg-soft)] p-4">
+          <h3 class="text-base font-semibold text-[var(--card-fg)]">不是“只会调一个 API”</h3>
+          <p class="mt-2 text-sm leading-7 text-[var(--card-fg-muted)]">它更关心如何把调用链、注册机制、server / client、上下游关系组织成长期可维护的结构。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="rounded-[var(--radius-large)] border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-5 md:p-7">
+      <h2 class="text-2xl font-bold text-[var(--card-fg)]">我怎么理解它的结构</h2>
+      <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-2xl border border-[var(--line-divider)] bg-[var(--card-bg-soft)] p-4">
+          <p class="text-sm font-semibold text-[var(--primary)]">协议层</p>
+          <p class="mt-2 text-sm leading-7 text-[var(--card-fg-muted)]">围绕 MCP / tool calling / server-client 约定组织能力。</p>
+        </div>
+        <div class="rounded-2xl border border-[var(--line-divider)] bg-[var(--card-bg-soft)] p-4">
+          <p class="text-sm font-semibold text-[var(--primary)]">接入层</p>
+          <p class="mt-2 text-sm leading-7 text-[var(--card-fg-muted)]">把外部工具、命令、服务、模型接到一套统一工作流里。</p>
+        </div>
+        <div class="rounded-2xl border border-[var(--line-divider)] bg-[var(--card-bg-soft)] p-4">
+          <p class="text-sm font-semibold text-[var(--primary)]">编排层</p>
+          <p class="mt-2 text-sm leading-7 text-[var(--card-fg-muted)]">把多步骤调用串成真实可运行的任务链，而不是散脚本。</p>
+        </div>
+        <div class="rounded-2xl border border-[var(--line-divider)] bg-[var(--card-bg-soft)] p-4">
+          <p class="text-sm font-semibold text-[var(--primary)]">交付层</p>
+          <p class="mt-2 text-sm leading-7 text-[var(--card-fg-muted)]">帮助本地开发、CI、部署和团队复用更顺，不止停留在实验环境。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="quick-start" class="rounded-[var(--radius-large)] border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-5 md:p-7">
+      <h2 class="text-2xl font-bold text-[var(--card-fg)]">怎么开始上手</h2>
+      <p class="mt-4 text-[15px] leading-8 text-[var(--card-fg-muted)]">
+        README 里更适合的打开方式，不是上来就全量改造现有系统，而是先做一个最小闭环：安装、跑通、理解命令组织，再接入自己的 Agent 工作流。
+      </p>
+      <div class="mt-5 grid gap-4 xl:grid-cols-2">
+        <div class="overflow-hidden rounded-2xl border border-[var(--line-divider)] bg-slate-950">
+          <div class="border-b border-white/10 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Install / Build</div>
+          <pre class="overflow-x-auto p-4 text-sm leading-7 text-slate-100"><code>git clone https://github.com/rtk-ai/rtk.git
+cd rtk
+# 按 README 选择对应安装方式</code></pre>
+        </div>
+        <div class="overflow-hidden rounded-2xl border border-[var(--line-divider)] bg-slate-950">
+          <div class="border-b border-white/10 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Minimal Check</div>
+          <pre class="overflow-x-auto p-4 text-sm leading-7 text-slate-100"><code>rtk --help
+rtk list
+rtk doctor</code></pre>
+        </div>
+      </div>
+      <ol class="mt-5 space-y-3 pl-5 text-[15px] leading-8 text-[var(--card-fg-muted)]">
+        <li>先按官方 README / INSTALL 跑通最小安装链路。</li>
+        <li>确认 CLI、server、registry 相关命令能在本地正常工作。</li>
+        <li>最后再把它接进自己的 Claude Code / Codex / Agent 场景，不要一开始就全量迁移。</li>
+      </ol>
+    </section>
+
+    <section class="rounded-[var(--radius-large)] border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-5 md:p-7">
+      <h2 class="text-2xl font-bold text-[var(--card-fg)]">适合什么场景</h2>
+      <div class="mt-5 grid gap-4 md:grid-cols-2">
+        <div class="rounded-2xl border border-[var(--line-divider)] bg-[var(--card-bg-soft)] p-4">
+          <h3 class="text-base font-semibold text-[var(--card-fg)]">适合</h3>
+          <ul class="mt-3 space-y-2 text-sm leading-7 text-[var(--card-fg-muted)]">
+            <li>• 想做 MCP / Agent 工具底座，而不是散落的脚本集合</li>
+            <li>• 需要多工具、多命令、多协议协作</li>
+            <li>• 想把 AI 工作流推进到可交付、可维护的工程状态</li>
+            <li>• 团队内部想沉淀统一的工具接入层</li>
+          </ul>
+        </div>
+        <div class="rounded-2xl border border-[var(--line-divider)] bg-[var(--card-bg-soft)] p-4">
+          <h3 class="text-base font-semibold text-[var(--card-fg)]">不太适合</h3>
+          <ul class="mt-3 space-y-2 text-sm leading-7 text-[var(--card-fg-muted)]">
+            <li>• 只想临时写两个 prompt 做 demo</li>
+            <li>• 只接一个 API，没有后续演进需求</li>
+            <li>• 工具链很轻，shell 脚本已经足够</li>
+            <li>• 当前阶段更需要快速试错，而不是做工程沉淀</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="rounded-[var(--radius-large)] border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-5 md:p-7">
+      <h2 class="text-2xl font-bold text-[var(--card-fg)]">和常见替代方案怎么比</h2>
+      <div class="mt-5 overflow-hidden rounded-2xl border border-[var(--line-divider)]">
+        <table class="w-full border-collapse text-left text-sm">
+          <thead class="bg-[var(--card-bg-soft)] text-[var(--card-fg)]">
+            <tr>
+              <th class="border-b border-[var(--line-divider)] px-4 py-3 font-semibold">方案</th>
+              <th class="border-b border-[var(--line-divider)] px-4 py-3 font-semibold">适合</th>
+              <th class="border-b border-[var(--line-divider)] px-4 py-3 font-semibold">局限</th>
+            </tr>
+          </thead>
+          <tbody class="text-[var(--card-fg-muted)]">
+            <tr>
+              <td class="border-b border-[var(--line-divider)] px-4 py-3">RTK</td>
+              <td class="border-b border-[var(--line-divider)] px-4 py-3">已经进入 Agent / MCP 工程化阶段</td>
+              <td class="border-b border-[var(--line-divider)] px-4 py-3">上手成本高于纯 demo 工具</td>
+            </tr>
+            <tr>
+              <td class="border-b border-[var(--line-divider)] px-4 py-3">纯 shell / 小脚本</td>
+              <td class="border-b border-[var(--line-divider)] px-4 py-3">单任务、短链路、临时自动化</td>
+              <td class="border-b border-[var(--line-divider)] px-4 py-3">复杂工具编排会迅速失控</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3">单模型 SDK</td>
+              <td class="px-4 py-3">快速接模型能力</td>
+              <td class="px-4 py-3">对多工具、多协议、多节点协作支撑有限</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="rounded-[var(--radius-large)] border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-5 md:p-7">
+      <h2 class="text-2xl font-bold text-[var(--card-fg)]">资料入口</h2>
+      <div class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {docs.map((item) => (
+          <a
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rounded-2xl border border-[var(--line-divider)] bg-[var(--card-bg-soft)] px-4 py-4 text-sm font-medium text-[var(--card-fg)] transition hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
+          >
+            {item.label} ↗
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="rounded-[var(--radius-large)] border border-[var(--line-divider)]/70 bg-[var(--card-bg)] p-5 md:p-7">
+      <h2 class="text-2xl font-bold text-[var(--card-fg)]">搜索关键词</h2>
+      <p class="mt-4 text-sm leading-8 text-[var(--card-fg-muted)]">
+        为了让站内搜索更容易命中，这页会关联这些关键词：
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        {keywords.map((keyword) => (
+          <span class="inline-flex rounded-full border border-[var(--line-divider)] bg-[var(--card-bg-soft)] px-3 py-1.5 text-xs text-[var(--card-fg-muted)]">
+            {keyword}
+          </span>
+        ))}
+      </div>
+      <div class="sr-only">
+        RTK, MCP, Model Context Protocol, AI Agent, Agent 工具链, LLM 工程, CLI, 工具编排, registry, server, client, Claude Code, Codex
+      </div>
+    </section>
+  </div>
+</MainGridLayout>
