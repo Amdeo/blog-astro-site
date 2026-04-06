@@ -1,5 +1,6 @@
 ---
 import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { url } from "../utils/url-utils";
 
 const pageTitle = "OpenCLI：项目介绍与使用指南";
 const pageDescription =
@@ -20,6 +21,7 @@ const searchKeywords = [
 	"自动化工具",
 	"CLI Hub",
 ];
+const aboutUrl = url("/about/");
 ---
 
 <MainGridLayout title={pageTitle} description={pageDescription}>
@@ -166,7 +168,7 @@ opencli --help</code></pre>
 						查看 GitHub 项目
 					</a>
 					<a
-						href="/about/"
+						href={aboutUrl}
 						class="inline-flex items-center justify-center rounded-full border border-[var(--line-divider)] px-5 py-3 text-sm font-medium text-75 transition hover:bg-[var(--btn-plain-bg)]"
 					>
 						返回博客

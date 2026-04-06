@@ -121,6 +121,26 @@ test("built site no longer ships legacy body font assets after LXGW WenKai migra
 	);
 });
 
+test("opencli page links back into the blog using the project base path", () => {
+	const opencliHtmlPath = path.join(distRoot, "opencli", "index.html");
+	assert.ok(
+		fs.existsSync(opencliHtmlPath),
+		"expected dist/opencli/index.html to exist; run a build first",
+	);
+
+	const html = fs.readFileSync(opencliHtmlPath, "utf8");
+	assert.match(
+		html,
+		/href="\/blog-astro-site\/about\/"[^>]*>\s*返回博客\s*</,
+		"expected opencli page back link to point to the blog about page with the GitHub Pages base path",
+	);
+	assert.doesNotMatch(
+		html,
+		/href="\/about\/"[^>]*>\s*返回博客\s*</,
+		"opencli page back link should not use a root-relative about URL",
+	);
+});
+
 test("floating controls inline script can be executed twice without redeclaration errors", () => {
 	const source = fs.readFileSync(floatingControlsPath, "utf8");
 	const script = extractInlineScript(source);
