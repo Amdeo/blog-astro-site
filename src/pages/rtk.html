@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RTK：面向 AI Agent 的工程化工具链，是什么、怎么用、适合谁</title>
+    <meta
+      name="description"
+      content="基于 rtk-ai/rtk README 梳理 RTK 的定位、核心能力、安装方式、典型使用场景与接入建议，适合想快速理解 MCP / Agent 工具链的人。"
+    />
+    <meta
+      name="keywords"
+      content="RTK,MCP,Model Context Protocol,AI Agent,Agent 工具链,LLM 工程,CLI,工具编排,registry,server,client,Claude Code,Codex"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root { color-scheme: light; }
+      body {
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(99, 102, 241, 0.16), transparent 32%),
+          radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), transparent 28%),
+          linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+      }
+      .grain::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.06;
+        background-image:
+          linear-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+        background-size: 24px 24px;
+        mask-image: radial-gradient(circle at center, black, transparent 78%);
+      }
+      pre code { white-space: pre-wrap; }
+    </style>
+  </head>
+  <body class="grain text-slate-800">
+    <header class="sticky top-0 z-20 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a href="/blog-astro-site/" class="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">Looper 技术博客</a>
+        <nav class="hidden gap-6 text-sm text-slate-600 md:flex">
+          <a href="#overview" class="transition hover:text-indigo-600">Overview</a>
+          <a href="#architecture" class="transition hover:text-indigo-600">Architecture</a>
+          <a href="#workflow" class="transition hover:text-indigo-600">Workflow</a>
+          <a href="#quick-start" class="transition hover:text-indigo-600">Quick Start</a>
+          <a href="#conclusion" class="transition hover:text-indigo-600">Conclusion</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-6 py-10 md:py-14" data-pagefind-body>
+      <section class="relative overflow-hidden rounded-[32px] border border-slate-200/70 bg-white/85 p-8 shadow-[0_24px_80px_rgba(15,23,42,0.08)] md:p-12">
+        <div class="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-indigo-500/12 blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 h-40 w-40 rounded-full bg-emerald-400/10 blur-3xl"></div>
+        <div class="relative grid gap-10 lg:grid-cols-[minmax(0,1.45fr)_320px] lg:items-start">
+          <div>
+            <div class="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold tracking-[0.18em] text-indigo-700 uppercase">
+              HTML TECH REPORT
+            </div>
+            <h1 class="mt-5 max-w-4xl text-4xl font-black leading-tight text-slate-950 md:text-6xl md:leading-[1.05]">
+              RTK：面向 AI Agent 的工程化工具链，<span class="text-indigo-600">是什么、怎么用、适合谁</span>
+            </h1>
+            <p class="mt-6 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
+              如果最近在看 <strong>AI Agent、MCP、工具调用、模型编排</strong> 这一条线，RTK 不是只讲概念的项目，
+              更像一套偏工程化的底层工具链：帮助您把模型、工具、协议和工作流真正接起来。
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a href="https://github.com/rtk-ai/rtk" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-indigo-600">
+                GitHub 仓库 ↗
+              </a>
+              <a href="#quick-start" class="inline-flex items-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-indigo-300 hover:text-indigo-600">
+                直接看上手
+              </a>
+            </div>
+          </div>
+
+          <aside class="grid gap-4">
+            <div class="rounded-[28px] border border-slate-200 bg-slate-50/80 p-5">
+              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">一句话判断</p>
+              <p class="mt-3 text-sm leading-7 text-slate-600">
+                RTK 更接近 <strong>把 Agent 系统工程化</strong> 的一层工具链与工作流底座，不是只会调用一个模型 API 的 demo 工具。
+              </p>
+            </div>
+            <div class="rounded-[28px] border border-slate-200 bg-slate-50/80 p-5">
+              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">适合谁</p>
+              <ul class="mt-3 space-y-2 text-sm leading-7 text-slate-600">
+                <li>• 在做 Claude Code / Codex / Agent 工具整合的人</li>
+                <li>• 需要 MCP / server / registry / workflow 的工程团队</li>
+                <li>• 想把“能跑 demo”推进到“可维护系统”的人</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <div class="mt-8 grid gap-6">
+        <section id="overview" class="rounded-[28px] border border-slate-200/70 bg-white/85 p-7 shadow-[0_18px_60px_rgba(15,23,42,0.05)] md:p-9">
+          <h2 class="text-2xl font-bold text-slate-950">Overview</h2>
+          <p class="mt-4 text-[15px] leading-8 text-slate-600 md:text-base">
+            从 README 的表述看，RTK 关注的是 <strong>模型如何稳定调用工具、工具如何被组织、协议如何接入、工作流如何落地</strong>。
+            它更像 AI Agent 体系中的工程层，而不是单个模型 SDK，也不是只演示 prompt 的玩具项目。
+          </p>
+        </section>
+
+        <section id="architecture" class="rounded-[28px] border border-slate-200/70 bg-white/85 p-7 shadow-[0_18px_60px_rgba(15,23,42,0.05)] md:p-9">
+          <h2 class="text-2xl font-bold text-slate-950">Architecture</h2>
+          <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+              <p class="text-sm font-semibold text-indigo-600">协议层</p>
+              <p class="mt-2 text-sm leading-7 text-slate-600">围绕 MCP / tool calling / server-client 约定组织能力。</p>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+              <p class="text-sm font-semibold text-indigo-600">接入层</p>
+              <p class="mt-2 text-sm leading-7 text-slate-600">把外部工具、命令、服务、模型接到统一工作流里。</p>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+              <p class="text-sm font-semibold text-indigo-600">编排层</p>
+              <p class="mt-2 text-sm leading-7 text-slate-600">把多步骤调用串成真实可运行的任务链，而不是散脚本。</p>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+              <p class="text-sm font-semibold text-indigo-600">交付层</p>
+              <p class="mt-2 text-sm leading-7 text-slate-600">帮助本地开发、CI、部署和团队复用更顺，不止停留在实验环境。</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="workflow" class="rounded-[28px] border border-slate-200/70 bg-white/85 p-7 shadow-[0_18px_60px_rgba(15,23,42,0.05)] md:p-9">
+          <h2 class="text-2xl font-bold text-slate-950">Workflow</h2>
+          <ol class="mt-5 space-y-4 pl-5 text-[15px] leading-8 text-slate-600 md:text-base">
+            <li>先定义模型、工具、server、registry 之间的边界，不要一开始就把逻辑塞进一个入口。</li>
+            <li>先跑通一条真实业务链路，例如“检索 → 调工具 → 生成结果”。</li>
+            <li>最后再把它接进 Claude Code / Codex / Agent 系统，统一输入输出协议。</li>
+          </ol>
+        </section>
+
+        <section id="quick-start" class="rounded-[28px] border border-slate-200/70 bg-white/85 p-7 shadow-[0_18px_60px_rgba(15,23,42,0.05)] md:p-9">
+          <h2 class="text-2xl font-bold text-slate-950">Quick Start</h2>
+          <p class="mt-4 text-[15px] leading-8 text-slate-600 md:text-base">
+            更适合的打开方式，不是上来就全量改造现有系统，而是先做一个最小闭环：安装、跑通、理解命令组织，再接入自己的 Agent 工作流。
+          </p>
+          <div class="mt-5 grid gap-4 xl:grid-cols-2">
+            <div>
+              <div class="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Install / Build</div>
+              <pre class="bg-gray-900 text-green-400 p-4 rounded-xl overflow-x-auto"><code>git clone https://github.com/rtk-ai/rtk.git
+cd rtk
+# 按 README 选择对应安装方式</code></pre>
+            </div>
+            <div>
+              <div class="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Minimal Check</div>
+              <pre class="bg-gray-900 text-green-400 p-4 rounded-xl overflow-x-auto"><code>rtk --help
+rtk list
+rtk doctor</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-[28px] border border-slate-200/70 bg-white/85 p-7 shadow-[0_18px_60px_rgba(15,23,42,0.05)] md:p-9">
+          <h2 class="text-2xl font-bold text-slate-950">Use Cases</h2>
+          <div class="mt-5 grid gap-4 md:grid-cols-2">
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+              <h3 class="text-base font-semibold text-slate-900">适合</h3>
+              <ul class="mt-3 space-y-2 text-sm leading-7 text-slate-600">
+                <li>• 想做 MCP / Agent 工具底座，而不是散落的脚本集合</li>
+                <li>• 需要多工具、多命令、多协议协作</li>
+                <li>• 想把 AI 工作流推进到可交付、可维护的工程状态</li>
+                <li>• 团队内部想沉淀统一的工具接入层</li>
+              </ul>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+              <h3 class="text-base font-semibold text-slate-900">不太适合</h3>
+              <ul class="mt-3 space-y-2 text-sm leading-7 text-slate-600">
+                <li>• 只想临时写两个 prompt 做 demo</li>
+                <li>• 只接一个 API，没有后续演进需求</li>
+                <li>• 工具链很轻，shell 脚本已经足够</li>
+                <li>• 当前阶段更需要快速试错，而不是做工程沉淀</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-[28px] border border-slate-200/70 bg-white/85 p-7 shadow-[0_18px_60px_rgba(15,23,42,0.05)] md:p-9">
+          <h2 class="text-2xl font-bold text-slate-950">Pros &amp; Cons</h2>
+          <div class="mt-5 grid gap-4 md:grid-cols-2">
+            <div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
+              <h3 class="text-base font-semibold text-emerald-800">优点</h3>
+              <ul class="mt-3 space-y-2 text-sm leading-7 text-emerald-900/80">
+                <li>• 更偏工程化，适合长期演进</li>
+                <li>• 能把多工具、多协议、多角色协作组织起来</li>
+                <li>• 对 Agent / MCP / Tooling 这条线更友好</li>
+              </ul>
+            </div>
+            <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5">
+              <h3 class="text-base font-semibold text-amber-800">代价</h3>
+              <ul class="mt-3 space-y-2 text-sm leading-7 text-amber-900/80">
+                <li>• 上手成本高于临时脚本或单模型 SDK</li>
+                <li>• 更适合有真实需求的工程环境，而不是一次性试验</li>
+                <li>• 需要更早考虑命令、协议、边界、命名稳定性</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-[28px] border border-slate-200/70 bg-white/85 p-7 shadow-[0_18px_60px_rgba(15,23,42,0.05)] md:p-9">
+          <h2 class="text-2xl font-bold text-slate-950">Comparison</h2>
+          <div class="mt-5 overflow-hidden rounded-3xl border border-slate-200">
+            <table class="w-full border-collapse text-left text-sm">
+              <thead class="bg-slate-50 text-slate-900">
+                <tr>
+                  <th class="border-b border-slate-200 px-4 py-3 font-semibold">方案</th>
+                  <th class="border-b border-slate-200 px-4 py-3 font-semibold">适合</th>
+                  <th class="border-b border-slate-200 px-4 py-3 font-semibold">局限</th>
+                </tr>
+              </thead>
+              <tbody class="text-slate-600">
+                <tr>
+                  <td class="border-b border-slate-200 px-4 py-3">RTK</td>
+                  <td class="border-b border-slate-200 px-4 py-3">已经进入 Agent / MCP 工程化阶段</td>
+                  <td class="border-b border-slate-200 px-4 py-3">上手成本高于纯 demo 工具</td>
+                </tr>
+                <tr>
+                  <td class="border-b border-slate-200 px-4 py-3">纯 shell / 小脚本</td>
+                  <td class="border-b border-slate-200 px-4 py-3">单任务、短链路、临时自动化</td>
+                  <td class="border-b border-slate-200 px-4 py-3">复杂工具编排会迅速失控</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3">单模型 SDK</td>
+                  <td class="px-4 py-3">快速接模型能力</td>
+                  <td class="px-4 py-3">对多工具、多协议、多节点协作支撑有限</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="rounded-[28px] border border-slate-200/70 bg-white/85 p-7 shadow-[0_18px_60px_rgba(15,23,42,0.05)] md:p-9">
+          <h2 class="text-2xl font-bold text-slate-950">Best Practices</h2>
+          <ul class="mt-5 space-y-3 text-[15px] leading-8 text-slate-600 md:text-base">
+            <li>• 先做一个最小闭环，不要一开始就铺满全系统。</li>
+            <li>• 优先选一条真实业务流程做验证，例如“检索 → 调工具 → 生成结果”。</li>
+            <li>• 把协议层、工具层、任务层分开，不要把逻辑全塞进一个入口。</li>
+            <li>• 对外暴露的命令、server、registry 结构要稳定，不要边跑边改名字。</li>
+            <li>• 如果和 Claude Code / Codex 联动，先约定输入输出格式，避免工具层漂移。</li>
+          </ul>
+        </section>
+
+        <section id="conclusion" class="rounded-[28px] border border-slate-200/70 bg-slate-950 p-7 text-white shadow-[0_24px_80px_rgba(15,23,42,0.22)] md:p-9">
+          <h2 class="text-2xl font-bold">Conclusion</h2>
+          <p class="mt-4 text-[15px] leading-8 text-slate-300 md:text-base">
+            RTK 更适合已经进入 <strong>Agent / MCP / Tooling 工程化阶段</strong> 的团队或个人。它不是最轻的起点，但如果目标是把 AI 工具系统做成真正可维护、可扩展、可复用的工程底座，这条路线值得看。
+          </p>
+          <div class="sr-only">
+            RTK, MCP, Model Context Protocol, AI Agent, Agent 工具链, LLM 工程, CLI, 工具编排, registry, server, client, Claude Code, Codex
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
