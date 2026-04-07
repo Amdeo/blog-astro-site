@@ -1,5 +1,5 @@
 ---
-title: 'supermemory：给 AI 加长期记忆和上下文层，适合什么场景，怎么接'
+title: 'supermemory：给 AI 用的长期记忆与上下文引擎'
 published: 2026-04-07
 description: '根据 supermemory 官方 README 整理，重点说明它到底解决什么问题、适合接在哪些 AI 工具和 AI 产品里，以及用 MCP / SDK 时最值得先记住的接入方式。'
 image: '/assets/desktop-banner/2.webp'
@@ -15,7 +15,7 @@ licenseName: CC BY-NC-SA 4.0
 licenseUrl: https://creativecommons.org/licenses/by-nc-sa/4.0/
 ---
 
-# supermemory：给 AI 加长期记忆和上下文层，适合什么场景，怎么接
+# supermemory：给 AI 用的长期记忆与上下文引擎
 
 > supermemory 官方最值得先记住的一句话是：**State-of-the-art memory and context engine for AI**。
 >

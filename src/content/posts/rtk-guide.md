@@ -1,5 +1,5 @@
 ---
-title: 'RTK：给 Claude Code、Codex、Cursor 这些编程工具用的 CLI 代理怎么接、怎么用'
+title: 'RTK：给 AI 编程工具用的 CLI 代理'
 published: 2026-04-07
 description: '按 RTK 官方 README 重写，重点只讲三件事：它到底解决什么问题、用在哪些 AI 编程工具里、接入后先跑哪些命令。适合以后自己直接查接入方法和常用命令。'
 image: '/assets/desktop-banner/1.webp'
@@ -15,7 +15,7 @@ licenseName: CC BY-NC-SA 4.0
 licenseUrl: https://creativecommons.org/licenses/by-nc-sa/4.0/
 ---
 
-# RTK：给 Claude Code、Codex、Cursor 这些编程工具用的 CLI 代理怎么接、怎么用
+# RTK：给 AI 编程工具用的 CLI 代理
 
 > RTK 官方首页最值得先记住的一句话是：**High-performance CLI proxy that reduces LLM token consumption by 60-90%**。
 >
