@@ -1,7 +1,7 @@
 ---
-title: 'butterfly主题'
+title: 'Butterfly：Hexo 博客主题'
 published: 2019-12-08
-description: 'hexo-butterfly主题使用'
+description: '记录 Hexo Butterfly 主题的安装、启用、升级方式和常见配置入口，适合搭建或维护博客时快速查阅。'
 image: '/assets/desktop-banner/4.webp'
 tags: ['工具']
 category: '工具'
@@ -11,10 +11,11 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# butterfly主题
+# Butterfly：Hexo 博客主题
 
-`hexo-theme-butterfly`是基于[Molunerfinn](https://github.com/Molunerfinn)的[hexo-theme-melody](https://github.com/Molunerfinn/hexo-theme-melody)的基础上进行开发的。
-文档也是在[hexo-theme-melody](https://molunerfinn.com/hexo-theme-melody-doc/)的文档基础上修改。因为一些配置变更导致与原主题配置上有部分区别。故如果安装`hexo-theme-butterfly`主题，请参考这篇文档。
+Butterfly 是一个常见的 Hexo 博客主题，适合用来快速搭博客并在后续持续调整样式、导航和页面配置。
+
+这篇文章主要整理它的安装、启用、升级方式和配置文件入口，方便后面需要重装或回查时直接使用。
 
 ## 主题安装和升级
 

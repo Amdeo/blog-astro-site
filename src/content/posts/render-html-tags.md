@@ -1,7 +1,7 @@
 ---
-title: '原样输出html标签'
+title: 'HTML 源码显示：原样输出标签的方法'
 published: 2019-12-21
-description: '在网页中输出html源码'
+description: '整理在网页中原样显示 HTML 标签和源码内容的几种常见方法，适合写教程、演示代码片段时快速查阅。'
 image: '/assets/desktop-banner/3.webp'
 tags: ['前端']
 category: '前端'
@@ -11,11 +11,13 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# 原样输出html标签
+# HTML 源码显示：原样输出标签的方法
 
-转载：https://www.cnblogs.com/jiayu123/p/10612852.html
+有时候写教程、文档或者演示页，需要把 HTML 代码原样显示出来，而不是让浏览器直接解析执行。
 
-第一种
+这篇文章整理几种常见方法，方便后面遇到类似场景时直接选。
+
+## 方法一
 
 ```html
 <script type="text/html" style='display:block'>

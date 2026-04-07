@@ -1,7 +1,7 @@
 ---
-title: '生成和调试core文件'
+title: 'Core Dump：崩溃现场调试文件'
 published: 2017-03-16
-description: '生成和调试core文件'
+description: '整理 Linux 下开启 core dump、指定输出路径以及用 core 文件排查崩溃问题的基础方法。'
 image: '/assets/desktop-banner/1.webp'
 tags: ['工具', '调试']
 category: '工具'
@@ -11,11 +11,11 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# 生成和调试core文件
+# Core Dump：崩溃现场调试文件
 
-core文件又称为内核转储文件，它是进程运行时突然崩溃的那一刻的内存快照
+core 文件也叫 core dump，可以理解成进程崩溃瞬间留下的一份现场快照。排查线上崩溃、偶发退出、难复现问题时，它很有用。
 
-作用：
+它的核心作用有这几条：
 
 (1) 内核转储的最大好处是能够保存问题发生时的状态。
 (2) 只要有可执行文件和内核转储，就可以知道进程当时的状态。

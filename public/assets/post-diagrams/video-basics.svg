@@ -1,0 +1,32 @@
+<svg width="1200" height="680" viewBox="0 0 1200 680" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="680" rx="24" fill="#0F172A"/>
+  <text x="60" y="90" fill="#F8FAFC" font-size="42" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif" font-weight="700">视频基础四要素</text>
+  <text x="60" y="132" fill="#94A3B8" font-size="24" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">码率、分辨率、帧率、采样率分别影响什么</text>
+
+  <rect x="60" y="180" width="250" height="180" rx="20" fill="#1D4ED8"/>
+  <text x="90" y="235" fill="#EFF6FF" font-size="34" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif" font-weight="700">码率</text>
+  <text x="90" y="285" fill="#DBEAFE" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">单位时间传多少数据</text>
+  <text x="90" y="320" fill="#DBEAFE" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">影响清晰度与体积</text>
+
+  <rect x="340" y="180" width="250" height="180" rx="20" fill="#7C3AED"/>
+  <text x="370" y="235" fill="#F5F3FF" font-size="34" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif" font-weight="700">分辨率</text>
+  <text x="370" y="285" fill="#EDE9FE" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">画面宽 × 高</text>
+  <text x="370" y="320" fill="#EDE9FE" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">影响细节上限</text>
+
+  <rect x="620" y="180" width="250" height="180" rx="20" fill="#059669"/>
+  <text x="650" y="235" fill="#ECFDF5" font-size="34" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif" font-weight="700">帧率</text>
+  <text x="650" y="285" fill="#D1FAE5" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">每秒显示多少帧</text>
+  <text x="650" y="320" fill="#D1FAE5" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">影响流畅度</text>
+
+  <rect x="900" y="180" width="240" height="180" rx="20" fill="#EA580C"/>
+  <text x="930" y="235" fill="#FFF7ED" font-size="34" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif" font-weight="700">采样率</text>
+  <text x="930" y="285" fill="#FFEDD5" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">音频每秒采样次数</text>
+  <text x="930" y="320" fill="#FFEDD5" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">影响声音保真度</text>
+
+  <rect x="60" y="420" width="1080" height="180" rx="20" fill="#111827" stroke="#334155"/>
+  <text x="90" y="475" fill="#F8FAFC" font-size="30" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif" font-weight="700">记忆方式</text>
+  <text x="90" y="525" fill="#CBD5E1" font-size="24" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 分辨率看“有多少像素”</text>
+  <text x="430" y="525" fill="#CBD5E1" font-size="24" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 帧率看“动得顺不顺”</text>
+  <text x="770" y="525" fill="#CBD5E1" font-size="24" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 码率看“压得狠不狠”</text>
+  <text x="90" y="565" fill="#CBD5E1" font-size="24" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 采样率主要属于音频参数，但常和视频参数一起出现</text>
+</svg>

@@ -1,0 +1,35 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="720" rx="24" fill="#0B1020"/>
+  <text x="60" y="88" fill="#F8FAFC" font-size="42" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif" font-weight="700">静态库 vs 动态库</text>
+  <text x="60" y="128" fill="#94A3B8" font-size="24" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">编译时链接 与 运行时加载</text>
+
+  <rect x="60" y="180" width="500" height="440" rx="24" fill="#1E293B" stroke="#475569"/>
+  <text x="95" y="240" fill="#E2E8F0" font-size="34" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif" font-weight="700">静态库 .a</text>
+  <rect x="95" y="280" width="180" height="90" rx="16" fill="#2563EB"/>
+  <text x="132" y="335" fill="#EFF6FF" font-size="28" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">libxxx.a</text>
+  <path d="M295 325H400" stroke="#93C5FD" stroke-width="8" stroke-linecap="round"/>
+  <path d="M390 305L430 325L390 345" fill="#93C5FD"/>
+  <rect x="440" y="280" width="85" height="90" rx="16" fill="#0F172A" stroke="#334155"/>
+  <text x="462" y="335" fill="#F8FAFC" font-size="28" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">App</text>
+  <text x="95" y="430" fill="#CBD5E1" font-size="24" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">优点：</text>
+  <text x="95" y="470" fill="#CBD5E1" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 部署简单，带一个程序走更方便</text>
+  <text x="95" y="505" fill="#CBD5E1" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 运行时少一层库查找依赖</text>
+  <text x="95" y="555" fill="#CBD5E1" font-size="24" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">缺点：</text>
+  <text x="95" y="595" fill="#CBD5E1" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 可执行文件更大</text>
+  <text x="95" y="630" fill="#CBD5E1" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 多个程序会重复打包同一份代码</text>
+
+  <rect x="640" y="180" width="500" height="440" rx="24" fill="#1E293B" stroke="#475569"/>
+  <text x="675" y="240" fill="#E2E8F0" font-size="34" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif" font-weight="700">动态库 .so</text>
+  <rect x="675" y="280" width="120" height="90" rx="16" fill="#0F172A" stroke="#334155"/>
+  <text x="702" y="335" fill="#F8FAFC" font-size="28" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">App</text>
+  <path d="M815 325H920" stroke="#6EE7B7" stroke-width="8" stroke-linecap="round"/>
+  <path d="M910 305L950 325L910 345" fill="#6EE7B7"/>
+  <rect x="960" y="280" width="120" height="90" rx="16" fill="#059669"/>
+  <text x="982" y="335" fill="#ECFDF5" font-size="28" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">lib.so</text>
+  <text x="675" y="430" fill="#CBD5E1" font-size="24" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">优点：</text>
+  <text x="675" y="470" fill="#CBD5E1" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 可执行文件更小</text>
+  <text x="675" y="505" fill="#CBD5E1" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 库可复用，升级更方便</text>
+  <text x="675" y="555" fill="#CBD5E1" font-size="24" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">缺点：</text>
+  <text x="675" y="595" fill="#CBD5E1" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 部署时要带齐依赖</text>
+  <text x="675" y="630" fill="#CBD5E1" font-size="22" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">• 运行环境找不到库就会报错</text>
+</svg>

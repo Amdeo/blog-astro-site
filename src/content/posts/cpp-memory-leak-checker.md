@@ -1,7 +1,7 @@
 ---
-title: 'C++内存泄漏检查器'
+title: 'C++ 内存泄漏检查：自定义 Leak Detector'
 published: 2020-05-24
-description: 'C++内存泄漏检查器'
+description: '记录一种通过重载 new 和 delete 实现 C++ 内存泄漏检查的做法，适合做学习和轻量调试参考。'
 image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
@@ -11,9 +11,11 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# C++内存泄漏检查器
+# C++ 内存泄漏检查：自定义 Leak Detector
 
-我们只需要重载new、delete。
+这篇文章记录一种比较直接的思路：通过重载 `new` 和 `delete`，给 C++ 程序做一个轻量级的内存泄漏检查器。
+
+这种方法更适合学习原理、理解内存分配追踪流程，或者在小项目里快速做调试参考。
 
 LeakDetector.h
 
