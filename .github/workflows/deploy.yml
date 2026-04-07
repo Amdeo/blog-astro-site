@@ -84,45 +84,9 @@ jobs:
             --data "{\"app_id\":\"${FEISHU_APP_ID}\",\"app_secret\":\"${FEISHU_APP_SECRET}\"}" \
             https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal)"
 
-          tenant_access_token="$(TOKEN_RESPONSE="$token_response" python3 - <<'PY'
-            import json
-            import os
-            import sys
+          tenant_access_token="$(TOKEN_RESPONSE="$token_response" python3 -c 'import json, os, sys; data = json.loads(os.environ["TOKEN_RESPONSE"]); code = data.get("code"); 0 if code == 0 else (print(data, file=sys.stderr), (_ for _ in ()).throw(SystemExit("Failed to get Feishu tenant_access_token"))); print(data["tenant_access_token"])')"
 
-            data = json.loads(os.environ["TOKEN_RESPONSE"])
-            if data.get("code") != 0:
-                print(data, file=sys.stderr)
-                raise SystemExit("Failed to get Feishu tenant_access_token")
-            print(data["tenant_access_token"])
-          PY
-          )"
-
-          message_payload="$(python3 - <<'PY'
-            import json
-            import os
-
-            commit_message = os.environ.get("COMMIT_MESSAGE", "").strip() or "workflow_dispatch"
-            run_url = f'{os.environ["SERVER_URL"]}/{os.environ["REPOSITORY"]}/actions/runs/{os.environ["RUN_ID"]}'
-            page_url = os.environ.get("PAGE_URL", "").strip() or "(page URL unavailable)"
-
-            text = "\n".join([
-                "GitHub Pages deploy succeeded",
-                f'Repo: {os.environ["REPOSITORY"]}',
-                f'Branch: {os.environ["REF_NAME"]}',
-                f'SHA: {os.environ["SHA"][:7]}',
-                f'Actor: {os.environ["ACTOR"]}',
-                f'Commit: {commit_message}',
-                f'Pages: {page_url}',
-                f'Run: {run_url}',
-            ])
-
-            print(json.dumps({
-                "receive_id": os.environ["FEISHU_RECEIVER_EMAIL"],
-                "msg_type": "text",
-                "content": json.dumps({"text": text}, ensure_ascii=False),
-            }, ensure_ascii=False))
-          PY
-          )"
+          message_payload="$(python3 -c 'import json, os; commit_message = os.environ.get("COMMIT_MESSAGE", "").strip() or "workflow_dispatch"; run_url = os.environ["SERVER_URL"] + "/" + os.environ["REPOSITORY"] + "/actions/runs/" + os.environ["RUN_ID"]; page_url = os.environ.get("PAGE_URL", "").strip() or "(page URL unavailable)"; text = "\n".join(["GitHub Pages deploy succeeded", "Repo: " + os.environ["REPOSITORY"], "Branch: " + os.environ["REF_NAME"], "SHA: " + os.environ["SHA"][:7], "Actor: " + os.environ["ACTOR"], "Commit: " + commit_message, "Pages: " + page_url, "Run: " + run_url]); print(json.dumps({"receive_id": os.environ["FEISHU_RECEIVER_EMAIL"], "msg_type": "text", "content": json.dumps({"text": text}, ensure_ascii=False)}, ensure_ascii=False))')"
 
           send_response="$(curl --silent --show-error --fail-with-body \
             --request POST \
@@ -131,13 +95,4 @@ jobs:
             --data "$message_payload" \
             'https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=email')"
 
-          SEND_RESPONSE="$send_response" python3 - <<'PY'
-            import json
-            import os
-            import sys
-
-            data = json.loads(os.environ["SEND_RESPONSE"])
-            if data.get("code") != 0:
-                print(data, file=sys.stderr)
-                raise SystemExit("Failed to send Feishu notification")
-          PY
+          SEND_RESPONSE="$send_response" python3 -c 'import json, os, sys; data = json.loads(os.environ["SEND_RESPONSE"]); code = data.get("code"); 0 if code == 0 else (print(data, file=sys.stderr), (_ for _ in ()).throw(SystemExit("Failed to send Feishu notification")))'
