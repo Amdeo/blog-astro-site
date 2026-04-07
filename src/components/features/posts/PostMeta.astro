@@ -27,6 +27,7 @@ interface Props {
 	showWordCount?: boolean;
 	showReadingTime?: boolean;
 	showEncrypted?: boolean;
+	preferUpdatedDate?: boolean;
 }
 
 const {
@@ -45,13 +46,22 @@ const {
 	showWordCount = false,
 	showReadingTime = false,
 	showEncrypted = false,
+	preferUpdatedDate = false,
 } = Astro.props;
+
+const displayDate =
+	preferUpdatedDate && updated ? updated : published;
+const shouldShowUpdatedDate =
+	!hideUpdateDate &&
+	updated &&
+	updated.getTime() !== published.getTime() &&
+	!preferUpdatedDate;
 ---
 
 <div class:list={["flex flex-wrap text-neutral-500 dark:text-neutral-400 items-center gap-4 gap-x-4 gap-y-2", className]}>
-    <PublishedDate date={published} />
+    <PublishedDate date={displayDate} />
 
-    {!hideUpdateDate && updated && updated.getTime() !== published.getTime() && (
+    {shouldShowUpdatedDate && (
         <div class="flex items-center">
             <div class="meta-icon">
                 <Icon name="material-symbols:edit-calendar-outline-rounded" class="text-xl"></Icon>
