@@ -25,7 +25,7 @@ import { withBase } from "./utils/base-utils";
 const SITE_LANG = "zh_CN"; // 语言代码，例如：'en', 'zh_CN', 'ja' 等。
 const SITE_TIMEZONE = 8; //设置你的网站时区 from -12 to 12 default in UTC+8
 export const siteConfig: SiteConfig = {
-	title: "Looper 技术博客",
+	title: "Cooper 技术博客",
 	subtitle: "记录 C/C++、Python、前端、操作系统、工具链、网络与音视频的长期技术沉淀。",
 	siteURL: "https://amdeo.github.io/blog-astro-site/",
 	siteStartDate: "2019-11-25",
@@ -56,7 +56,7 @@ export const siteConfig: SiteConfig = {
 		// 显示模式："text-icon" 显示图标+文本，"logo" 仅显示Logo
 		mode: "text-icon",
 		// 顶栏标题文本
-		text: "Looper 技术博客",
+		text: "Cooper 技术博客",
 		// 顶栏标题图标路径，默认使用 public/assets/home/home.webp
 		icon: "assets/home/home.webp",
 		// 网站Logo图片路径
@@ -370,7 +370,7 @@ export const navBarConfig: NavBarConfig = {
 
 export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/avatar.webp", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
-	name: "Looper",
+	name: "Cooper",
 	bio: "世界は大きい、君は行かなければならない",
 	typewriter: {
 		enable: true, // 启用个人简介打字机效果
