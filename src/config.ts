@@ -327,18 +327,6 @@ export const navBarConfig: NavBarConfig = {
 			],
 		},
 		{
-			name: "专题",
-			url: "/content/",
-			icon: "material-symbols:dashboard-customize-outline",
-			children: [
-				{
-					name: "OpenCLI",
-					url: "/opencli/",
-					icon: "material-symbols:terminal",
-				},
-							],
-		},
-		{
 			name: "About",
 			url: "/content/",
 			icon: "material-symbols:info",
