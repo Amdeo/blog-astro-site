@@ -1,5 +1,5 @@
 ---
-title: 'Linux 常见使用与配置'
+title: 'Linux：常见配置与问题处理'
 published: 2019-12-05
 description: '整理 Linux 日常使用中常见的环境变量、端口开放和基础配置问题，适合做运维速查。'
 image: '/assets/desktop-banner/2.webp'
@@ -11,7 +11,7 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# Linux 常见使用与配置
+# Linux：常见配置与问题处理
 
 这篇文章收集的是 Linux 日常使用里最常见的一些配置问题，内容偏实用，适合遇到问题时快速回查。
 

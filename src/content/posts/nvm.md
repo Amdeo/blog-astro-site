@@ -1,5 +1,5 @@
 ---
-title: 'NVM 使用笔记'
+title: 'NVM：Node 版本管理工具'
 published: 2020-11-24
 description: '整理 nvm 的安装、常用命令与下载加速配置，适合在多 Node 版本环境中做快速查阅。'
 image: '/assets/desktop-banner/3.webp'
@@ -11,7 +11,7 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# NVM 使用笔记
+# NVM：Node 版本管理工具
 
 这篇文章主要整理 nvm 的安装和常用命令，适合在需要频繁切换 Node 版本时快速回查。
 

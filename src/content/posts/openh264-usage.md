@@ -1,5 +1,5 @@
 ---
-title: 'openh264使用'
+title: 'OpenH264：H.264 编码库'
 published: 2020-01-01
 description: 'openh264使用'
 image: '/assets/desktop-banner/1.webp'
@@ -11,4 +11,4 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# openh264使用
+# OpenH264：H.264 编码库

@@ -1,5 +1,5 @@
 ---
-title: 'Hexo 使用笔记'
+title: 'Hexo：静态博客框架'
 published: 2019-11-25
 description: '整理 Hexo 的安装、常用命令、Next 主题宽度调整、本地搜索配置和文章插图处理方式。'
 image: '/assets/desktop-banner/4.webp'
@@ -11,7 +11,7 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# Hexo 使用笔记
+# Hexo：静态博客框架
 
 这篇文章把 Hexo 的安装、常用命令、Next 主题调整、本地搜索和文章插图这些高频操作集中记下来，适合搭博客或后续维护时直接翻。
 

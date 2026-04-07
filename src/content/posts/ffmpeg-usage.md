@@ -1,5 +1,5 @@
 ---
-title: 'ffmpeg的使用'
+title: 'FFmpeg：音视频处理工具'
 published: 2020-01-01
 description: '常用命令 FFmpeg基本组成 libavutil包含用于简化编程的各种例程，包括随机数生成器，数据结构，数学例程，核心多媒体实用程序等等。 libavcodec提供了解码和编码API，以及所有受支持的编解码器。 lib…'
 image: '/assets/desktop-banner/1.webp'
@@ -11,7 +11,7 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# ffmpeg的使用
+# FFmpeg：音视频处理工具
 
 常用命令
 

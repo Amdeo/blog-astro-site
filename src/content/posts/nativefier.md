@@ -1,5 +1,5 @@
 ---
-title: 'Nativefier 使用笔记'
+title: 'Nativefier：网页转桌面应用工具'
 published: 2019-12-22
 description: '记录 Nativefier 的安装方式和最常用的封装命令，适合快速把网页包装成桌面应用。'
 image: '/assets/desktop-banner/4.webp'
@@ -11,7 +11,7 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# Nativefier 使用笔记
+# Nativefier：网页转桌面应用工具
 
 Nativefier 基于 Electron，可以把网页快速封装成桌面应用。它的优点就是上手快，很多时候一条命令就能先把程序跑起来，再考虑图标、名称和其他细节。
 

@@ -1,5 +1,5 @@
 ---
-title: 'Linux 使用 gstack 查看进程堆栈'
+title: 'gstack：Linux 进程堆栈查看工具'
 published: 2020-06-20
 description: '整理 gstack 的安装与基础用法，适合在 Linux 下排查进程卡住、阻塞或现场问题时快速查阅。'
 image: '/assets/desktop-banner/2.webp'
@@ -11,7 +11,7 @@ comment: true
 lang: 'zh-CN'
 ---
 
-# Linux 使用 gstack 查看进程堆栈
+# gstack：Linux 进程堆栈查看工具
 
 这篇文章聚焦一个非常具体但很实用的场景：在 Linux 下用 `gstack` 查看进程堆栈。
 
