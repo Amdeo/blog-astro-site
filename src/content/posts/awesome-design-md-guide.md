@@ -1,7 +1,7 @@
 ---
-title: VoltAgent awesome-design-md 使用指南：把优秀网站的设计语言变成可复用的 DESIGN.md
+title: awesome-design-md：把热门网站的设计语言整理成 DESIGN.md
 published: 2026-04-09
-description: 整理 VoltAgent/awesome-design-md 仓库的核心内容、使用方式、适用场景与落地建议，方便以后在博客、落地页、产品页面和 AI 编程工作流中快速查阅与复用。
+description: 整理 VoltAgent/awesome-design-md 仓库的核心内容与设计思路，看看它怎么把热门网站的视觉语言提炼成 DESIGN.md，方便在博客、产品页和 AI 编程工作流里复用。
 tags: [AI, UI设计, Design System, DESIGN.md, GitHub, VoltAgent, 效率工具]
 category: AI 工具
 draft: false
@@ -19,7 +19,7 @@ licenseUrl: https://github.com/VoltAgent/awesome-design-md/blob/main/LICENSE
 
 如果说 `AGENTS.md` 更像是“告诉 AI 怎么做事”，那 `DESIGN.md` 就是在告诉 AI：**页面应该长什么样，气质是什么，颜色怎么用，组件怎么写，布局该怎么收。**
 
-这篇文章就是把这个仓库整理成一份中文可复用笔记，方便以后我自己查，也方便后续把它真正用到博客、产品页、后台界面和实验项目里。
+这篇文章想做的事也很简单：把这个仓库拆开看看，顺手整理成一份中文笔记，后面无论写博客、做产品页、搭后台界面，还是配合 AI 生成页面，都能直接拿来参考。
 
 ## 1. 这个仓库是干什么的
 
