@@ -2,7 +2,6 @@
 title: 'JavaScript 基础'
 published: 2020-09-28
 description: '从变量、数据类型、类型检查到字符串与隐式转换，系统整理 JavaScript 入门阶段最常用的一批核心知识。'
-image: '/assets/desktop-banner/3.webp'
 tags: ['前端']
 category: '前端'
 draft: false

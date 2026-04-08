@@ -2,7 +2,6 @@
 title: '互联网'
 published: 2018-12-22
 description: '从互联网与计算机基础概念出发，整理理解网络世界所需的入门知识。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['网络', '计算机基础']
 category: '网络'
 draft: false

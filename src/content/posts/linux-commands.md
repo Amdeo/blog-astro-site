@@ -2,7 +2,6 @@
 title: 'Linux 常用命令'
 published: 2019-12-05
 description: '整理 Linux 日常使用中高频出现的命令，包括程序定位、系统信息查看、链接、SFTP 和 SSH 等基础操作。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

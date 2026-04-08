@@ -2,7 +2,6 @@
 title: '静态库与动态库：Linux 下的生成与使用'
 published: 2018-12-05
 description: '整理 Linux 下静态库和动态库的概念、优缺点，以及基础创建方式，适合做 C/C++ 编译链接入门速查。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['操作系统', 'C/C++']
 category: 'C/C++'
 draft: false

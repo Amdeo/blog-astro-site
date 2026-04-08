@@ -2,7 +2,6 @@
 title: 'socket网络编程'
 published: 2019-12-05
 description: 'linux 网络编程 协议 什么是协议 协议就是一种规则，就是这传输的双方按照规定进行传输数据和返回数据。 典型协议 传输层，常见协议有TCP/UDP协议 应用层，常见的协议有HTTP协议，FTP协议 网络层，常见协议有…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['网络']
 category: '网络'
 draft: false

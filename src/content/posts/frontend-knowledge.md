@@ -2,7 +2,6 @@
 title: '前端开发知识收集'
 published: 2022-07-20
 description: '汇总前端开发中的核心基础知识，帮助建立更完整的知识结构。'
-image: '/assets/desktop-banner/3.webp'
 tags: ['工具']
 category: '工具'
 draft: false

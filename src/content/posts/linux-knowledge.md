@@ -2,7 +2,6 @@
 title: 'Linux 知识整理'
 published: 2019-12-05
 description: '围绕 LAMP、LNMP 与 Nginx 常用命令，整理 Linux 环境中高频出现的一批基础知识点。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

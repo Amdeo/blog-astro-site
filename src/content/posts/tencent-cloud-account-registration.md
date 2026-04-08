@@ -2,7 +2,6 @@
 title: '腾讯云账号注册'
 published: 2021-03-24
 description: '腾讯云 申请腾讯云账号 建议使用微信直接申请 企业实名认证 使用企业实名认证，不要使用个人实名认证 认证方式看下哪种方式方便选择哪种。'
-image: '/assets/desktop-banner/4.webp'
 tags: ['工具']
 category: '工具'
 draft: false

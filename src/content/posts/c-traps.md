@@ -2,7 +2,6 @@
 title: 'C陷阱'
 published: 2016-03-15
 description: '数组作为函数参数，不能使用sizeof获取数组个数 输出: 因为数组作为函数参数，只是将指向数组指针拷贝给函数，所以在函数中使用sizeof，只能获取指针的内存大小。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

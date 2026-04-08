@@ -2,7 +2,6 @@
 title: 'Hexo：静态博客框架'
 published: 2019-11-25
 description: '整理 Hexo 的安装、常用命令、Next 主题宽度调整、本地搜索配置和文章插图处理方式。'
-image: '/assets/desktop-banner/4.webp'
 tags: ['工具', 'hexo']
 category: '工具'
 draft: false

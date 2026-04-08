@@ -2,7 +2,6 @@
 title: 'C++1x标准'
 published: 2019-11-25
 description: 'C++ C++98到C++11经历了长达十年之久的积累，C++14则是作为对C++11的重要补充和优化，所有这些新标准中补充的特性，给C++这门语言注入新的活力。 C++1x，现在有C++11/14/17甚至还有C++2…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['编程语言', 'C/C++']
 category: 'C/C++'
 draft: false

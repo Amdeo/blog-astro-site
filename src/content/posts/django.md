@@ -2,7 +2,6 @@
 title: 'django'
 published: 2018-04-20
 description: 'django 安装 django安装 创建项目 运行项目 不指定APP,就导出所有的数据 导入数据 django开发文档 https://docs.djangoproject.'
-image: '/assets/desktop-banner/1.webp'
 tags: ['python']
 category: 'python'
 draft: false

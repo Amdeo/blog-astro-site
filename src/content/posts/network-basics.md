@@ -2,7 +2,6 @@
 title: '网络基础'
 published: 2017-12-05
 description: '梳理网络基础知识，包括常见协议、通信过程与理解网络问题的基本框架。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['网络']
 category: '网络'
 draft: false

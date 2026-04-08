@@ -2,7 +2,6 @@
 title: 'Nativefier：网页转桌面应用工具'
 published: 2019-12-22
 description: '记录 Nativefier 的安装方式和最常用的封装命令，适合快速把网页包装成桌面应用。'
-image: '/assets/desktop-banner/4.webp'
 tags: ['工具']
 category: '工具'
 draft: false

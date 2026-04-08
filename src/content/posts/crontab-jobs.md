@@ -2,7 +2,6 @@
 title: 'crontab定时任务'
 published: 2020-12-24
 description: 'crontab crond 和crontab是不可分割的。crontab是一个命令，常见于Unix和类Unix的操作系统之中，用于设置周期性被执行的指令。该命令从标准输入设备读取指令，并将其存放于“crontab”文件中…'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

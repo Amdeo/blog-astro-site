@@ -2,7 +2,6 @@
 title: '正则表达式'
 published: 2018-12-05
 description: '总结正则表达式的常见语法、匹配思路与实际使用技巧。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['工具', '正则表达式']
 category: '工具'
 draft: false

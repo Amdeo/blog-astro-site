@@ -2,7 +2,6 @@
 title: 'CLion 配置与 OpenGL 环境搭建'
 published: 2017-12-08
 description: '记录 Windows 下配置 CLion、MinGW，以及在 CLion 中接入 OpenGL / freeglut 的基础流程。'
-image: '/assets/desktop-banner/4.webp'
 tags: ['工具', '操作系统']
 category: '工具'
 draft: false

@@ -2,7 +2,6 @@
 title: 'CMD 常用命令'
 published: 2017-12-05
 description: '整理 Windows CMD 里最常用的系统、文件、网络和进程相关命令，适合做日常速查。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['工具', '命令', '操作系统']
 category: '工具'
 draft: false

@@ -2,7 +2,6 @@
 title: 'cmake'
 published: 2017-12-08
 description: '指定cmake的最小版本 设置项目名称 定义变量或者为变量赋值 设置编译输出 搜索cpp文件 为目标文件链接依赖的库 指定目录添加到编译器的头文件搜索路劲之下 从指定的文件加载。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['工具', '操作系统']
 category: '工具'
 draft: false

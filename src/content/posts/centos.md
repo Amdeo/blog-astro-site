@@ -2,7 +2,6 @@
 title: 'centos安装'
 published: 2016-12-05
 description: '各种Linux安装步骤 一、centos最小系统安装后基本配置 在弹出的“虚拟网络编辑器”窗口中选择NAT模式的，编辑为其分配地址池： 由于安装是最小系统，安装后的不能使用网络。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

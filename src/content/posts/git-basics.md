@@ -2,7 +2,6 @@
 title: 'Git 基础'
 published: 2017-11-26
 description: '从配置、初始化、日志查看到远程仓库管理，整理一份适合日常查阅的 Git 基础命令笔记。'
-image: '/assets/desktop-banner/4.webp'
 tags: ['工具']
 category: '工具'
 draft: false

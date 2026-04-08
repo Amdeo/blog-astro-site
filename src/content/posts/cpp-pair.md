@@ -2,7 +2,6 @@
 title: 'C++ pair'
 published: 2020-06-18
 description: '介绍 C++ pair 的基本用法、常见场景与搭配 STL 的实践方式。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

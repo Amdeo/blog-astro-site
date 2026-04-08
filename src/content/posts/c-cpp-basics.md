@@ -2,7 +2,6 @@
 title: 'C++ 基础入门'
 published: 2019-11-25
 description: '从编译、预处理、条件编译和基础语法出发，梳理 C++ 入门阶段最常见也最容易混淆的核心知识。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++', '编程语言']
 category: 'C/C++'
 draft: false

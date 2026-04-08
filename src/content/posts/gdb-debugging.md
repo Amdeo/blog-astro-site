@@ -2,7 +2,6 @@
 title: 'gdb调试'
 published: 2020-07-19
 description: '编译程序，加上 g选项 进入gdb 在gdb中运行程序 退出gdb 设置断点 查看断点信息 删除断点 使断点失效或恢复生效 设置观察点 捕捉 追踪变量 执行下一条语句 打印内部变量 继续执行 修改变量的值 显示变量的数据…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++', '调试']
 category: 'C/C++'
 draft: false

@@ -2,7 +2,6 @@
 title: 'C++多线程'
 published: 2019-12-05
 description: '梳理 Linux 环境下 C++ 多线程编程的基本模型、同步方式与实践经验。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['编程语言', 'C/C++', '线程']
 category: 'C/C++'
 draft: false

@@ -2,7 +2,6 @@
 title: '音频'
 published: 2020-11-05
 description: '音频采集参数说明 音频 是指人耳可以听到的频率在20Hz~20KHz之间的声波 采样频率 指每秒钟取得声音样本的次数。声音其实是一种能量波，因此也有频率和振幅的特征，频率对应于时间轴，振幅对应于电平轴线。波是无线光滑的，…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['音视频']
 category: '音视频'
 draft: false

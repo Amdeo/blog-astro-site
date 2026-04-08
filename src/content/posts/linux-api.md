@@ -2,7 +2,6 @@
 title: 'Linux 常用 API'
 published: 2020-05-23
 description: '以 fork 等接口为切入点，整理 Linux 系统编程里最常用的一批 API 与基础概念。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

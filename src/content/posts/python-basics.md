@@ -2,7 +2,6 @@
 title: 'Python 基础知识'
 published: 2019-12-05
 description: '从编码、对象模型、变量赋值到常见语法细节，系统梳理 Python 入门阶段最常用的一批基础知识。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['python', '编程语言']
 category: 'python'
 draft: false

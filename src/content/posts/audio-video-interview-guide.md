@@ -2,7 +2,6 @@
 title: '音视频知识点'
 published: 2022-11-14
 description: '音视频 音频 声音三要素：音调、响度、音色 音调 “刺耳、低沉”，这其实是我们对声音高低的感觉描述，这一特征我们称为音调。 在物理定义上，声音是物体振动（比如我们的声带）产生的波，而音调由发声振动的频率决定，频率越高（振…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['音视频']
 category: '音视频'
 draft: false

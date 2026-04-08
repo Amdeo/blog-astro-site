@@ -2,7 +2,6 @@
 title: 'Manjaro'
 published: 2019-12-05
 description: 'marjaro是基于Arch linux的衍生的，相比较Arch linux大大改善了用户体验，不需要用户从头进行配置整个系统，开箱即用，对小白来说是一种福音，并且有很多桌面版本可供选择。 manjaro安装后配置 更新…'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

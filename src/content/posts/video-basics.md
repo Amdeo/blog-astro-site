@@ -2,7 +2,6 @@
 title: '视频基础：码率、分辨率、帧率、采样率'
 published: 2020-01-01
 description: '整理视频基础里最常见的几个概念：码率、分辨率、帧率和采样率，适合做音视频入门速查。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['音视频']
 category: '音视频'
 draft: false

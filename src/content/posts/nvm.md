@@ -2,7 +2,6 @@
 title: 'NVM：Node 版本管理工具'
 published: 2020-11-24
 description: '整理 nvm 的安装、常用命令与下载加速配置，适合在多 Node 版本环境中做快速查阅。'
-image: '/assets/desktop-banner/3.webp'
 tags: ['操作系统', '工具']
 category: '操作系统'
 draft: false

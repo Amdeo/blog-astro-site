@@ -2,7 +2,6 @@
 title: 'C++面试宝典'
 published: 2020-11-25
 description: '深入人心的面试宝典 C++ 内存分布 主要关注： 全局区 （包含全局变量和静态变量），静态变量可以看做有作用域的全局变量 bss：存放为未初始化的全局变量和静态变量(包含值为0的)，这是全零的一段空间。 data：存放已…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

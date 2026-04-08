@@ -2,7 +2,6 @@
 title: 'Linux 定时器'
 published: 2019-12-05
 description: '围绕 signal、kill、pause、alarm 和 setitimer，整理 Linux 下实现定时控制时最常见的系统接口。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

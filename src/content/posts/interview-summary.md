@@ -2,7 +2,6 @@
 title: '面经大汇总'
 published: 2022-11-15
 description: '围绕操作系统、网络编程与 C++ 高频面试题，整理一份适合复习和快速回顾的核心问答笔记。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++', '调试']
 category: 'C/C++'
 draft: false

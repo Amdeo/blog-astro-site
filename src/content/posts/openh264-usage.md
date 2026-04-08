@@ -2,7 +2,6 @@
 title: 'OpenH264：H.264 编码库'
 published: 2020-01-01
 description: '记录 OpenH264 的基础定位，作为 H.264 编码库相关资料的简要入口。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['音视频']
 category: '音视频'
 draft: false

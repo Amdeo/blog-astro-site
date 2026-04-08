@@ -2,7 +2,6 @@
 title: '数据结构'
 published: 2017-07-18
 description: '数据结构 我们需要知道数据结构的分类和每种数据结构的特点、应用、优缺点。 数组 数组是一种聚合数据类型，它是将具有相同类型的若干变量有序地组织在一起的集合。数组可以说是最基本的数据结构，在各种编程语言中都有对应。一个数组…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['计算机基础']
 category: '计算机基础'
 draft: false

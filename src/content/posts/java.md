@@ -2,7 +2,6 @@
 title: 'Java'
 published: 2020-09-28
 description: 'Java 安装 mac m1安装java 到下载jdk maven'
-image: '/assets/desktop-banner/3.webp'
 tags: ['Java']
 category: 'Java'
 draft: false

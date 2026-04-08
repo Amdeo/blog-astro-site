@@ -2,7 +2,6 @@
 title: 'HTML'
 published: 2019-11-25
 description: '基础知识 \\\\\\\\u200b HTML 不是一种编程语言，而是一种标记语言 (markup language)，是网页制作所必备的。用于按不同标签声明网页中的内容。 文件命名 使用小写字线命名文件，不要出现中文字符 扩展名标准是.htm…'
-image: '/assets/desktop-banner/3.webp'
 tags: ['前端']
 category: '前端'
 draft: false

@@ -2,7 +2,6 @@
 title: 'OpenCLI：把网站和本地工具变成 CLI 的工具'
 published: 2026-04-07
 description: '基于 jackwener/opencli 的 README 整理，重点说明它是什么、解决什么问题、能接到哪些 AI 编程工具里、怎么安装验证，以及接上后先跑什么命令。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['OpenCLI', 'AI Agent', 'CLI', 'Browser Bridge', 'Claude Code', 'Cursor']
 category: '工具'
 draft: false

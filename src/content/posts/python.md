@@ -2,7 +2,6 @@
 title: 'python之爬虫'
 published: 2020-02-03
 description: 'requests 小说爬虫 获取静态页面，直接使用requests就可以了。 selenium 现在很多网站都有反爬虫机制，使用selenium可以进行模拟浏览器的操作 安装 下载google浏览器驱动 https://…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['python', '爬虫']
 category: 'python'
 draft: false

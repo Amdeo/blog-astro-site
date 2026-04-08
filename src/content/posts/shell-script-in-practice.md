@@ -2,7 +2,6 @@
 title: 'Shell 脚本实战'
 published: 2019-12-05
 description: '围绕脚本执行、打印、变量等基础内容，整理一份适合入门和速查的 Shell 实战笔记。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

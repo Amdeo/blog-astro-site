@@ -2,7 +2,6 @@
 title: 'macOS：常用软件与工具清单'
 published: 2019-12-18
 description: '| name | 简介 | 获取方式 | | | | | | | markdown编辑器 | 官网免费开源 | | | 搜索工具 | 官网免费开源 | | | git图形化界面工具 | 官网免费开源 | | | 视频播放…'
-image: '/assets/home/home.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

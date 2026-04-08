@@ -2,7 +2,6 @@
 title: 'Python 迭代器、生成器与装饰器'
 published: 2019-12-05
 description: '围绕迭代器、生成器和装饰器三个高频概念，整理 Python 进阶阶段最常见的理解方式与示例。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['python', '编程语言']
 category: 'python'
 draft: false

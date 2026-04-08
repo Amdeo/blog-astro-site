@@ -2,7 +2,6 @@
 title: 'C语言实例'
 published: 2016-02-20
 description: '求某一年的某一月的多少天？ 我们需要先清楚一年中每月有多少天，哪些月份是固定的天数，哪些月份是天数不确定。 这里只有二月份的变数，那怎么确认某一年的二月份是28或29。 二月份。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

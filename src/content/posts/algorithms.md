@@ -2,7 +2,6 @@
 title: '算法'
 published: 2020-01-01
 description: '算法基础知识： 质数：又被称为素数，一个大于1的自然数，除了1和它自身外，不能被其他自然数整除的数 任何一个数，其因子只需要找小于其开根号的整数即可 进制转换 将10进制转换为2进制 C++ 刷题中常用的STL操作汇总 …'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

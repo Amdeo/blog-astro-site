@@ -2,7 +2,6 @@
 title: 'C++ STL'
 published: 2019-06-09
 description: 'STL 组成 容器（containers） 算法（algorithms) 迭代器（iterators） 仿函数（function） 配接器（adapter） 空间配置器（allocator） STL容器种类和功能 序列容…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++', 'STL']
 category: 'C/C++'
 draft: false

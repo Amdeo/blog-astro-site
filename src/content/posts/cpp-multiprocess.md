@@ -2,7 +2,6 @@
 title: 'linux多进程'
 published: 2019-12-05
 description: '总结 Linux 环境下 C++ 多进程开发的常见模型、通信方式与注意事项。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++', '编程语言', '进程']
 category: 'C/C++'
 draft: false

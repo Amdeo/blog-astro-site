@@ -2,7 +2,6 @@
 title: 'C++设计模式'
 published: 2019-12-05
 description: '整理 C++ 中常见设计模式的核心思想、适用场景与实现要点。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['编程语言', 'C/C++', '设计模式']
 category: 'C/C++'
 draft: false

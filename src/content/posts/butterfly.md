@@ -2,7 +2,6 @@
 title: 'Butterfly：Hexo 博客主题'
 published: 2019-12-08
 description: '记录 Hexo Butterfly 主题的安装、启用、升级方式和常见配置入口，适合搭建或维护博客时快速查阅。'
-image: '/assets/desktop-banner/4.webp'
 tags: ['工具']
 category: '工具'
 draft: false

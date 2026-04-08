@@ -2,7 +2,6 @@
 title: 'HTML 源码显示：原样输出标签的方法'
 published: 2019-12-21
 description: '整理在网页中原样显示 HTML 标签和源码内容的几种常见方法，适合写教程、演示代码片段时快速查阅。'
-image: '/assets/desktop-banner/3.webp'
 tags: ['前端']
 category: '前端'
 draft: false

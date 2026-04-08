@@ -2,7 +2,6 @@
 title: 'Anaconda'
 published: 2017-12-05
 description: '创建环境： 配置国内镜像： 修改用户目录下.condarc'
-image: '/assets/desktop-banner/4.webp'
 tags: ['python', '工具']
 category: 'python'
 draft: false

@@ -2,7 +2,6 @@
 title: 'docker'
 published: 2017-02-16
 description: '安装 windows安装docker 使用阿里云镜像来下载 http://mirrors.aliyun.com/docker toolbox/windows/docker toolbox/ centos安装docker …'
-image: '/assets/desktop-banner/1.webp'
 tags: ['DevOps']
 category: 'DevOps'
 draft: false

@@ -2,7 +2,6 @@
 title: 'ubuntu'
 published: 2019-12-05
 description: 'WSL Ubuntu WSL ubuntu修改root密码，登入powershell 重新打开终端,使用命令 修改软件源 备份软件源文件 修改文件并添加国内源 下面软件源随意选择一个 更新源 更新软件 ubuntu的软件…'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

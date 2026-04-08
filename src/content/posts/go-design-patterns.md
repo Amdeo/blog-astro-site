@@ -2,7 +2,6 @@
 title: 'go设计模式'
 published: 2022-10-01
 description: '以 Go 语言为例整理常见设计模式的实现思路与使用场景。'
-image: '/assets/desktop-banner/3.webp'
 tags: ['工具', 'hexo']
 category: '工具'
 draft: false

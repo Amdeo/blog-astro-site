@@ -2,7 +2,6 @@
 title: 'css 2D转换'
 published: 2020-11-24
 description: 'Css 2D转换 transform 变换方法： translate() 移动 rotate() 旋转 scale() 缩放 skew() 倾斜 matrix() matrix()方法和2D变换方法合并成一个。包含旋转，…'
-image: '/assets/desktop-banner/3.webp'
 tags: ['前端']
 category: '前端'
 draft: false

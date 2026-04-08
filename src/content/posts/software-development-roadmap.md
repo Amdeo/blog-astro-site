@@ -2,7 +2,6 @@
 title: '软件开发学习路线'
 published: 2021-01-16
 description: '整理软件开发从基础到进阶的一条学习路线，适合作为后端方向的阶段性参考。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['工具']
 category: '工具'
 draft: false

@@ -2,7 +2,6 @@
 title: 'shell数值计算'
 published: 2020-05-12
 description: '数学计算 shell不可以直接进行算数运算 | 算术运算符 | 说明/含义 | | | | | +、 | 加法（或正号）、减法（或负号） | | 、/、% | 乘法、除法、取余（取模） | | | 幂运算 | | ++、…'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

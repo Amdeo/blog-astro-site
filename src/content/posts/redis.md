@@ -2,7 +2,6 @@
 title: 'Redis：内存数据库'
 published: 2020-02-03
 description: '整理 Redis 的基础定位、常见数据类型、连接方式和常用命令，适合日常开发时快速回查。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['数据库']
 category: '数据库'
 draft: false

@@ -2,7 +2,6 @@
 title: 'Vim：文本编辑器'
 published: 2019-12-19
 description: '记录 Vim 常用配置、基础界面设置与提升编辑效率的一组实用项。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['工具']
 category: '工具'
 draft: false

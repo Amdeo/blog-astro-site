@@ -2,7 +2,6 @@
 title: 'windows常用'
 published: 2021-03-05
 description: '端口检查 软件篇 treesize_free 一款以树形结构列出目录结构的软件'
-image: '/assets/desktop-banner/2.webp'
 tags: ['工具']
 category: '工具'
 draft: false

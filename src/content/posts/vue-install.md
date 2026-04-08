@@ -2,7 +2,6 @@
 title: 'Vue'
 published: 2019-12-05
 description: '安装 1. 独立版本 在官网下载vue.js，并在 <script 标签中应用，开发环境不要使用最小压缩版，不然会没有错误提示和警告。 2. 使用CDN 相当于加载网络上独立版本，不需要下载到本地。 以下推荐国外比较稳定…'
-image: '/assets/desktop-banner/3.webp'
 tags: ['前端', '框架']
 category: '前端'
 draft: false

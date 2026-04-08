@@ -2,7 +2,6 @@
 title: 'Linux 定时器'
 published: 2019-12-05
 description: '围绕 signal、alarm、setitimer 等接口，整理 Linux 下实现定时与信号控制时最常见的基础知识。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

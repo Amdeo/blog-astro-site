@@ -2,7 +2,6 @@
 title: 'Python 多进程 multiprocessing'
 published: 2020-04-18
 description: '围绕 multiprocessing 的基础用法、进程创建和进程间通信，整理 Python 多进程编程的核心知识。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['python']
 category: 'python'
 draft: false

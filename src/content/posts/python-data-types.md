@@ -2,7 +2,6 @@
 title: 'Python 数据类型'
 published: 2019-12-05
 description: '从数字、浮点数到进制转换，整理 Python 基础数据类型里最常用的一批知识点与示例。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['python', '编程语言']
 category: 'python'
 draft: false

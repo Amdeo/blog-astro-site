@@ -2,7 +2,6 @@
 title: 'Zsh 配置入门'
 published: 2019-12-05
 description: '从安装、默认 Shell 设置到 oh-my-zsh 与常用插件，整理一套更顺手的 Zsh 基础配置流程。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['工具', '操作系统']
 category: '工具'
 draft: false

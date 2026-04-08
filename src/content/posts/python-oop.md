@@ -2,7 +2,6 @@
 title: 'Python 面向对象基础'
 published: 2019-12-05
 description: '从类、构造函数、类方法和继承出发，整理 Python 面向对象编程里最核心的一批基础概念。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['python', '编程语言']
 category: 'python'
 draft: false

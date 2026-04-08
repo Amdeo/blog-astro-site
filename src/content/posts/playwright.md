@@ -2,7 +2,6 @@
 title: 'Playwright'
 published: 2021-03-05
 description: 'Playwright Playwright是一个强大的Python库，仅用一个API即可自动执行 Chromium 、 Firefox 、 WebKit 等主流浏览器自动化操作。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['python', '编程语言']
 category: 'python'
 draft: false

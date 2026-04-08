@@ -2,7 +2,6 @@
 title: 'C++ 内存泄漏检查：自定义 Leak Detector'
 published: 2020-05-24
 description: '记录一种通过重载 new 和 delete 实现 C++ 内存泄漏检查的做法，适合做学习和轻量调试参考。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

@@ -2,7 +2,6 @@
 title: 'supermemory：给 AI 用的长期记忆与上下文引擎'
 published: 2026-04-07
 description: '根据 supermemory 官方 README 整理，重点说明它到底解决什么问题、适合接在哪些 AI 工具和 AI 产品里，以及用 MCP / SDK 时最值得先记住的接入方式。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['supermemory', 'AI', 'RAG', 'Memory']
 category: 工具
 draft: false

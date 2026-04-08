@@ -2,7 +2,6 @@
 title: 'gstack：Linux 进程堆栈查看工具'
 published: 2020-06-20
 description: '整理 gstack 的安装与基础用法，适合在 Linux 下排查进程卡住、阻塞或现场问题时快速查阅。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

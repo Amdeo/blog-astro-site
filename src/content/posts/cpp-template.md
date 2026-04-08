@@ -2,7 +2,6 @@
 title: 'C++模板'
 published: 2020-05-17
 description: '总结 C++ 模板的基础语法、泛型思路以及常见使用方式。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

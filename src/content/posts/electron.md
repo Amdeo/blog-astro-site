@@ -2,7 +2,6 @@
 title: 'Electron'
 published: 2019-12-26
 description: '安装electron卡在node install.js 在网上搜索找了很多方法： 例如：修改环境变量'
-image: '/assets/desktop-banner/3.webp'
 tags: ['工具']
 category: '工具'
 draft: false

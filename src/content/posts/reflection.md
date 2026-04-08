@@ -2,7 +2,6 @@
 title: '反射'
 published: 2021-06-22
 description: '介绍反射机制的基本概念、应用场景及理解它时需要注意的关键点。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['计算机基础']
 category: '计算机基础'
 draft: false

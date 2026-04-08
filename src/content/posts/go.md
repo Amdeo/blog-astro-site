@@ -2,7 +2,6 @@
 title: 'go语言'
 published: 2021-05-05
 description: 'go 入门 go基本组成 直接运行 编译 基础语法 规则 一行代表一个语句结束 标识符用来命名变量、类型等程序实体。标识符组成是字母、数字、下划线，第一个字符必须是字母或下划线而不能是数字 关键字 Go代码中使用25个关…'
-image: '/assets/desktop-banner/3.webp'
 tags: ['工具', 'hexo']
 category: '工具'
 draft: false

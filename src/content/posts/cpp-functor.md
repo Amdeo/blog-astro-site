@@ -2,7 +2,6 @@
 title: 'C++仿函数'
 published: 2020-05-17
 description: '介绍 C++ 仿函数的基本概念、使用方式及它和普通函数的区别。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

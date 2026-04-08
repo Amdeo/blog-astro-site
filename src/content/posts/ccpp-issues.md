@@ -2,7 +2,6 @@
 title: 'C/C++问题收集'
 published: 2019-11-25
 description: '类class和结构体struct区别 class和struct唯一的不同就是，class默认的访问方式是private，struct默认访问方式为public 指针作为形式参数，什么时候用一级指针？ 什么时候用二级指针?…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

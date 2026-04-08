@@ -2,7 +2,6 @@
 title: '编译器'
 published: 2020-01-01
 description: '编译器 传统的编译器通常分为：前端、优化器和后端。 前端：主要负责词法和语法分析，将源代码转化为抽象语法树 优化器：在前端的基础上，对中间代码进行优化，使代码更加高效 后端：将已经优化的中间代码转化为针对各自平台的机器代…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

@@ -2,7 +2,6 @@
 title: 'C++关键字'
 published: 2017-11-25
 description: 'C++知识点 C++不常用关键字 1. asm asm(指令字符串)：允许在C++程序中嵌入汇编代码。 2. auto auto（自动，automatic）是存储类型标识符，表明变量"自动"具有本地范围，块范围的变量声明…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

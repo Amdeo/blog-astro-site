@@ -2,7 +2,6 @@
 title: 'Typora + PicGo + Gitee 搭建图片图床'
 published: 2019-12-05
 description: '记录 Typora 配置图片上传、PicGo 安装 Gitee 插件，以及用 Gitee 仓库做图床的完整流程。'
-image: '/assets/desktop-banner/4.webp'
 tags: ['工具']
 category: '工具'
 draft: false

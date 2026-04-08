@@ -2,7 +2,6 @@
 title: '计算机基础'
 published: 2018-12-22
 description: '概览计算机基础知识框架，帮助建立后续学习编程、网络与系统的底层认知。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['计算机基础']
 category: '计算机基础'
 draft: false

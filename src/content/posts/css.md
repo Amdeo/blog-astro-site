@@ -2,7 +2,6 @@
 title: 'css'
 published: 2020-11-24
 description: 'CSS 层叠样式表(Cascading Style Sheets)，样式定义如何显示html 如何使用CSS？ 外部引用 在头部中使用link标签引用 xx.css 表示样式文件路径 嵌入样式 使用 <style 标签引…'
-image: '/assets/desktop-banner/3.webp'
 tags: ['前端']
 category: '前端'
 draft: false

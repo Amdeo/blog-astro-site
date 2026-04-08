@@ -2,7 +2,6 @@
 title: 'Shell 脚本基础'
 published: 2020-04-19
 description: '从变量、作用域到环境变量，整理 Shell 脚本入门阶段最常见的一批基础知识。'
-image: '/assets/desktop-banner/2.webp'
 tags: ['操作系统']
 category: '操作系统'
 draft: false

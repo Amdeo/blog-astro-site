@@ -2,7 +2,6 @@
 title: '在私人服务器创建 Git 仓库'
 published: 2019-11-26
 description: '记录在私人服务器上创建 Git 远程仓库、配置 SSH Key 以及迁移现有仓库时的基础流程。'
-image: '/assets/desktop-banner/4.webp'
 tags: ['工具']
 category: '工具'
 draft: false

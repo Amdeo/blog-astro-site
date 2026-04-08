@@ -2,7 +2,6 @@
 title: '输入输出'
 published: 2020-01-01
 description: 'C和C++输入输出 输入 scanf和cin 输入流无论什么情况下都会忽略tab、空格、回车等分隔符 scanf 函数在除 scanf("%c",&char) 之外的所有情况都不会把回车符作为输入字符在输入缓存中读取，但…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

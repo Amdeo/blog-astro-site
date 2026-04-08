@@ -2,7 +2,6 @@
 title: 'C++ primer笔记'
 published: 2020-11-25
 description: '1 快速入门 1.1 编写简单的C++程序 每个C++程序包含一个或者多个函数，必须有一个名为main的函数 下面是一个最简单的main函数 操作系统通过main函数的返回值来确定程序是否执行完毕。一般返回0表示程序执行…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

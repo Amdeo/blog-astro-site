@@ -2,7 +2,6 @@
 title: 'jupyter notebook'
 published: 2019-11-25
 description: 'Jupyter Notebook是基于网页的用于交互计算的应用程序。其可被应用于全过程计算：开发、文档编写、运行代码和展示结果。—— 简而言之，Jupyter Notebook是以网页的形式打开，可以在网页页面中 直接 …'
-image: '/assets/desktop-banner/4.webp'
 tags: ['python', '工具']
 category: '工具'
 draft: false

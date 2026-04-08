@@ -2,7 +2,6 @@
 title: 'Docker 安装 Jenkins 持续集成环境'
 published: 2021-04-22
 description: '记录通过 Docker Compose 搭建 Jenkins、配置插件源、补充 Python 环境以及处理 SSH Key 与远程构建问题的过程。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['工具']
 category: '工具'
 draft: false

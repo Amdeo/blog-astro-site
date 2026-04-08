@@ -2,7 +2,6 @@
 title: 'Core Dump：崩溃现场调试文件'
 published: 2017-03-16
 description: '整理 Linux 下开启 core dump、指定输出路径以及用 core 文件排查崩溃问题的基础方法。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['工具', '调试']
 category: '工具'
 draft: false

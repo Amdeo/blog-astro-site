@@ -2,7 +2,6 @@
 title: 'makefile'
 published: 2019-11-25
 description: 'makefile make命令执行时，需要一个Makefile文件，make命令需要怎么样的去编译和链接程序 Makefile的规则 单文件编译 使用命令行进行编译 使用makef…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

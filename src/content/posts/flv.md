@@ -2,7 +2,6 @@
 title: 'Flv'
 published: 2019-12-26
 description: '介绍 FLV 音视频格式的基础知识、封装特点以及相关处理场景。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['音视频']
 category: '音视频'
 draft: false

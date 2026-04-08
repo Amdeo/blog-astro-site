@@ -2,7 +2,6 @@
 title: 'C和C++中include搜索路径'
 published: 2020-03-29
 description: '在C和C++中使用 include 来引用头文件，一般有两种方式： 使用< 使用” “ 寻找头文件的顺序 1. 编译器通过参数 I 指定头文件的搜索路径(如果有多个，可以使用多个 I ) 2. 使用 include 双引…'
-image: '/assets/desktop-banner/1.webp'
 tags: ['C/C++']
 category: 'C/C++'
 draft: false

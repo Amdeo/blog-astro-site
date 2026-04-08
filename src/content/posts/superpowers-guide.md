@@ -2,7 +2,6 @@
 title: 'superpowers：给编码代理用的开发工作流技能库'
 published: 2026-04-07
 description: '根据 obra/superpowers 的 README 整理，重点说明它是什么、解决什么问题、用在哪些编码代理里、怎么安装，以及接上之后会如何改变日常开发流程。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['superpowers', 'AI Agent', 'Claude Code', 'Codex', 'Cursor']
 category: '工具'
 draft: false

@@ -2,7 +2,6 @@
 title: 'Python 常用库整理'
 published: 2019-12-05
 description: '围绕 JSON、压缩等常见能力，整理 Python 日常开发里最常遇到的一批基础库与典型用法。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['python', '编程语言']
 category: 'python'
 draft: false

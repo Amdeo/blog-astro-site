@@ -2,7 +2,6 @@
 title: 'Python 爬虫入门'
 published: 2020-02-03
 description: '从 requests 到浏览器自动化，整理 Python 做网页抓取时最常见的思路、工具和基础示例。'
-image: '/assets/desktop-banner/1.webp'
 tags: ['python', '爬虫']
 category: 'python'
 draft: false
