@@ -1,51 +1,16 @@
-import fs from "node:fs";
-import path from "node:path";
-
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { initPostIdMap } from "@utils/permalink-utils";
-import { getPostDisplayDate, resolveUpdatedDate } from "@utils/post-date-utils";
 import { getCategoryUrl, getPostUrl } from "@utils/url-utils";
 import { type CollectionEntry, getCollection } from "astro:content";
 
 // // Retrieve posts and sort them by publication date
-function getFileModifiedTime(filePath?: string): Date | undefined {
-	if (!filePath) {
-		return undefined;
-	}
-
-	const absolutePath = path.resolve(process.cwd(), filePath);
-	try {
-		return fs.statSync(absolutePath).mtime;
-	} catch {
-		return undefined;
-	}
-}
-
-function normalizePostDates(
-	post: CollectionEntry<"posts">,
-): CollectionEntry<"posts"> {
-	const fileModifiedTime = getFileModifiedTime(post.filePath);
-	const resolvedUpdated = resolveUpdatedDate(
-		post.data.published,
-		post.data.updated,
-		fileModifiedTime,
-	);
-
-	if (resolvedUpdated) {
-		post.data.updated = resolvedUpdated;
-	}
-
-	return post;
-}
-
 async function getRawSortedPosts() {
 	const allBlogPosts = await getCollection("posts", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
-	const normalizedPosts = allBlogPosts.map(normalizePostDates);
 
-	const sorted = normalizedPosts.sort((a, b) => {
+	const sorted = allBlogPosts.sort((a, b) => {
 		// 首先按置顶状态排序，置顶文章在前
 		if (a.data.pinned && !b.data.pinned) {
 			return -1;
@@ -69,9 +34,9 @@ async function getRawSortedPosts() {
 			}
 		}
 
-		// 否则按展示日期排序（优先更新时间）
-		const dateA = getPostDisplayDate(a.data.published, a.data.updated);
-		const dateB = getPostDisplayDate(b.data.published, b.data.updated);
+		// 否则按发布日期排序
+		const dateA = new Date(a.data.published);
+		const dateB = new Date(b.data.published);
 		return dateA > dateB ? -1 : 1;
 	});
 	return sorted;

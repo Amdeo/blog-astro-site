@@ -20,7 +20,6 @@
 			tags: string[];
 			category?: string;
 			published: Date;
-			updated?: Date;
 			alias?: string;
 			permalink?: string; // 自定义固定链接
 		};
@@ -41,10 +40,6 @@
 
 	function formatTag(tagList: string[]) {
 		return tagList.map((t) => `#${t}`).join(" ");
-	}
-
-	function getEffectiveDate(post: Post) {
-		return post.data.updated ?? post.data.published;
 	}
 
 	onMount(async () => {
@@ -70,18 +65,17 @@
 			filteredPosts = filteredPosts.filter((post) => !post.data.category);
 		}
 
-		// 按展示日期倒序排序，确保不受置顶影响
+		// 按发布时间倒序排序，确保不受置顶影响
 		filteredPosts = filteredPosts
 			.slice()
 			.sort(
 				(a, b) =>
-					getEffectiveDate(b).getTime() -
-					getEffectiveDate(a).getTime(),
+					b.data.published.getTime() - a.data.published.getTime(),
 			);
 
 		const grouped = filteredPosts.reduce(
 			(acc, post) => {
-				const year = getEffectiveDate(post).getFullYear();
+				const year = post.data.published.getFullYear();
 				if (!acc[year]) {
 					acc[year] = [];
 				}
@@ -140,7 +134,7 @@
 						<div
 							class="w-[15%] md:w-[10%] transition text-sm text-right text-50"
 						>
-							{formatDate(getEffectiveDate(post))}
+							{formatDate(post.data.published)}
 						</div>
 
 						<!-- dot and line -->

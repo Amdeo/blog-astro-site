@@ -6,7 +6,6 @@ import { getCollection } from "astro:content";
 import satori from "satori";
 import sharp from "sharp";
 
-import { getPostDisplayDate } from "@/utils/post-date-utils";
 import { removeFileExtension } from "@/utils/url-utils";
 
 import { profileConfig, siteConfig } from "../../config";
@@ -131,10 +130,7 @@ export async function GET({
 	const subtleTextColor = `hsl(${hue}, 10%, 75%)`;
 	const backgroundColor = `hsl(${hue}, 15%, 12%)`;
 
-	const pubDate = getPostDisplayDate(
-		post.data.published,
-		post.data.updated,
-	).toLocaleDateString("en-US", {
+	const pubDate = post.data.published.toLocaleDateString("en-US", {
 		year: "numeric",
 		month: "short",
 		day: "numeric",

@@ -20,7 +20,6 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
-import { getPostDisplayDate } from "@utils/post-date-utils";
 import {
 	generatePermalinkSlug,
 	hasCustomPermalink,
@@ -79,10 +78,6 @@ const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 
 const { remarkPluginFrontmatter } = await render(entry);
-const displayDate = getPostDisplayDate(
-	entry.data.published,
-	entry.data.updated,
-);
 
 // 处理加密逻辑
 let encryptedContent = "";
@@ -108,7 +103,6 @@ const jsonLd = {
 		url: Astro.site,
 	},
 	datePublished: formatDateToYYYYMMDD(entry.data.published),
-	dateModified: formatDateToYYYYMMDD(displayDate),
 	inLanguage: entry.data.lang
 		? entry.data.lang.replace("_", "-")
 		: siteConfig.lang.replace("_", "-"),
