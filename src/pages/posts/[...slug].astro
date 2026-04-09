@@ -15,6 +15,7 @@ import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getRelatedPosts, getSortedPosts } from "@utils/content-utils";
+import { getPostDisplayDate } from "@utils/post-date-utils";
 import { hasCustomPermalink, initPostIdMap } from "@utils/permalink-utils";
 import { getFileDirFromPath, removeFileExtension } from "@utils/url-utils";
 import type { CollectionEntry } from "astro:content";
@@ -98,6 +99,10 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 const { remarkPluginFrontmatter } = await render(entry);
+const displayDate = getPostDisplayDate(
+	entry.data.published,
+	entry.data.updated,
+);
 
 // 获取相关文章
 const relatedPosts = relatedPostsConfig.enable
@@ -179,6 +184,7 @@ const jsonLd = {
 		url: Astro.site,
 	},
 	datePublished: formatDateToYYYYMMDD(entry.data.published),
+	dateModified: formatDateToYYYYMMDD(displayDate),
 	inLanguage: entry.data.lang
 		? entry.data.lang.replace("_", "-")
 		: siteConfig.lang.replace("_", "-"),
@@ -312,7 +318,7 @@ const jsonLd = {
 						title={entry.data.title}
 						author={entry.data.author}
 						description={entry.data.description}
-						pubDate={formatDateToYYYYMMDD(entry.data.published)}
+						pubDate={formatDateToYYYYMMDD(displayDate)}
 						coverImage={posterCoverUrl}
 						url={Astro.url.toString()}
 						siteTitle={siteConfig.title}

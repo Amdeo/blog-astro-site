@@ -3,6 +3,7 @@ import { Icon } from "astro-icon/components";
 
 import type { PostForList } from "@/utils/content-utils";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
+import { getPostDisplayDate } from "@/utils/post-date-utils";
 import { getPostUrlBySlug } from "@/utils/url-utils";
 
 interface Props {
@@ -23,8 +24,13 @@ const {
 
 const displayDate =
 	dateFormat === "iso"
-		? post.data.published.toISOString().substring(0, 10)
-		: post.data.description || formatDateToYYYYMMDD(post.data.published);
+		? getPostDisplayDate(post.data.published, post.data.updated)
+				.toISOString()
+				.substring(0, 10)
+		: post.data.description ||
+			formatDateToYYYYMMDD(
+				getPostDisplayDate(post.data.published, post.data.updated),
+			);
 ---
 
 <a

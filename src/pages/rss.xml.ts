@@ -9,6 +9,7 @@ import sanitizeHtml from "sanitize-html";
 
 import { siteConfig } from "@/config";
 import { getSortedPosts } from "@/utils/content-utils";
+import { getPostDisplayDate } from "@/utils/post-date-utils";
 import { initPostIdMap } from "@/utils/permalink-utils";
 import { getPostUrl } from "@/utils/url-utils";
 
@@ -35,6 +36,11 @@ export async function GET(context: APIContext) {
 	const feed: RSSFeedItem[] = [];
 
 	for (const post of posts) {
+		const displayDate = getPostDisplayDate(
+			post.data.published,
+			post.data.updated,
+		);
+
 		// convert markdown to html string, ensure post.body is a string
 		const body = markdownParser.render(String(post.body ?? ""));
 		// convert html string to DOM-like structure
@@ -116,7 +122,7 @@ export async function GET(context: APIContext) {
 		feed.push({
 			title: post.data.title,
 			description: post.data.description,
-			pubDate: post.data.published,
+			pubDate: displayDate,
 			link: getPostUrl(post),
 			// sanitize the new html string with corrected image paths
 			content: sanitizeHtml(html.toString(), {

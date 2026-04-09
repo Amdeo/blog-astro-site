@@ -4,6 +4,10 @@ import { Icon } from "astro-icon/components";
 import I18nKey from "../../../i18n/i18nKey";
 import { i18n } from "../../../i18n/translation";
 import { formatDateToYYYYMMDD } from "../../../utils/date-utils";
+import {
+	getPostDisplayDate,
+	hasDifferentDisplayDate,
+} from "../../../utils/post-date-utils";
 import { getTagUrl } from "../../../utils/url-utils";
 import { PublishedDate } from "./atoms";
 import { Category } from "./atoms";
@@ -50,11 +54,10 @@ const {
 } = Astro.props;
 
 const displayDate =
-	preferUpdatedDate && updated ? updated : published;
+	preferUpdatedDate ? getPostDisplayDate(published, updated) : published;
 const shouldShowUpdatedDate =
 	!hideUpdateDate &&
-	updated &&
-	updated.getTime() !== published.getTime() &&
+	hasDifferentDisplayDate(published, updated) &&
 	!preferUpdatedDate;
 ---
 
@@ -66,7 +69,7 @@ const shouldShowUpdatedDate =
             <div class="meta-icon">
                 <Icon name="material-symbols:edit-calendar-outline-rounded" class="text-xl"></Icon>
             </div>
-            <span class="text-50 text-sm font-medium">{formatDateToYYYYMMDD(updated)}</span>
+            <span class="text-50 text-sm font-medium">{formatDateToYYYYMMDD(updated as Date)}</span>
         </div>
     )}
 

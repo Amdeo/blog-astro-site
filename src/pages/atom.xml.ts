@@ -7,6 +7,7 @@ import sanitizeHtml from "sanitize-html";
 
 import { profileConfig, siteConfig } from "@/config";
 import { getSortedPosts } from "@/utils/content-utils";
+import { getPostDisplayDate } from "@/utils/post-date-utils";
 import { initPostIdMap } from "@/utils/permalink-utils";
 import { getPostUrl } from "@/utils/url-utils";
 
@@ -43,6 +44,11 @@ export async function GET(context: APIContext) {
   <language>${siteConfig.lang}</language>`;
 
 	for (const post of posts) {
+		const displayDate = getPostDisplayDate(
+			post.data.published,
+			post.data.updated,
+		);
+
 		// convert markdown to html string, ensure post.body is a string
 		const body = markdownParser.render(String(post.body ?? ""));
 		// convert html string to DOM-like structure
@@ -133,7 +139,7 @@ export async function GET(context: APIContext) {
     <link href="${postUrl}" rel="alternate" type="text/html"/>
     <id>${postUrl}</id>
     <published>${post.data.published.toISOString()}</published>
-    <updated>${post.data.updated?.toISOString() || post.data.published.toISOString()}</updated>
+    <updated>${displayDate.toISOString()}</updated>
     <summary>${post.data.description || ""}</summary>
     <content type="html"><![CDATA[${content}]]></content>
     <author>

@@ -9,6 +9,7 @@ import {
 	getSortedPosts,
 	getTagList,
 } from "../../../utils/content-utils";
+import { getPostDisplayDate } from "../../../utils/post-date-utils";
 import WidgetLayout from "../common/WidgetLayout.astro";
 
 interface Props {
@@ -61,16 +62,24 @@ function formatNumber(num: number): string {
 	return num.toLocaleString();
 }
 
-// 获取最新文章日期（忽略置顶状态，只按发布日期排序）
+// 获取最新文章日期（优先使用更新时间）
 const latestPost = posts.reduce((latest, post) => {
 	if (!latest) {
 		return post;
 	}
-	return post.data.published > latest.data.published ? post : latest;
+	const latestDate = getPostDisplayDate(
+		latest.data.published,
+		latest.data.updated,
+	);
+	const postDate = getPostDisplayDate(post.data.published, post.data.updated);
+	return postDate > latestDate ? post : latest;
 }, posts[0]);
 
 const lastPostDate = latestPost
-	? latestPost.data.published.toISOString()
+	? getPostDisplayDate(
+			latestPost.data.published,
+			latestPost.data.updated,
+		).toISOString()
 	: null;
 
 const stats = [
