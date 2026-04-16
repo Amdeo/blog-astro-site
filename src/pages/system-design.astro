@@ -1,0 +1,120 @@
+---
+import PostListItem from "@components/features/posts/PostListItem.astro";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { getSortedPostsList, type PostForList } from "@utils/content-utils";
+
+const ORDERED_PERMALINKS = [
+	"/system-design/why-system-design-starts-with-estimation/",
+	"/system-design/performance-vs-scalability/",
+	"/system-design/why-slo-matters/",
+	"/system-design/cascading-failures-are-a-design-outcome/",
+	"/system-design/why-retries-amplify-failures/",
+	"/system-design/why-fallbacks-become-failure-surfaces/",
+	"/system-design/why-queues-delay-recovery/",
+	"/system-design/cache-invalidation-and-origin-load/",
+	"/system-design/when-to-use-and-avoid-leader-election/",
+	"/system-design/consistency-means-user-visible-semantics/",
+	"/system-design/how-to-read-bigtable-spanner-chubby/",
+	"/system-design/discord-search-and-operability/",
+	"/system-design/runtime-models-solve-consistency-too/",
+	"/system-design/microservices-start-with-stable-boundaries/",
+	"/system-design/learning-order-matters-more-than-volume/",
+];
+
+const BATCHES = [
+	{
+		title: "基础判断",
+		description: "先把系统设计最前面的判断框架立起来：估算、性能 vs 扩展性、SLO。",
+		permalinks: ORDERED_PERMALINKS.slice(0, 3),
+	},
+	{
+		title: "失败路径与可靠性",
+		description: "从级联故障、重试、fallback、队列积压进入系统为什么会自己把事故放大的主线。",
+		permalinks: ORDERED_PERMALINKS.slice(3, 7),
+	},
+	{
+		title: "数据、缓存与协调",
+		description: "围绕缓存失效、一致性语义、leader 和经典论文，把数据系统真正难的地方串起来。",
+		permalinks: ORDERED_PERMALINKS.slice(7, 11),
+	},
+	{
+		title: "案例、模型与边界",
+		description: "用真实工程案例、运行时模型和服务边界把这组文章收束到长期实践里。",
+		permalinks: ORDERED_PERMALINKS.slice(11),
+	},
+];
+
+const posts = await getSortedPostsList();
+const postMap = new Map(posts.map((post) => [post.url, post]));
+
+const orderedPosts: PostForList[] = ORDERED_PERMALINKS.map((permalink) =>
+	postMap.get(permalink),
+).filter(Boolean) as PostForList[];
+
+const batchSections = BATCHES.map((batch) => ({
+	...batch,
+	posts: batch.permalinks
+		.map((permalink) => postMap.get(permalink))
+		.filter(Boolean) as PostForList[],
+}));
+---
+
+<MainGridLayout
+	title="系统设计专题"
+	description="围绕系统设计的判断框架、失败路径、数据协调和真实案例整理的一组中文专题文章。"
+>
+	<div class="card-base px-6 md:px-9 py-8 mb-6 onload-animation">
+		<div class="text-sm uppercase tracking-[0.18em] text-black/35 dark:text-white/35 mb-3">
+			system design series
+		</div>
+		<h1 class="text-4xl md:text-5xl font-bold text-black/90 dark:text-white/90 mb-4">
+			系统设计专题
+		</h1>
+		<p class="text-base md:text-lg text-black/65 dark:text-white/65 leading-8 max-w-4xl">
+			这组文章不是面试八股堆，而是按“先判断、再看失败路径、再进数据与协调、最后回到案例和边界”的顺序，
+			把系统设计里最常反复碰到的问题压成一条连续主线。
+		</p>
+		<div class="mt-6 flex flex-wrap gap-3 text-sm text-black/45 dark:text-white/45">
+			<span class="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/10">15 篇文章</span>
+			<span class="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/10">判断框架</span>
+			<span class="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/10">可靠性</span>
+			<span class="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/10">缓存 / 一致性 / 协调</span>
+			<span class="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/10">真实案例</span>
+		</div>
+	</div>
+
+	<div class="grid gap-6 mb-8">
+		{
+			batchSections.map((section) => (
+				<section class="card-base px-6 md:px-8 py-6 onload-animation">
+					<h2 class="text-2xl font-bold text-black/85 dark:text-white/85 mb-2">
+						{section.title}
+					</h2>
+					<p class="text-sm md:text-base text-black/60 dark:text-white/60 leading-7 mb-4">
+						{section.description}
+					</p>
+					<div class="grid gap-1">
+						{
+							section.posts.map((post, index) => (
+								<PostListItem post={post} index={index} showCategory={false} />
+							))
+						}
+					</div>
+				</section>
+			))
+		}
+	</div>
+
+	<section class="card-base px-6 md:px-8 py-6 onload-animation">
+		<h2 class="text-2xl font-bold text-black/85 dark:text-white/85 mb-4">
+			完整顺序
+		</h2>
+		<div class="grid gap-1">
+			{
+				orderedPosts.map((post, index) => (
+					<PostListItem post={post} index={index} showCategory={false} />
+				))
+			}
+		</div>
+	</section>
+</MainGridLayout>
