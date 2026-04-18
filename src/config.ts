@@ -272,6 +272,18 @@ export const navBarConfig: NavBarConfig = {
 	links: [
 		LinkPreset.Home,
 		LinkPreset.Archive,
+		{
+			name: "专题",
+			url: "/system-design/",
+			icon: "material-symbols:auto-stories",
+			children: [
+				{
+					name: "系统设计",
+					url: "/system-design/",
+					icon: "material-symbols:account-tree",
+				},
+			],
+		},
 		// 支持自定义导航栏链接，支持多级菜单
 		{
 			name: "Links",
