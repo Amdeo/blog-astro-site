@@ -103,6 +103,8 @@ if (siteConfig.generateOgImages && postSlug) {
 	ogImageUrl = new URL(`/og/${postSlug}.png`, Astro.site).toString();
 }
 
+const pioStylesheetUrl = url("/pio/static/pio.css");
+
 // const siteLang = siteConfig.lang.replace('_', '-')
 if (!lang) {
 	lang = `${siteConfig.lang}`;
@@ -191,7 +193,7 @@ if (siteConfig.font) {
 		{
 			pioConfig.enable && (
 				<Fragment
-					set:html={`<link rel="stylesheet" href="/pio/static/pio.css" media="print" onload="this.media='all'" />`}
+					set:html={`<link rel="stylesheet" href="${pioStylesheetUrl}" media="print" onload="this.media='all'" />`}
 				/>
 			)
 		}

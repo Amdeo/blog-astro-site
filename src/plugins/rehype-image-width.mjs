@@ -1,7 +1,11 @@
 import { visit } from "unist-util-visit";
 
-export function rehypeImageWidth() {
+export function rehypeImageWidth(basePath = "/") {
 	const regex = / w-([0-9]+)%/;
+	const normalizedBase =
+		basePath && basePath !== "/" && basePath.endsWith("/")
+			? basePath.slice(0, -1)
+			: basePath || "/";
 
 	return (tree) => {
 		visit(tree, "element", (node, index, parent) => {
@@ -10,6 +14,15 @@ export function rehypeImageWidth() {
 				node.properties &&
 				node.properties.alt
 			) {
+				if (
+					typeof node.properties.src === "string" &&
+					node.properties.src.startsWith("/") &&
+					normalizedBase !== "/" &&
+					!node.properties.src.startsWith(`${normalizedBase}/`)
+				) {
+					node.properties.src = `${normalizedBase}${node.properties.src}`;
+				}
+
 				const alt = node.properties.alt;
 				const match = alt.match(regex);
 

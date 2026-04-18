@@ -2,6 +2,7 @@
 	import { onDestroy, onMount } from "svelte";
 
 	import { pioConfig } from "@/config";
+	import { withBase } from "@/utils/base-utils";
 
 	import type { PioProps } from "./types";
 
@@ -11,8 +12,8 @@
 		mode: config?.mode ?? pioConfig.mode,
 		hidden: config?.hiddenOnMobile ?? pioConfig.hiddenOnMobile,
 		content: config?.dialog ?? pioConfig.dialog ?? {},
-		model: config?.models ??
-			pioConfig.models ?? ["/pio/models/pio/model.json"],
+		model: (config?.models ??
+			pioConfig.models ?? ["/pio/models/pio/model.json"]).map(withBase),
 	};
 
 	let pioInstance: any = null;
@@ -64,8 +65,10 @@
 		};
 
 		const loadWithIdle = () => {
-			loadScript("/pio/static/l2d.js", "pio-l2d-script")
-				.then(() => loadScript("/pio/static/pio.js", "pio-main-script"))
+			loadScript(withBase("/pio/static/l2d.js"), "pio-l2d-script")
+				.then(() =>
+					loadScript(withBase("/pio/static/pio.js"), "pio-main-script"),
+				)
 				.then(() => {
 					setTimeout(initPio, 100);
 				})

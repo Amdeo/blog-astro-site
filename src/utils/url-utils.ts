@@ -3,7 +3,15 @@ import { i18n } from "@i18n/translation";
 import type { CollectionEntry } from "astro:content";
 
 import { permalinkConfig } from "../config";
+import {
+	getBasePath,
+	isHomePath,
+	isPostPath,
+	stripBase,
+} from "./base-utils";
 import { generatePermalinkSlug } from "./permalink-utils";
+
+export { getBasePath, stripBase, isHomePath, isPostPath };
 
 /**
  * 移除文件扩展名（.md, .mdx, .markdown）

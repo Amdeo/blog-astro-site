@@ -121,23 +121,23 @@ test("built site no longer ships legacy body font assets after LXGW WenKai migra
 	);
 });
 
-test("opencli page links back into the blog using the project base path", () => {
-	const opencliHtmlPath = path.join(distRoot, "opencli", "index.html");
+test("rtk permalink page links back into the blog using the project base path", () => {
+	const rtkHtmlPath = path.join(distRoot, "rtk", "index.html");
 	assert.ok(
-		fs.existsSync(opencliHtmlPath),
-		"expected dist/opencli/index.html to exist; run a build first",
+		fs.existsSync(rtkHtmlPath),
+		"expected dist/rtk/index.html to exist; run a build first",
 	);
 
-	const html = fs.readFileSync(opencliHtmlPath, "utf8");
+	const html = fs.readFileSync(rtkHtmlPath, "utf8");
 	assert.match(
 		html,
-		/href="\/blog-astro-site\/about\/"[^>]*>\s*返回博客\s*</,
-		"expected opencli page back link to point to the blog about page with the GitHub Pages base path",
+		/href="\/blog-astro-site\/about\/"/,
+		"expected rtk page to link to the blog about page with the GitHub Pages base path",
 	);
 	assert.doesNotMatch(
 		html,
-		/href="\/about\/"[^>]*>\s*返回博客\s*</,
-		"opencli page back link should not use a root-relative about URL",
+		/href="\/about\/"/,
+		"rtk page should not use a root-relative about URL",
 	);
 });
 
@@ -198,4 +198,82 @@ test("floating controls inline script can be executed twice without redeclaratio
 		vm.runInContext(script, context);
 		vm.runInContext(script, context);
 	});
+});
+
+test("source files do not hardcode browser-visible root-relative paths that bypass Astro base handling", () => {
+	const offenders = [
+		{
+			file: "src/components/control/BackToHome.astro",
+			pattern: 'define:vars={{ homeUrl: "/" }}',
+		},
+		{
+			file: "src/layouts/Layout.astro",
+			pattern: 'href="/pio/static/pio.css"',
+		},
+		{
+			file: "src/pages/404.astro",
+			pattern: 'href="/"',
+		},
+		{
+			file: "src/pages/projects.astro",
+			pattern: 'src="/js/filter-tabs-handler.js"',
+		},
+		{
+			file: "src/pages/devices.astro",
+			pattern: 'src="/js/devices-page-handler.js"',
+		},
+		{
+			file: "src/pages/albums/[id]/index.astro",
+			pattern: 'href="/albums/"',
+		},
+		{
+			file: "src/components/widgets/calendar/components/PostList.svelte",
+			pattern: 'href="/posts/{post.id}/"',
+		},
+		{
+			file: "src/components/features/pio/Pio.svelte",
+			pattern: 'loadScript("/pio/static/l2d.js"',
+		},
+	];
+
+	const matches = offenders.filter(({ file, pattern }) =>
+		readText(file).includes(pattern),
+	);
+
+	assert.deepEqual(
+		matches,
+		[],
+		`unexpected hardcoded root-relative browser paths remain in source:\n${JSON.stringify(matches, null, 2)}`,
+	);
+});
+
+test("astro config and pages workflow use explicit public base env vars with root fallback", () => {
+	const astroConfig = readText("astro.config.mjs");
+	const deployWorkflow = readText(".github/workflows/deploy.yml");
+
+	assert.match(
+		astroConfig,
+		/process\.env\.PUBLIC_BASE_PATH/,
+		"expected astro.config.mjs to read PUBLIC_BASE_PATH",
+	);
+	assert.doesNotMatch(
+		astroConfig,
+		/DEPLOY_TARGET\s*===\s*["']github-pages["']/,
+		"astro.config.mjs should not hardcode a github-pages deployment target switch",
+	);
+	assert.match(
+		deployWorkflow,
+		/PUBLIC_BASE_PATH:/,
+		"expected GitHub Pages workflow to set PUBLIC_BASE_PATH",
+	);
+	assert.match(
+		deployWorkflow,
+		/PUBLIC_SITE_URL:\s+https:\/\/amdeo\.github\.io\/blog-astro-site\//,
+		"expected GitHub Pages workflow to set PUBLIC_SITE_URL to the current Pages URL",
+	);
+	assert.doesNotMatch(
+		deployWorkflow,
+		/DEPLOY_TARGET:/,
+		"workflow should not depend on DEPLOY_TARGET after env-first base handling",
+	);
 });

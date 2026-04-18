@@ -2,23 +2,24 @@
 import PostListItem from "@components/features/posts/PostListItem.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPostsList, type PostForList } from "@utils/content-utils";
+import { url } from "@utils/url-utils";
 
 const ORDERED_PERMALINKS = [
-	"/system-design/why-system-design-starts-with-estimation/",
-	"/system-design/performance-vs-scalability/",
-	"/system-design/why-slo-matters/",
-	"/system-design/cascading-failures-are-a-design-outcome/",
-	"/system-design/why-retries-amplify-failures/",
-	"/system-design/why-fallbacks-become-failure-surfaces/",
-	"/system-design/why-queues-delay-recovery/",
-	"/system-design/cache-invalidation-and-origin-load/",
-	"/system-design/when-to-use-and-avoid-leader-election/",
-	"/system-design/consistency-means-user-visible-semantics/",
-	"/system-design/how-to-read-bigtable-spanner-chubby/",
-	"/system-design/discord-search-and-operability/",
-	"/system-design/runtime-models-solve-consistency-too/",
-	"/system-design/microservices-start-with-stable-boundaries/",
-	"/system-design/learning-order-matters-more-than-volume/",
+	url("/system-design/why-system-design-starts-with-estimation/"),
+	url("/system-design/performance-vs-scalability/"),
+	url("/system-design/why-slo-matters/"),
+	url("/system-design/cascading-failures-are-a-design-outcome/"),
+	url("/system-design/why-retries-amplify-failures/"),
+	url("/system-design/why-fallbacks-become-failure-surfaces/"),
+	url("/system-design/why-queues-delay-recovery/"),
+	url("/system-design/cache-invalidation-and-origin-load/"),
+	url("/system-design/when-to-use-and-avoid-leader-election/"),
+	url("/system-design/consistency-means-user-visible-semantics/"),
+	url("/system-design/how-to-read-bigtable-spanner-chubby/"),
+	url("/system-design/discord-search-and-operability/"),
+	url("/system-design/runtime-models-solve-consistency-too/"),
+	url("/system-design/microservices-start-with-stable-boundaries/"),
+	url("/system-design/learning-order-matters-more-than-volume/"),
 ];
 
 const BATCHES = [

@@ -4,6 +4,7 @@ import { Icon } from "astro-icon/components"
 import { navBarConfig, siteConfig } from "../../../config"
 import { LinkPresets } from "../../../constants/link-presets"
 import { LinkPreset, type NavBarLink } from "../../../types/config"
+import { isHomePath } from "../../../utils/base-utils"
 import { url } from "../../../utils/url-utils"
 import LayoutSwitch from "../../control/LayoutSwitch.svelte"
 import ThemeSwitch from "../../control/ThemeSwitch.svelte"
@@ -25,7 +26,7 @@ const modeSwitchDisplay =
 	siteConfig.wallpaperMode?.showModeSwitchOnMobile || "desktop";
 
 // 检查是否为首页
-const isHomePage = Astro.url.pathname === "/" || Astro.url.pathname === "";
+const isHomePage = isHomePath(Astro.url.pathname);
 
 const links: NavBarLink[] = navBarConfig.links.map(
 	(item: NavBarLink | LinkPreset): NavBarLink => {

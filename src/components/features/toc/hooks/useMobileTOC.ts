@@ -3,6 +3,8 @@
  * 处理移动端目录的状态管理和交互逻辑
  */
 
+import { isHomePath, stripBase } from "@/utils/base-path-utils.js";
+
 export interface TOCItem {
 	id: string;
 	text: string;
@@ -123,8 +125,8 @@ export function generatePostItems(): PostItem[] {
  * 检查是否为首页
  */
 export function checkIsHomePage(): boolean {
-	const pathname = window.location.pathname;
-	return pathname === "/" || pathname === "" || /^\/\d+\/?$/.test(pathname);
+	const pathname = stripBase(window.location.pathname);
+	return isHomePath(pathname) || /^\/\d+\/?$/.test(pathname);
 }
 
 /**

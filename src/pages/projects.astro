@@ -9,9 +9,10 @@ import { UNCATEGORIZED } from "../constants/constants";
 import { projectsData } from "../data/projects";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
+import { url } from "../utils/url-utils";
 
 if (!siteConfig.featurePages.projects) {
-	return Astro.redirect("/404/");
+	return Astro.redirect(url("/404/"));
 }
 
 const categories = [
@@ -79,7 +80,7 @@ const subtitle = i18n(I18nKey.projectsSubtitle);
 		});
 	</script>
 
-	<script is:inline src="/js/filter-tabs-handler.js"></script>
+	<script is:inline src={url("/js/filter-tabs-handler.js")}></script>
 
 	<div
 		class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"

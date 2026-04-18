@@ -51,10 +51,21 @@ if (tailwindViteSource.includes(".concat(this.compiler.globs)")) {
 }
 const { default: tailwindcss } = await import("@tailwindcss/vite");
 
+function normalizeBase(base = "/") {
+	if (!base || base === "/") {
+		return "/";
+	}
+
+	return base.endsWith("/") ? base : `${base}/`;
+}
+
+const publicBasePath = normalizeBase(process.env.PUBLIC_BASE_PATH || "/");
+const publicSiteUrl = process.env.PUBLIC_SITE_URL || siteConfig.siteURL;
+
 // https://astro.build/config
 export default defineConfig({
-	site: siteConfig.siteURL,
-	base: "/",
+	site: publicSiteUrl,
+	base: publicBasePath,
 	trailingSlash: "always",
 
 	output: "static",
@@ -193,7 +204,7 @@ export default defineConfig({
 					},
 				},
 			],
-			rehypeImageWidth,
+			[rehypeImageWidth, publicBasePath],
 		],
 	},
 	vite: {

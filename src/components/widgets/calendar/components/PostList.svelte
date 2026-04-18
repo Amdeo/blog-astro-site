@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { CalendarPost } from "../types/calendar";
+	import { url } from "@/utils/url-utils";
 
 	interface Props {
 		posts: CalendarPost[];
@@ -51,7 +52,7 @@
 			{#each posts as post (post.id)}
 				{@const isCurrentPost = post.id === currentPostId}
 				<a
-					href="/posts/{post.id}/"
+					href={url(`/posts/${post.id}/`)}
 					class={getContainerClass(isCurrentPost)}
 				>
 					<span class={getTitleClass(isCurrentPost)}

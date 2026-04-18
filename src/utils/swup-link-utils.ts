@@ -1,3 +1,5 @@
+import { stripBase } from "./base-path-utils.js";
+
 const SWUP_BYPASS_PATHS = new Set(["/rtk/"]);
 
 function normalizePath(path: string): string {
@@ -10,5 +12,13 @@ function normalizePath(path: string): string {
 }
 
 export function shouldBypassSwupForPath(path: string): boolean {
-	return SWUP_BYPASS_PATHS.has(normalizePath(path));
+	const normalizedPath = normalizePath(path);
+	const normalizedStrippedPath = normalizePath(stripBase(path));
+
+	return (
+		SWUP_BYPASS_PATHS.has(normalizedStrippedPath) ||
+		Array.from(SWUP_BYPASS_PATHS).some((bypassPath) =>
+			normalizedPath.endsWith(bypassPath),
+		)
+	);
 }

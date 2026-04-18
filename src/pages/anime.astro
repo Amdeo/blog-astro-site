@@ -13,10 +13,14 @@ import {
 	getAnimeSourceConfigs,
 	getStatusMap,
 } from "../utils/anime-data";
+import { url } from "../utils/url-utils";
 import { widgetManager } from "../utils/widget-manager";
 
+const notFoundUrl = url("/404/");
+void notFoundUrl;
+
 if (!siteConfig.featurePages.anime) {
-	return Astro.redirect("/404/");
+	return Astro.redirect(notFoundUrl);
 }
 
 const hasRightSidebars =

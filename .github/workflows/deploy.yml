@@ -39,6 +39,8 @@ jobs:
       - name: Build
         run: pnpm build
         env:
+          PUBLIC_BASE_PATH: /blog-astro-site/
+          PUBLIC_SITE_URL: https://amdeo.github.io/blog-astro-site/
           ENABLE_CONTENT_SYNC: false
           BILI_SESSDATA: ${{ secrets.BILI_SESSDATA }}
 

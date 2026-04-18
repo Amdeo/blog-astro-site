@@ -57,3 +57,4 @@ public/assets/font/LXGWWenKai-Regular.woff2
 # graphify artifacts
 .graphify-blog-content/
 graphify-out/
+.omx/

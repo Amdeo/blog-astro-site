@@ -3,6 +3,8 @@
  * 提供统一的页面导航功能，支持 Swup 无刷新跳转
  */
 
+import { isHomePath, isPostPath as matchesPostPath } from "./base-path-utils.js";
+
 /**
  * 导航到指定页面
  * @param url 目标页面URL
@@ -248,7 +250,7 @@ export function getCurrentPath(): string {
  */
 export function isHomePage(): boolean {
 	const path = getCurrentPath();
-	return path === "/" || path === "";
+	return isHomePath(path);
 }
 
 /**
@@ -256,7 +258,7 @@ export function isHomePage(): boolean {
  */
 export function isPostPage(): boolean {
 	const path = getCurrentPath();
-	return path.startsWith("/posts/");
+	return matchesPostPath(path);
 }
 
 /**

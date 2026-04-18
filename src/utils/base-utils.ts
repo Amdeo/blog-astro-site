@@ -1,3 +1,12 @@
+import { getBasePath } from "./base-path-utils.js";
+
+export {
+	getBasePath,
+	isHomePath,
+	isPostPath,
+	stripBase,
+} from "./base-path-utils.js";
+
 function isExternalResourcePath(path: string) {
 	return /^(?:[a-z]+:)?\/\//i.test(path) || path.startsWith("data:");
 }
@@ -7,8 +16,8 @@ export function withBase(path: string) {
 		return path;
 	}
 
-	const baseUrl = import.meta.env.BASE_URL || "/";
-	const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+	const basePath = getBasePath();
+	const normalizedBase = basePath === "/" ? "/" : `${basePath}/`;
 	const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
 	const baseWithoutTrailingSlash = normalizedBase.replace(/\/$/, "");
 
