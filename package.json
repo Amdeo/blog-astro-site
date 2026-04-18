@@ -17,6 +17,7 @@
 		"submit": "node scripts/indexnow-submit.js",
 		"preview": "astro preview",
 		"astro": "astro",
+		"deploy:nginx": "bash scripts/deploy-nginx.sh",
 		"type-check": "tsc --noEmit --isolatedDeclarations",
 		"new-post": "node scripts/new-post.js",
 		"format": "prettier --write ./src",

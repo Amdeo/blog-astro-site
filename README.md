@@ -151,6 +151,23 @@ Deploy your blog to any static hosting platform:
 
 - **Environment Variable Configuration (Optional):** Refer to `.env.example` for configuration
 
+### Local Nginx One-Command Deploy
+
+This repository also includes a local Nginx deployment helper for root-path builds:
+
+```bash
+pnpm deploy:nginx
+```
+
+- Builds the site with local root-path settings, without `PUBLIC_BASE_PATH` / `PUBLIC_SITE_URL`
+- Syncs `dist/` to `/Users/looper/Documents/data/Container/nginx/www/blog` by default
+- Keeps GitHub Pages deployment unchanged
+- Supports overriding the target directory with `NGINX_BLOG_ROOT`
+
+```bash
+NGINX_BLOG_ROOT=/your/nginx/root pnpm deploy:nginx
+```
+
 Before deployment, update the `siteURL` in `src/config.ts`.
 **Not recommended** to commit the `.env` file to Git. The `.env` file should only be used for local debugging or building. For cloud platform deployment, it's recommended to configure via the platform's `environment variables` settings.
 
@@ -240,6 +257,7 @@ All commands are run from the project root:
 | `pnpm install`             | Install dependencies                     |
 | `pnpm dev`                 | Start local dev server at `localhost:4321` |
 | `pnpm build`               | Build production site to `./dist/`       |
+| `pnpm deploy:nginx`        | Build for local root-path deploy and sync `dist/` to the local Nginx directory |
 | `pnpm preview`             | Preview build locally before deployment  |
 | `pnpm check`               | Run Astro error checking                 |
 | `pnpm format`              | Format code with Prettier                   |

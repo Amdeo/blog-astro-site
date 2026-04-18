@@ -153,6 +153,23 @@
 
 - **环境变量配置（可选）：** 可参照 `.env.example` 来配置
 
+### 本地 Nginx 一键部署
+
+这个仓库额外提供了一个面向本地 `Nginx` 的根路径部署命令：
+
+```bash
+pnpm deploy:nginx
+```
+
+- 使用本地根路径配置构建，不读取 `PUBLIC_BASE_PATH` / `PUBLIC_SITE_URL`
+- 默认将 `dist/` 同步到 `/Users/looper/Documents/data/Container/nginx/www/blog`
+- 不影响 GitHub Pages 的工作流
+- 支持通过 `NGINX_BLOG_ROOT` 覆盖目标目录
+
+```bash
+NGINX_BLOG_ROOT=/your/nginx/root pnpm deploy:nginx
+```
+
 部署前，请在 `src/config.ts` 中更新 `siteURL`。
 **不建议**将 `.env` 文件提交到 Git，`.env` 应该仅在本地调试或构建使用。若要将项目在云平台部署，建议通过平台上的 `环境变量` 配置传入。
 
@@ -242,6 +259,7 @@ Mizuki 支持超越标准 GitHub Flavored Markdown 的增强功能：
 | `pnpm install`             | 安装依赖                               |
 | `pnpm dev`                 | 在 `localhost:4321` 启动本地开发服务器 |
 | `pnpm build`               | 构建生产站点到 `./dist/`               |
+| `pnpm deploy:nginx`        | 按本地根路径构建并将 `dist/` 同步到本地 Nginx 目录 |
 | `pnpm preview`             | 在部署前本地预览构建                   |
 | `pnpm check`               | 运行 Astro 错误检查                    |
 | `pnpm format`              | 使用 Prettier 格式化代码                  |
