@@ -9,13 +9,23 @@ import { siteConfig } from "../config";
 import { PAGE_SIZE } from "../constants/constants";
 import { getSortedPosts } from "../utils/content-utils";
 import { initPostIdMap } from "../utils/permalink-utils";
+import { getPostUrl } from "../utils/url-utils";
 const showCategoryBar = siteConfig.postListLayout.categoryBar?.enable ?? false;
 
 export const getStaticPaths = (async ({ paginate }) => {
+	const homepageHiddenPrefixes = ["/system-design/"];
 	const allBlogPosts = await getSortedPosts();
 	// 初始化文章 ID 映射（用于 permalink 功能）
 	initPostIdMap(allBlogPosts);
-	return paginate(allBlogPosts, { pageSize: PAGE_SIZE });
+
+	const homepagePosts = allBlogPosts.filter((post) => {
+		const postUrl = getPostUrl(post);
+		return !homepageHiddenPrefixes.some((prefix) =>
+			postUrl.startsWith(prefix),
+		);
+	});
+
+	return paginate(homepagePosts, { pageSize: PAGE_SIZE });
 }) satisfies GetStaticPaths;
 // https://github.com/withastro/astro/issues/6507#issuecomment-1489916992
 
