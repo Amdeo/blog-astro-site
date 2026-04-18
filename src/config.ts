@@ -27,7 +27,7 @@ const SITE_TIMEZONE = 8; //设置你的网站时区 from -12 to 12 default in UT
 export const siteConfig: SiteConfig = {
 	title: "Cooper 技术博客",
 	subtitle: "记录 C/C++、Python、前端、操作系统、工具链、网络与音视频的长期技术沉淀。",
-	siteURL: "https://amdeo.github.io/blog-astro-site/",
+	siteURL: "https://blog.yuandongbin.asia/",
 	siteStartDate: "2019-11-25",
 
 	timeZone: SITE_TIMEZONE,

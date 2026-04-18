@@ -54,7 +54,7 @@ const { default: tailwindcss } = await import("@tailwindcss/vite");
 // https://astro.build/config
 export default defineConfig({
 	site: siteConfig.siteURL,
-	base: "/blog-astro-site/",
+	base: "/",
 	trailingSlash: "always",
 
 	output: "static",

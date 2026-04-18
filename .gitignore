@@ -53,3 +53,7 @@ src/data/bilibili-data.json
 # Lighthouse CI
 .lighthouseci/
 public/assets/font/LXGWWenKai-Regular.woff2
+
+# graphify artifacts
+.graphify-blog-content/
+graphify-out/

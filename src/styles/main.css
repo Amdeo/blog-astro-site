@@ -29,7 +29,7 @@
 /* 导入 LXGW WenKai 字体 */
 @font-face {
   font-family: "LXGW WenKai";
-  src: url("/blog-astro-site/assets/font/LXGWWenKai-Regular.ttf") format("truetype");
+  src: url("/assets/font/LXGWWenKai-Regular.ttf") format("truetype");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
