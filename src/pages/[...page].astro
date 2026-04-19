@@ -9,7 +9,7 @@ import { siteConfig } from "../config";
 import { PAGE_SIZE } from "../constants/constants";
 import { getSortedPosts } from "../utils/content-utils";
 import { initPostIdMap } from "../utils/permalink-utils";
-import { getPostUrl } from "../utils/url-utils";
+import { getPostUrl, stripBase } from "../utils/url-utils";
 const showCategoryBar = siteConfig.postListLayout.categoryBar?.enable ?? false;
 
 export const getStaticPaths = (async ({ paginate }) => {
@@ -19,7 +19,7 @@ export const getStaticPaths = (async ({ paginate }) => {
 	initPostIdMap(allBlogPosts);
 
 	const homepagePosts = allBlogPosts.filter((post) => {
-		const postUrl = getPostUrl(post);
+		const postUrl = stripBase(getPostUrl(post));
 		return !homepageHiddenPrefixes.some((prefix) =>
 			postUrl.startsWith(prefix),
 		);
