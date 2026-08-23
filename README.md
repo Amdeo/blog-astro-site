@@ -160,7 +160,7 @@ pnpm deploy:nginx
 ```
 
 - Builds the site with local root-path settings, without `PUBLIC_BASE_PATH` / `PUBLIC_SITE_URL`
-- Syncs `dist/` to `/Users/looper/Documents/data/Container/nginx/www/blog` by default
+- Syncs `dist/` to `/opt/homebrew/var/www/blog` by default
 - Keeps GitHub Pages deployment unchanged
 - Supports overriding the target directory with `NGINX_BLOG_ROOT`
 

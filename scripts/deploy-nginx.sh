@@ -4,7 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-TARGET_DIR="${NGINX_BLOG_ROOT:-/Users/looper/Documents/data/Container/nginx/www/blog}"
+TARGET_DIR="${NGINX_BLOG_ROOT:-/opt/homebrew/var/www/blog}"
 CONTENT_SYNC_SETTING="${ENABLE_CONTENT_SYNC:-false}"
 
 if ! command -v rsync >/dev/null 2>&1; then
