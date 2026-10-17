@@ -1,8 +1,8 @@
 ---
-title: 'Karpathy 的 LLM 编码吐槽，和一份第三方 CLAUDE.md 的边界'
+title: '一份约束 AI 改代码的规则文件：Karpathy 四原则'
 published: 2026-04-27
 updated: 2026-10-17
-description: '区分 Karpathy 的原始观察与第三方整理的四原则，讲清生效机制、修改范围、验证与轻重取舍。'
+description: '认识一份放进项目的规则文件，看它怎么约束 AI 乱改代码、过度设计和没验证就收工。'
 tags: ['AI', 'Claude Code', '编程指南', 'Andrej Karpathy']
 category: 'AI/编程'
 draft: false
@@ -12,105 +12,106 @@ lang: 'zh-CN'
 sourceLink: 'https://github.com/multica-ai/andrej-karpathy-skills'
 ---
 
-假设任务只是改一个错别字，AI 却顺手重排缩进、删掉不相干的注释，又加了一层抽象。这里举的是范围失控的示意场景，不是某次实测。Andrej Karpathy 在 2026 年 1 月的长帖里讨论过类似的过度设计与无关修改；随后一个第三方仓库把他的观察归纳成四条原则，做成 `CLAUDE.md` 来约束编码代理。[1][2]
+这是一份给 AI 编程助手看的工作规则。它用四条原则约束助手：先想清楚再写、只实现需要的功能、不要顺手乱改、用检查结果证明任务完成。[2][3] 最直接的用法是把相关要求合并进项目的指令文件，让支持这种文件的助手在工作时参考。
 
-这两件事需要分开看：Karpathy 报告的是一组失败模式，而网上流传的四原则是别人替他归纳的检查清单。边界清楚了，才知道该把它当成可直接套用的规范，还是一份要自己裁剪的草稿。
+假设你让 AI 修一个小 bug，它却顺手改了缩进、删除注释，又增加一层用不上的设计。你查看代码差异（diff），发现真正相关的只有几行。这份规则主要就针对这种问题。经常让 AI 直接改项目代码的人可能用得上；只在聊天窗口里问问题的人通常不需要它。
+
+名字里的 Karpathy 指的是原则的灵感来源：他曾发帖描述模型乱作假设、过度复杂化和无关改动等问题。[1] **把这些观察整理成四原则的是第三方仓库作者，不是 Karpathy 本人发布了一款工具。**[2]
 
 <!--more-->
 
-> 本文是来源与文档解读，不是使用体验或效果测评。文中未安装插件、未运行代理、未做 A/B 对比。
+## 放进一次修改任务里，就容易理解了
 
-## Karpathy 报告了什么
+假设你让 AI 做一件小事：给一个列表接口加上参数校验，只接受纯数字字符串，越界或混合字符要拒绝。
 
-帖子里的重点不是 AI 会写错语法，而是错误的层级变了：不再是语法错误，而是「一个略微粗心、着急的初级工程师会犯的概念性错误」。最常出现的一类，他用一句话概括：
+没有规则文件时，AI 可能直接开始写代码，并自己选定一种解读。它也许认为缺省值应该改成 1，也许顺手把整个参数解析模块重写一遍，理由是「这样更干净」。
 
-> The most common category is that the models make wrong assumptions on your behalf and just run along with them without checking. They also don't manage their confusion, they don't seek clarifications, they don't surface inconsistencies, they don't present tradeoffs, they don't push back when they should, and they are still a little too sycophantic.[1]
+这份规则希望改变同一次任务的处理过程。四条原则分别作用在流程的不同位置：动手前先确认需求，实现时只写必需的代码，改动时只碰该碰的地方，收工时用能验证的标准判断做完没有。[3] 这是给模型的要求，不是程序强制保证的结果。
 
-第二类是复杂度：
+| 原则 | 它在这件事里管什么 |
+| --- | --- |
+| Think Before Coding | 先确认不传参数时用什么值，不能凭空决定 |
+| Simplicity First | 校验逻辑只写够用的几行，不额外加配置开关 |
+| Surgical Changes | 只改参数解析和对应测试，不动路由命名和文件格式 |
+| Goal-Driven Execution | 先写「无效输入必须被拒绝」的测试，再让它们通过 |
 
-> They will implement an inefficient, bloated, brittle construction over 1000 lines of code and it's up to you to be like "umm couldn't you just do this instead?"[1]
+它们是四条约束，对应 AI 工作时的一个个具体动作，而不是四段抽象说明。
 
-第三类最隐蔽，也和「精准修改」直接相关：
+## 四条原则分别约束什么
 
-> They still sometimes change/remove comments and code they don't like or don't sufficiently understand as side effects, even if it is orthogonal to the task at hand.[1]
+### 动手之前先把需求说清：Think Before Coding
 
-帖子里还有一句常被忽略、却对本文最关键的话——这些问题「尽管在 CLAUDE.md 里做了几次简单的指令尝试，依然发生」：
+它要求 AI 动手前明确说出自己的假设，不确定就问；同一句话有多种理解时，把几种理解都列出来，而不是默默选一个。[3]
 
-> All of this happens despite a few simple attempts to fix it via instructions in CLAUDE.md.[1]
+回到上面的例子：不传参数时应该保持原来的行为，还是默认用 1？应先查接口已有约定，仍不能确定时再问你，而不是让 AI 自己拍一个值。
 
-也就是说，Karpathy 报告的是一次指令没能完全修好的经历，而不是一份已被证明有效的规则。
+### 只写够用的代码：Simplicity First
 
-## 四原则是谁归纳的
+它要求只实现被要求的功能，不为一次性代码造抽象，不加没人要的「灵活性」。[3] 仓库里配了一句自查话：如果一个资深工程师看了会觉得过度复杂，就该简化。[3]
 
-「四原则」来自仓库 `andrej-karpathy-skills`（原地址为 `forrestchang/andrej-karpathy-skills`，现已转移并重定向到 `multica-ai/andrej-karpathy-skills`）。README 自己写明这是一个单文件 `CLAUDE.md`，是 derived from Andrej Karpathy's observations，即从 Karpathy 的观察派生。[2] Think Before Coding、Simplicity First、Surgical Changes、Goal-Driven Execution 是该仓库的整理结果；这里核对的原帖并没有把它们发布为一套四原则框架。[1][2] 不能把第三方整理直接署在 Karpathy 名下。
+对应到任务里，参数校验本来就是几行判断，不需要为将来可能的扩展预留一整套配置系统。
 
-## 同一套原则的三种载体，触发方式不同
+### 只碰该碰的地方：Surgical Changes
 
-仓库里其实是同一份内容的三次包装：
+这是四条里最直接针对「顺手乱改」的一条。它的判据可以检验：**每一行改动都应该能直接追溯到用户的请求。** [3] 配套规则同样具体：不要「改进」相邻的代码、注释或格式；不要重构没坏的东西；匹配现有风格，哪怕你自己会写得不一样；发现无关的废弃代码可以提，但不要删。[3]
+
+如果改动让原本用得上的代码导入语句变成多余，助手应清理这个由自己造成的连带后果；它不该借机删除其他无关代码。[3]
+
+它把「精简」从审美问题变成了范围问题。AI 生成的大 diff 里，真正麻烦的往往不是新增的那部分，而是没人要求、也没人仔细看的顺手改动。
+
+### 用能验证的标准判断做完没有：Goal-Driven Execution
+
+它把「做什么」改写成「怎么算做完」。仓库给的三组对照是：[3]
+
+- 「加个校验」→「为无效输入写测试，然后让它们通过」
+- 「修个 bug」→「写一个能复现 bug 的测试，再让它通过」
+- 「重构 X」→「确保重构前后测试都能通过」
+
+多步骤任务还要求先列一个 `1. [步骤] → 验证: [检查]` 的骨架。[3] 这和第 1 节那条观察出自同一处：有明确的成功标准，AI 才能自己迭代；标准含糊（比如「让它能跑」），问题就会不断弹回给你。[1]
+
+## 怎么让助手读到这些规则
+
+仓库把同一份内容做了三种包装，触发方式各不相同：[3][5]
 
 | 载体 | 生效方式 | 作用范围 |
-|------|----------|----------|
-| `CLAUDE.md` | 项目根指令文件，会话启动时读取 | 常驻，所有任务 |
-| `skills/karpathy-guidelines/SKILL.md` | 技能，按需加载 | 被触发时 |
+| --- | --- | --- |
+| `CLAUDE.md` | 项目根目录的指令文件，会话启动时读取 | 常驻，所有任务 |
+| `skills/karpathy-guidelines/SKILL.md` | 技能，被用到时才加载 | 被触发时 |
 | `.cursor/rules/karpathy-guidelines.mdc` | Cursor 项目规则，标记 `alwaysApply: true` | 在该项目内常驻 |
 
-三份文本几乎逐字一致。[3][5] 差别在触发机制：常驻根指令进入会话上下文；按需技能需要先被宿主或模型选中；Cursor 规则依赖 Cursor 的规则加载——仓库写得很明确，Cursor 默认不读 `.claude-plugin/` 或 `CLAUDE.md`。[4] 所以「我装了 Claude Code 插件」并不等于 Cursor 里也生效，反之亦然。
+三份文本几乎逐字一致，差别在于对应的助手如何加载。[3][5] 例如，不能只把 `CLAUDE.md` 放到项目里，就假定 Cursor 也会读取；仓库另有 Cursor 规则的适配说明。[4] 安装过一种包装，也不等于所有助手都已接入。
 
-## 四原则各自约束什么
+## 怎么开始：别照抄安装命令
 
-与其背四个英文标题，不如记住它们分别管哪件事。
+仓库 README 给了一条替新项目下载 `CLAUDE.md` 的命令，也给了一条往已有项目追加的命令。[2] 这两条都不适合直接抄。下载命令会覆盖同名文件，用在已有项目上等于用通用规则顶掉你自己的项目约定；追加命令则会把整套通用规则复制进你的文件，和既有规则重叠甚至冲突。
 
-### 修改范围：每行改动都能追溯到请求
+文件自己的第一句写的是按需与项目专属指令合并（merge with project-specific instructions as needed），[3] 而不是整份复制。
 
-Surgical Changes 给出的判据是可检验的：每一行改动都应该能直接追溯到用户的请求。[3] 配套规则也很具体——不要顺手「改进」相邻的代码、注释或格式；不要重构没坏的东西；匹配现有风格，哪怕你自己会写得不一样；发现无关的死代码可以提，但不要删。唯一的例外是自己改动造成的孤儿：你的改动让某个 import 或函数变成未使用，那些由你清理。[3]
+更稳妥的用法是把它当来源而不是成品：读这四条原则，对照你最近实际遇到的失败，判断是范围失控、没验证就宣布完成，还是需求没问清，然后只把对症的那一两条写进你自己的 `CLAUDE.md`，并保留原有规则。CURSOR.md 也建议把 Cursor 规则文件拷进目标项目再按需调整。[4]
 
-这条把「精简」从审美问题变成了范围问题。AI 生成的大 diff 里，真正危险的不是新增的那部分，而是没人要求、也没人细看的顺手改动。
+## 它不是万能药
 
-### 验证：把命令式任务改写成可验证目标
+有一点值得记住。Karpathy 在那则帖子里写道，这些失败「尽管在 `CLAUDE.md` 里做了几次简单的指令尝试，依然发生」。[1] 他报告的是一次指令没能完全修好的经历。
 
-Goal-Driven Execution 把「做什么」换成「怎么算做完」。仓库给的三组对照是：「加个校验」改成「为无效输入写测试，然后让它们通过」；「修个 bug」改成「写个能复现 bug 的测试，再让它通过」；「重构 X」改成「确保重构前后测试都能通过」。[3] 多步骤任务则要求先列出 `1. [步骤] → 验证: [检查]` 的骨架。[3]
+所以这份文件更适合当成降低出错概率的约束，而不是消除错误的保证。它也不该套在所有任务上：`CLAUDE.md` 第一句就是权衡声明，这些指南偏向谨慎而非速度，对琐碎任务用判断力；[5] README 说得更直白，对改错别字和显而易见的一行修复，不是每个改动都需要全套流程。[2]
 
-它和原帖里那句被广泛引用的话，是同一件事的两种说法：
+把这四条原则套到一个错别字修复上（假设陈述、多种解读、测试先行、计划骨架），本身就是它想压制的过度工程。
 
-> Don't tell it what to do, give it success criteria and watch it go.[1]
+至于它有没有在生效，仓库给出的信号是：diff 里不必要的改动更少、因过度复杂导致的重写更少、澄清问题出现在实现之前。[2] 这些是整理者给出的观察指标，仓库没有提供对比或测量数据。在自己的项目里，可以逐行检查 diff 和需求的对应关系，并从会话记录核对必要的澄清是否发生在实现之前。但问题问得多、diff 行数少，都不能单独证明效果。
 
-强弱标准的差别直接决定循环方式：强标准（有测试、有明确输出）能让代理自己迭代；弱标准（「让它能跑」）会把问题不断弹回给你。[3]
+<details>
+<summary>资料版本与本次核对范围</summary>
 
-### 轻重取舍：这不是对所有任务都上的流程
+- 来源固定到 Karpathy 原帖（2026-01-26），以及仓库 `README.md`、`CLAUDE.md`、`CURSOR.md`、`skills/karpathy-guidelines/SKILL.md` 的提交 `2c606141936f1eeef17fa3043a72095b4765b9c2`（2026-04-20）。内容与安装方式此后仍可能变化。
+- 四原则的英文标题与判据引自仓库 `CLAUDE.md`；Karpathy 原帖并未把它们发布为一套四原则框架，归属请以原帖和仓库为准。
+- 未安装插件、未运行任何代理、未做 A/B 对比，也未测量这套指南对 diff 范围或重写次数的影响。开头「改一个 bug 却顺手乱改」是示意场景，不是某次实测。
 
-`CLAUDE.md` 的第一句就是权衡声明：这些指南偏向谨慎而非速度，对琐碎任务用判断力。[5] README 说得更直白，对错别字和显而易见的一行修复，不是每个改动都需要全套严谨流程。[2]
-
-这条恰好是「简洁优先」的自指：如果把一个错别字修复也套上假设陈述、多种解读、测试先行、计划骨架，那本身就是过度工程。[3] 四原则要压制的是非平凡任务上的昂贵错误，不是速度；把它当成所有任务的强制流程，等于用错了工具。
-
-Think Before Coding 则是最前面的前提：不确定就问、有歧义时列出多种解读而不是默默选一个、有更简单方案就说出来、不清楚就停下来。[3] 它负责在动手之前截断「错误假设一路狂奔」。
-
-## 不要照抄安装命令
-
-README 给了两种接入方式：对新项目是 `curl -o CLAUDE.md <raw URL>`，对已有项目是往 `CLAUDE.md` 里追加同一份文件。[2]
-
-这两条都不适合直接照抄。`curl -o` 会覆盖同名文件，用在已有项目上等于用通用规则替换掉你自己的项目约定；追加则会把整套通用规则复制进你的文件，与既有项目规则并存、重叠甚至冲突。文件自己的第一句写的是按需与项目专属指令合并（merge with project-specific instructions as needed），[3] 而不是整份复制。
-
-更稳妥的做法是把它当来源而不是成品：读这四条原则，对照你最近实际遇到的失败——是范围失控、没验证就宣布完成，还是需求没问清——只把对症的那一两条写进你自己的 `CLAUDE.md`，并保留原有项目规则。CURSOR.md 也建议把 Cursor 规则文件拷进目标项目再按需调整。[4]
-
-## 怎么判断它是否在生效
-
-仓库列出的生效信号是：diff 里不必要的改动更少、因过度复杂导致的重写更少、澄清问题出现在实现之前、PR 干净精简。[2] 这些是整理者给出的观察指标，仓库没有提供 A/B 或测量数据。
-
-在自己的仓库里，可以逐行检查 diff 与需求的对应关系，并从会话记录核对必要的澄清是否发生在实现之前。问题问得多、diff 行数少，都不能单独证明效果。
-
-例如给列表接口增加 `limit` 校验，可以先约定：缺省值不变，纯数字字符串才接受，越界和混合字符串必须被拒绝；修改范围限于参数解析及对应测试，不动路由命名、数据库层或全文件格式。审查时同时核对边界测试和修改范围。这是一个验收设计示例，不是本文已经运行的项目实验。
-
-## 验证范围与资料版本
-
-- **修订日期：2026-10-17。** 保留原发布日期与路径。原稿把四原则的来源直接算在 Karpathy 名下，并给出了会覆盖已有 `CLAUDE.md` 的接入命令；两处均按原始来源更正。
-- **未验证：** 未安装插件、未运行任何代理、未做 A/B 对比，也未测量这套指南对 diff 范围或重写次数的影响。README 的生效信号是仓库自述，本文按声明引用。
-- **文档依据：** Karpathy 原帖（2026-01-26）；仓库 `README.md`、`CLAUDE.md`、`CURSOR.md`、`skills/karpathy-guidelines/SKILL.md` 固定到提交 `2c606141936f1eeef17fa3043a72095b4765b9c2`（2026-04-20）。仓库 2026 年 1 月 27 日创建，此后内容与安装方式仍可能变化。
-- **一个已知反例：** Karpathy 本人报告这些失败在他的 `CLAUDE.md` 尝试下依然存在，[1] 所以这类文件应视为降低概率的约束，而不是消除错误的保证。
+</details>
 
 ## Sources
 
-[1] https://x.com/karpathy/status/2015883857489522876
-[2] https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/README.md
-[3] https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/CLAUDE.md
-[4] https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/CURSOR.md
-[5] https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/skills/karpathy-guidelines/SKILL.md
+[1] https://x.com/karpathy/status/2015883857489522876 — Karpathy X post 2026-01-26
+[2] https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/README.md — karpathy-skills README
+[3] https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/CLAUDE.md — karpathy-skills CLAUDE.md
+[4] https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/CURSOR.md — karpathy-skills CURSOR.md
+[5] https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/skills/karpathy-guidelines/SKILL.md — karpathy-guidelines SKILL.md
