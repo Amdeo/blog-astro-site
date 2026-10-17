@@ -1,7 +1,8 @@
 ---
-title: awesome-design-md：把热门网站的设计语言整理成 DESIGN.md
+title: 'awesome-design-md 拆解：两份 DESIGN.md 的颜色角色、字阶与组件规则'
 published: 2026-04-09
-description: 整理 VoltAgent/awesome-design-md 仓库的核心内容与设计思路，看看它怎么把热门网站的视觉语言提炼成 DESIGN.md，方便在博客、产品页和 AI 编程工作流里复用。
+updated: 2026-10-17
+description: '把第三方整理的 DESIGN.md 当机器可读契约前：两份样例的角色/字阶对比与离线校验。'
 tags: [AI, UI设计, Design System, DESIGN.md, GitHub, VoltAgent, 效率工具]
 category: AI 工具
 draft: false
@@ -11,465 +12,159 @@ licenseName: MIT
 licenseUrl: https://github.com/VoltAgent/awesome-design-md/blob/main/LICENSE
 ---
 
-最近看到一个很适合长期收藏的仓库：
+把一份 `DESIGN.md` 拷进项目、让 AI 按它生成页面之前，有三个问题值得先问清楚：仓库实际提供了什么文件、每份 `DESIGN.md` 用什么结构承载规则、这些规则在严格解析下站不站得住。
 
-- GitHub：<https://github.com/VoltAgent/awesome-design-md/tree/main>
+这篇拆两份样例（Linear 与 Stripe），再检查 Claude、Supabase 两份文件的解析问题。四份中有一份 YAML 解析失败；其余三份共 456 个候选引用，脚本标出了 15 处，其中 14 处是命名空间不一致，另一处只是占位符误报。自动检查能找问题，也需要人解释结果。
 
-它做的事情很直接，但很有意思：**把一批知名网站的视觉风格提炼成 `DESIGN.md` 文件**，让你可以把这些设计语言直接丢进项目里，再配合 AI 编程/设计代理去生成风格一致的 UI。
+> 取材与核查说明：本文是资料解读加可复现检查，不是视觉还原度评测。引文固定到 awesome-design-md 的提交 `3b605329`，取值来自仓库中的 DESIGN.md 文本本身；我没有逐页比对目标网站的 CSS，也没有生成任何页面截图或效果图。
 
-如果说 `AGENTS.md` 更像是“告诉 AI 怎么做事”，那 `DESIGN.md` 就是在告诉 AI：**页面应该长什么样，气质是什么，颜色怎么用，组件怎么写，布局该怎么收。**
+<!--more-->
 
-这篇文章想做的事也很简单：把这个仓库拆开看看，顺手整理成一份中文笔记，后面无论写博客、做产品页、搭后台界面，还是配合 AI 生成页面，都能直接拿来参考。
+## 仓库实际提供了什么
 
-## 1. 这个仓库是干什么的
+README 说每份 DESIGN.md 遵循 Stitch DESIGN.md format，并列了一张“每个站点包含哪些文件”的表：`DESIGN.md`、`preview.html`、`preview-dark.html`。[1]
 
-仓库名是：**awesome-design-md**。
+但在提交 `3b605329` 的目录树里，`design-md/<site>/` 下只有 `DESIGN.md` 和 `README.md`，全树没有任何 `preview*` 文件。仓库 badge 自称 84 份，`design-md/*/DESIGN.md` 的实际计数也是 84，这个数对得上；preview 那张表对不上。
 
-它的核心定位可以概括成一句话：
+这不影响 DESIGN.md 本身的可用性，但决定了你能拿到什么：只有文本规范，没有可视对照页。取证时以目录树为准，不要以 README 的表格为准。
 
-> 收集和整理来自热门网站的 `DESIGN.md` 文件，让 AI 能基于这些设计规范生成更接近目标风格的页面。
+README 还把 DESIGN.md 归为 Google Stitch 引入的概念。[1] 我尝试打开它引用的 Stitch 文档页，抓到的只有 JS 外壳、没有正文，所以这里只按“仓库如此归因”记录，不作为已验证事实。
 
-仓库首页的意思大致是：
+## 一份 DESIGN.md 的结构：front matter 是令牌表，正文是引用
 
-- 把某个网站对应的 `DESIGN.md` 拷贝到你的项目里
-- 告诉 AI “按这个风格给我做一个页面”
-- AI 就能更稳定地生成接近该网站视觉语言的界面
+Linear 那份的前 100 多行是 YAML front matter，全是结构化令牌：
 
-这个思路之所以有用，是因为：
-
-1. `Markdown` 本身就是大模型最擅长读的格式之一
-2. 比起一堆零散截图，`DESIGN.md` 更结构化
-3. 比起 Figma、复杂 token JSON、设计平台导出文件，这种方式非常轻量
-4. 很适合和 AI 编程工具一起工作
-
-换句话说，它不是在替代专业设计流程，而是在给 AI 一个**更适合机器理解的设计约束文本**。
-
-## 2. 什么是 DESIGN.md
-
-仓库里提到，`DESIGN.md` 是 Google Stitch 引入的一种概念。
-
-你可以把它理解成一个纯文本版的设计系统说明书。它通常会描述：
-
-- 页面整体气质
-- 颜色系统
-- 字体层级
-- 按钮、卡片、输入框、导航等组件的视觉规则
-- 间距、布局、阴影和层次关系
-- 响应式行为
-- 给 AI 的提示词建议
-
-它和 `AGENTS.md` 的关系其实很清楚：
-
-| 文件 | 面向谁 | 主要解决什么问题 |
-| --- | --- | --- |
-| `AGENTS.md` | 编码代理 / 工程代理 | 告诉 AI 怎么构建项目、怎么协作、怎么执行 |
-| `DESIGN.md` | 设计代理 / UI 生成代理 | 告诉 AI 页面应该长什么样、风格如何统一 |
-
-一个偏**工程行为约束**，一个偏**视觉设计约束**。
-
-这两个文件如果搭配起来，其实很适合现在这种“AI 参与编码”的工作流。
-
-## 3. 每个 DESIGN.md 里通常有什么
-
-根据仓库说明，这些 `DESIGN.md` 文件通常包含下面这些部分：
-
-1. **Visual Theme & Atmosphere**
-   - 视觉主题与整体氛围
-   - 比如是极简、技术感、电影感、终端风、编辑风、亲和型还是企业型
-
-2. **Color Palette & Roles**
-   - 配色与角色定义
-   - 不只是给颜色值，还说明主色、辅助色、强调色、背景色、文本色各自承担什么功能
-
-3. **Typography Rules**
-   - 字体规则与层级
-   - 包括字体家族、标题层级、正文密度、行高、字重等
-
-4. **Component Stylings**
-   - 组件样式规则
-   - 按钮、输入框、卡片、导航、状态样式等
-
-5. **Layout Principles**
-   - 布局原则
-   - 间距、栅格、留白、信息密度、页面组织方式
-
-6. **Depth & Elevation**
-   - 阴影和层次
-   - 哪些元素浮起来，哪些元素贴平面，卡片层级怎么处理
-
-7. **Do's and Don'ts**
-   - 正反例与限制
-   - 什么能做，什么不能做，避免风格跑偏
-
-8. **Responsive Behavior**
-   - 响应式行为
-   - 在移动端如何折叠、缩放、调整交互目标尺寸
-
-9. **Agent Prompt Guide**
-   - 给代理的快速提示指南
-   - 提供能直接喂给 AI 的风格提示词或摘要说明
-
-从实践角度讲，这种结构很适合 AI。因为它既不是一团截图，也不是一大包复杂配置，而是一种**足够结构化但仍然保持自然语言表达**的格式。
-
-## 4. 仓库里还包含什么
-
-除了 `DESIGN.md`，仓库里每个站点通常还会包含：
-
-- `preview.html`
-- `preview-dark.html`
-
-它们的作用大致是：
-
-- 把颜色卡、字体比例、按钮样式、卡片样式之类可视化出来
-- 帮你快速确认这个 `DESIGN.md` 到底在描述什么风格
-- 方便人工检查，而不只是让 AI 看文档
-
-所以这一套其实挺完整：
-
-- `DESIGN.md`：给 AI 读
-- `preview*.html`：给人看
-
-## 5. 这个仓库目前收录了哪些风格来源
-
-它收录的网站覆盖面挺广，主要包括这些方向：
-
-### 5.1 AI / 大模型 / 开发者平台
-- Claude
-- Cohere
-- ElevenLabs
-- Minimax
-- Mistral AI
-- Ollama
-- OpenCode AI
-- Replicate
-- RunwayML
-- Together AI
-- VoltAgent
-- xAI
-
-这类站点通常会有这些共同特点：
-
-- 强烈的科技感或未来感
-- 大面积深色背景或高对比配色
-- 对代码、控制台、数据面板、模型概念有更强兼容性
-- 很适合做 AI 产品落地页、开发者工具站点、模型控制台
-
-### 5.2 Developer Tools / SaaS / 平台型产品
-- Cursor
-- Expo
-- Linear
-- Lovable
-- Mintlify
-- PostHog
-- Raycast
-- Resend
-- Sentry
-- Supabase
-- Superhuman
-- Vercel
-- Warp
-- Zapier
-
-这类风格对我来说很有参考价值，因为它们通常平衡得比较好：
-
-- 既有品牌感
-- 又不至于花里胡哨
-- 对开发者/效率工具/控制台类产品特别实用
-
-如果以后要做：
-
-- 文档站
-- 开发者产品主页
-- 后台管理界面
-- 工具型落地页
-
-这一类会特别值得翻。
-
-### 5.3 基础设施 / 云 / 数据 / 企业技术
-- ClickHouse
-- Composio
-- HashiCorp
-- MongoDB
-- Sanity
-- Stripe
-
-这类站点很多都强调：
-
-- 可信赖感
-- 技术感
-- 结构清晰
-- 信息密度与品牌风格的平衡
-
-尤其 Stripe、HashiCorp 这类风格，经常能作为“严肃但不死板”的参考模板。
-
-### 5.4 设计 / 生产力 / 协作工具
-- Airtable
-- Cal.com
-- Clay
-- Figma
-- Framer
-- Intercom
-- Miro
-- Notion
-- Pinterest
-- Webflow
-
-这类风格更适合参考：
-
-- 品牌体验
-- 视觉层次
-- 内容展示组织
-- 营销页叙事感
-
-### 5.5 金融 / 加密
-- Coinbase
-- Kraken
-- Revolut
-- Wise
-
-这类页面通常更强调：
-
-- 清晰
-- 可信
-- 数据感
-- 高级感
-
-### 5.6 大众消费 / 企业品牌
-- Airbnb
-- Apple
-- IBM
-- NVIDIA
-- SpaceX
-- Spotify
-- Uber
-
-这些就更适合拿来观察大品牌如何处理：
-
-- 视觉识别
-- 大图与留白
-- 文案节奏
-- 首屏表达
-
-### 5.7 汽车品牌
-- BMW
-- Ferrari
-- Lamborghini
-- Renault
-- Tesla
-
-这部分挺有意思，因为这些品牌对“质感、克制、冲击力”的处理方式非常极端，拿来做高概念风格参考很合适。
-
-## 6. 这个仓库适合怎么用
-
-我觉得它最适合的不是“照搬”，而是下面几种使用方式。
-
-### 6.1 作为 AI 生成 UI 的风格约束
-
-这是最直接的用法。
-
-做法大概是：
-
-1. 选一个接近目标气质的网站风格
-2. 把对应的 `DESIGN.md` 放到项目根目录
-3. 告诉 AI：
-   - 按这个 `DESIGN.md` 生成首页
-   - 按这个风格改写卡片组件
-   - 用这个视觉系统重构登录页
-
-这种方式的价值在于：**让 AI 不再只靠模糊形容词瞎猜风格。**
-
-比如“高级一点”“科技感一点”“像 Vercel 一样”这种话，AI 往往会理解得很散；但如果你给它一个明确的 `DESIGN.md`，收敛程度会高得多。
-
-### 6.2 作为设计分析素材库
-
-就算你不让 AI 直接读，这仓库本身也值得当资料库。
-
-你可以用它来观察：
-
-- 不同品牌怎么定义主色/中性色/强调色
-- 深色 UI 为什么有些看着高级，有些看着像黑洞
-- 字体层级怎么影响技术产品的“专业感”
-- 同样是极简，Apple、Linear、Vercel、Notion 的味道为什么完全不同
-
-也就是说，它不只是“拿来用”，也适合“拿来学”。
-
-### 6.3 作为自己项目 DESIGN.md 的参考模板
-
-这个对长期项目最有价值。
-
-以后如果我要给自己的项目建立一份设计约束文档，其实完全可以参考它的结构，自己写一个：
-
-- 我的网站气质是什么
-- 我允许哪些颜色出现
-- 卡片和按钮该长什么样
-- 页面应偏内容型还是偏工具型
-- 在移动端怎么收缩
-- 哪些视觉套路不准乱用
-
-这会让后续的 AI 修改更稳定，也能减少“越改越不像同一个项目”的问题。
-
-## 7. 对博客和个人项目有什么现实价值
-
-对我来说，这仓库的现实价值主要有三层。
-
-### 7.1 做页面时能更快找到风格锚点
-
-很多时候不是不会写页面，而是**不知道要往哪种风格靠**。
-
-这时候如果手头有一批整理好的设计语言：
-
-- 想做开发者工具站，就看 Vercel / Supabase / Resend / Warp
-- 想做产品控制台，就看 Sentry / PostHog / Cohere
-- 想做品牌感更强的页面，就看 Apple / Airbnb / Stripe / Framer
-- 想做强烈黑金/高端感，就看 Ferrari / Lamborghini / Tesla
-
-比临时满网搜截图有效得多。
-
-### 7.2 很适合配合 AI coding agent 使用
-
-现在越来越多工作流都是：
-
-- 先定需求
-- 再给代码代理约束
-- 然后不断迭代页面
-
-如果只给功能需求，不给设计约束，最后很容易做出“能用，但一股模板味”的东西。
-
-而 `DESIGN.md` 正好补上这一层。
-
-例如可以这样提要求：
-
-```md
-请基于项目根目录中的 DESIGN.md，生成一个产品首页。
-要求：
-- 首屏包含标题、副标题、CTA、代码片段展示
-- 使用 DESIGN.md 中的颜色角色和字体层级
-- 卡片、按钮、导航的交互状态遵循文档定义
-- 移动端保持信息密度，但避免拥挤
+```yaml
+colors:
+  primary: "#5e6ad2"
+  canvas: "#010102"
+  surface-1: "#0f1011"
+spacing:
+  xxs: 4px
+  sm: 12px
+  section: 96px
+rounded:
+  md: 8px
+  lg: 12px
+components:
+  button-primary:
+    backgroundColor: "{colors.primary}"
+    rounded: "{rounded.md}"
+    padding: 8px 14px
 ```
 
-这种提示会比“做一个像某某官网的页面”靠谱得多。
+正文用 `{colors.primary}`、`{spacing.lg}` 这样的引用指回 front matter，而不是重复写颜色值。组件规则也放在 front matter 里，正文负责解释它在页面上怎么落地——比如按钮那条写的是 “Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.button}`, padding 8px 14px, rounded `{rounded.md}`”。[2]
 
-### 7.3 很适合博客主题、专题页和落地页实验
+这个结构带来一个实际好处：引用可以机械校验。既然是纯文本加引用，就能检查有没有引用指向不存在的令牌。
 
-我的博客本体还是以内容为主，不需要每天发神经乱改 UI。  
-但如果以后要做：
+## 取样校验：先区分真实缺失和脚本误报
 
-- 某个专题页
-- 个人作品展示页
-- 工具推荐页
-- AI 相关实验页
-- 新版首页视觉方案
+校验规则是解析 front matter，抽出正文里形如 `{group.token}` 的候选引用，再沿层级找键。下面是对上述四份来源副本的实际输出；非零退出码表示有解析错误或未解析的候选项，不直接等于这些项全是规范错误。
 
-这个仓库就很适合拿来当风格来源库。
+```text
+design-md_linear.app_DESIGN.md: refs=158 unresolved=0
+design-md_stripe_DESIGN.md: refs=121 unresolved=0
+claude.md: refs=177 unresolved=15
+supabase.md: invalid front matter (ScannerError)
+TOTAL: refs=456 unresolved=15 invalid=1
+```
 
-## 8. 使用时要注意什么
+复现需要 Python 3.11 与 PyYAML 6.0.3。保存来源 [2]—[5] 的四份文件，将下面的程序存为 `check_design_refs.py`，然后执行 `python check_design_refs.py <文件路径...>`。程序只读本地文件；它仅验证候选引用的键是否存在，不验证设计值、视觉效果或完整规范兼容性。
 
-这个仓库很有用，但别把它神化。
+```python
+from pathlib import Path
+import re
+import sys
+import yaml  # PyYAML 6.0.3
 
-### 8.1 它更像“风格提炼”，不是官方设计系统
+refs_total = unresolved_total = invalid = 0
+for name in sys.argv[1:]:
+    path = Path(name)
+    lines = path.read_text(encoding="utf-8").splitlines()
+    try:
+        if not lines or lines[0] != "---":
+            raise ValueError("missing front matter")
+        end = lines.index("---", 1)
+        tokens = yaml.safe_load("\n".join(lines[1:end]))
+        if not isinstance(tokens, dict):
+            raise ValueError("front matter must be a mapping")
+    except (ValueError, yaml.YAMLError) as error:
+        invalid += 1
+        print(f"{path.name}: invalid front matter ({type(error).__name__})")
+        continue
+    body = "\n".join(lines[end + 1:])
+    refs = re.findall(r"\{([A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+)\}", body)
+    unresolved = 0
+    for ref in refs:
+        node = tokens
+        for part in ref.split("."):
+            if not isinstance(node, dict) or part not in node:
+                unresolved += 1
+                break
+            node = node[part]
+    refs_total += len(refs)
+    unresolved_total += unresolved
+    print(f"{path.name}: refs={len(refs)} unresolved={unresolved}")
+print(f"TOTAL: refs={refs_total} unresolved={unresolved_total} invalid={invalid}")
+sys.exit(1 if unresolved_total or invalid else 0)
+```
 
-这些 `DESIGN.md` 是从公开网站视觉中提炼出来的整理结果。它们能帮助 AI 靠近某种风格，但不等于拿到了人家的完整设计规范。
+两个问题各有具体成因：
 
-所以更合适的态度是：
+- **命名空间不一致。** claude 那份的 front matter 定义的是复数 `components:`，正文却出现 14 处单数引用（`{component.button-primary}`、`{component.feature-card}` 等 9 个名字）。[4] 按本文的严格键路径检查，这些引用不能解析。（剩下一处是提示词句子里的 `{token.refs}`，只是语法示意，不应算成缺失令牌。）
+- **front matter 不是合法 YAML。** supabase 那份第 4 行的 `description` 是未加引号的长标量，里面出现了冒号：“The brand reads as quietly technical: minimal chrome, a near-monochrome palette”。[5] 解析器在这一行直接报错，整份 front matter 都读不出来，更谈不上引用校验。
 
-- **参考**
-- **借鉴**
-- **抽象复用**
+模型直接阅读自然语言时，可能自己猜对这些含义；严格解析程序却不会自动修正。因此，要把这类文件接进令牌提取或代码生成流程，先明确哪些字段真的能被机器解析，再处理命名与格式问题。
 
-而不是生搬硬套。
+## 同一套字段，两份样例的落地方式完全不同
 
-### 8.2 最好不要只复制表面颜色
+两份的字段名几乎一样，取值和用法几乎没有一处相同。
 
-真正决定风格的，通常不只是颜色，还包括：
+| | Linear | Stripe |
+| --- | --- | --- |
+| 主色与用途 | `#5e6ad2` 薰衣草蓝：品牌标记、焦点环、主 CTA | `#533afd` 靛蓝：每个色带只出现一个实心 pill |
+| 强调色纪律 | 无第二鲜艳色，唯一语义色是成功绿 | ruby/magenta 只出现在渐变和图表，不做按钮色 |
+| 展示字重与字距 | 600 字重，80px 配 -3.0px 字距 | 300 字重，56px 配 -1.4px 字距 |
+| 间距基准 | 4px | 8px（另有 2/4/12 子令牌） |
+| 按钮圆角与内边距 | `rounded.md` 8px，8px 14px | `rounded.pill` 9999px，8px 16px |
+| 层次来源 | surface 阶梯，不靠阴影 | 渐变网格就是深度系统 |
 
-- 间距
-- 版式密度
-- 字体气质
-- 边框强弱
-- 阴影层级
-- 组件圆角
-- 内容节奏
+几个值得记住的点：
 
-如果只抄颜色，最后很容易做出一个“配色像，但气质不像”的页面。
+- **同名令牌的语义不通用。** Linear 的 `spacing.sm` 是 12px，Stripe 的 `spacing.sm` 是 8px；Linear 用 `rounded.md` 做按钮圆角，Stripe 把 `rounded.pill` 给所有按钮、`md` 留给紧凑卡片。跨文件混抄令牌名会直接抄错值。
+- **字重和字距比颜色更能定调。** Linear 的负字距随字号从 -3.0px 收到接近 0；Stripe 把 300 字重当作品牌本身，文件里写明把展示层拉到 400 以上就没有那种编辑感了。[2][3] 只抄配色大概率做不出这两种气质。
+- **Stripe 那份给出了具体实现建议**：用 layered SVG 或大背景图表现那组渐变网格，而非只叠 CSS 渐变。[3] 这是整理者对特定效果的复现建议，不是对 CSS 全部能力的判断；它至少比“有高级感”更能指导实现。
+- 两份都附了字体替代建议：Linear 指向 Inter/Geist，Stripe 指向 Inter 300 加 `ss01` 特性。[2][3] 这是整理者的方案，不是原品牌的授权声明；实际使用或分发字体前，还要另外检查许可。
 
-### 8.3 最终还是要回到你自己的项目约束
+## 这是第三方整理，不是品牌官方规范
 
-参考别人很方便，但长期来看，最重要的还是形成自己的 `DESIGN.md`。
+在自我声明上，两份文件比 README 更谨慎：
 
-否则你今天像 Vercel，明天像 Stripe，后天又想学 Notion，最后项目就会变成一锅审美乱炖。
+- Linear 那份的 front matter 名字是 `Linear-design-analysis`。[2]
+- Stripe 那份名字是 `Stripi-Inspired-design-analysis`，description 开头是 “An inspired interpretation of Stripi's design language”，原文就是这么拼的。[3]
+- README 则是另一套说法：“The extracted design tokens represent publicly visible CSS values”，并且“We do not claim ownership of any site's visual identity”。[1]
 
-## 9. 我自己会怎么用这个仓库
+两种表述不完全一致：README 声称是可观察到的 CSS 取值，文件自称是“受启发的诠释”。取用时按后者对待更安全——把它当风格参照，别当官方设计系统，也别宣称任何还原度。另外每份正文有一行 `Source pages:`（例如 Stripe 那份列出 home、/payments、/pricing 和注册页），说明取样范围是自述的；我没有逐页核对 CSS，对取值准确性的判断到此为止。
 
-如果以后要真的落地，我会优先这么用：
+## 落到用的时候
 
-### 方案一：先选风格原型
-先判断页面类型，再选参考源：
+三条来自上面核查的实际动作：
 
-- 技术博客专题页：优先看 Vercel / Mintlify / Supabase / Notion
-- AI 工具页：优先看 Claude / Cohere / VoltAgent / Together AI
-- 控制台/后台：优先看 Sentry / PostHog / Linear
-- 高质感品牌页：优先看 Apple / Stripe / Airbnb / Tesla
+1. **先校验，再复核告警。** 非法 YAML 会让严格解析失败，命名空间不一致会留下悬空引用，但程序也会把 `{token.refs}` 这类示意语法报成问题。
+2. **先定义自己的令牌，再映射参考。** 不要把不同文件里同名的 `spacing.sm` 当成同一尺寸；混用时应明确转换，而非直接拼接。
+3. **不只看主色。** 把字体、间距、圆角和层次手段一起读，再判断哪些约束适用于自己的页面。
 
-### 方案二：先借结构，再做本地化
-不是让页面“长得像某某官网”，而是借：
+## 验证范围与资料版本
 
-- 色彩关系
-- 字体节奏
-- 卡片和按钮样式规则
-- 页面块之间的组织逻辑
+- **修订日期：2026-10-17。** 原发布日期保留；删去品牌枚举、重复的“值得收藏”总结和对话式收尾。
+- **取材版本：** awesome-design-md 提交 `3b605329240ce735b510037cca322f1831fdd7f8`（2026-10-14）。README 与 DESIGN.md 的引文均来自该提交，仓库持续更新，结构与内容可能已变。
+- **实际执行：** 从最终成稿提取上述脚本，对四份来源副本运行（Python 3.11 + PyYAML 6.0.3），输出见上文，退出码为 1，符合存在候选缺失与解析错误的预期；脚本只读本地文件，不联网。
+- **未验证：** 目标网站 CSS 的逐条比对、preview 页的可视效果（仓库中不存在这些文件）、AI 依此生成页面的实际效果，以及各品牌对这份提炼的态度。
 
-然后再压回自己的品牌语义里。
+## Sources
 
-### 方案三：沉淀自己的 DESIGN.md
-如果某一轮实验效果不错，就应该反过来把：
-
-- 颜色角色
-- 标题字号层级
-- 间距规范
-- 卡片/按钮/标签规则
-- 页面风格边界
-
-整理成自己项目根目录里的 `DESIGN.md`。这样以后交给 AI 改页面时，稳定性会高很多。
-
-## 10. 适合收藏的原因
-
-这个仓库值得收藏，不是因为它“酷”，而是因为它刚好卡在一个很实用的位置：
-
-- 比截图更结构化
-- 比设计软件导出更轻量
-- 比一句模糊提示词更可控
-- 比完全从零定义风格更省时间
-
-对于现在这种 AI 参与 UI 生成的工作方式来说，它属于那种**短期就能上手，长期也能沉淀方法论**的资料。
-
-## 11. 快速结论
-
-如果只用一句话总结 `VoltAgent/awesome-design-md`：
-
-> 它是一个把知名网站视觉风格转成 `DESIGN.md` 的资料仓库，特别适合用来给 AI 提供可读、可复用、可约束的 UI 风格上下文。
-
-适合谁：
-
-- 想用 AI 做页面的人
-- 想让生成结果少一点模板味的人
-- 想建立自己设计规范的人
-- 想系统观察热门产品设计语言的人
-
-最推荐的使用方式不是照抄，而是：
-
-1. 找接近自己目标的风格原型
-2. 用它约束 AI 生成页面
-3. 抽象出自己的设计语言
-4. 最终沉淀成你项目自己的 `DESIGN.md`
-
-## 12. 原始仓库链接
-
-- 仓库主页：<https://github.com/VoltAgent/awesome-design-md/tree/main>
-
-后面如果真要落地，我可以继续做两件事：
-
-1. 从这个仓库里挑几套最适合技术博客/开发者站的风格做对比
-2. 基于我的博客现状，反过来整理出一份自己的 `DESIGN.md` 初稿
-
-这两件事都比单纯收藏链接更有实际价值。
+[1] https://raw.githubusercontent.com/VoltAgent/awesome-design-md/3b605329240ce735b510037cca322f1831fdd7f8/README.md — awesome-design-md README @3b60532
+[2] https://raw.githubusercontent.com/VoltAgent/awesome-design-md/3b605329240ce735b510037cca322f1831fdd7f8/design-md/linear.app/DESIGN.md — design-md/linear.app/DESIGN.md @3b60532
+[3] https://raw.githubusercontent.com/VoltAgent/awesome-design-md/3b605329240ce735b510037cca322f1831fdd7f8/design-md/stripe/DESIGN.md — design-md/stripe/DESIGN.md @3b60532
+[4] https://raw.githubusercontent.com/VoltAgent/awesome-design-md/3b605329240ce735b510037cca322f1831fdd7f8/design-md/claude/DESIGN.md — design-md/claude/DESIGN.md @3b60532
+[5] https://raw.githubusercontent.com/VoltAgent/awesome-design-md/3b605329240ce735b510037cca322f1831fdd7f8/design-md/supabase/DESIGN.md — design-md/supabase/DESIGN.md @3b60532

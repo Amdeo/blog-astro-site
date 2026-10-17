@@ -1,412 +1,136 @@
 ---
-title: 'superpowers：给编码代理用的开发工作流技能库'
+title: 'Superpowers 的技能为什么不触发：加载、触发与验证是三件事'
 published: 2026-04-07
-description: '根据 obra/superpowers 的 README 整理，重点说明它是什么、解决什么问题、用在哪些编码代理里、怎么安装，以及接上之后会如何改变日常开发流程。'
+updated: 2026-10-17
+description: '从 SessionStart 引导注入讲起，区分技能库的加载、触发与验证，说明不该走全流程的任务。'
 tags: ['superpowers', 'AI Agent', 'Claude Code', 'Codex', 'Cursor']
 category: '工具'
 draft: false
 pinned: false
 comment: true
 lang: 'zh-CN'
+sourceLink: 'https://github.com/obra/superpowers'
 ---
 
-# superpowers：给编码代理用的开发工作流技能库
+把一个技能库装进编码代理，最常见的失望不是技能写得不好，而是它根本没被调用：文件在磁盘上、技能列表里能看到、插件也显示已启用，代理还是直接开始改代码。
 
-> superpowers 官方最值得先记住的一句话是：**Superpowers is a complete software development workflow for your coding agents**。
->
-> 如果翻成以后自己查资料最有用的话，就是：**superpowers 是一套给 Claude Code、Cursor、Codex、OpenCode、Gemini CLI 这类编码代理用的开发工作流技能库。**
+Superpowers 的 README 把自己描述成一套完整的软件开发方法论，并声称技能会自动触发、你不需要做任何特别的事。[1] 要判断这句话在什么条件下成立，得把三件常被混为一谈的事拆开：**加载**（技能进了会话）、**触发**（代理真的调用了它）、**验证**（你确认它确实按技能做了）。
 
-## 什么是 superpowers
+<!--more-->
 
-superpowers 不是一个单独的大模型，也不是一个只提供几个 prompt 的提示词合集。
+> 本文追踪仓库当前的加载入口与工作流，并离线复现了它的引导机制。未安装插件、未运行模型，也没有观察真实的自动触发。
 
-它更像是一套 **装在编码代理上的开发方法 + 技能系统**。它的核心目标不是“让 AI 更会聊天”，而是让 AI 在做软件开发时，按一套固定流程来工作，比如：
+## 加载：引导不是可选项
 
-- 先把需求问清楚
-- 先出设计，再做实现
-- 先拆计划，再写代码
-- 强调 TDD，而不是先糊代码
-- 用子代理并行做任务
-- 中间穿插代码审查
-- 最后再决定合并、提 PR，还是丢弃分支
+插件里有一个 `hooks/session-start` 脚本，注册在 `SessionStart` 事件上，匹配 `startup|clear|compact` 三种时机。[15] 它只做一件事：读取 `skills/using-superpowers/SKILL.md` 的全文，塞进会话上下文。[3]
 
-所以以后如果自己再回来看这篇文章，先记一句话：
+仓库自己的贡献者说明把这条机制的必要性讲得毫不含糊：
 
-**superpowers 本质上是给编码代理加一套“规范开发流程”的技能层。**
+> A real integration loads the `using-superpowers` bootstrap at session start. The bootstrap is what causes skills to auto-trigger at the right moments. Without it, the skills are dead weight — present on disk but never invoked.[2]
 
-## 它到底解决什么问题
+译文：真正可用的集成会在会话启动时加载 `using-superpowers` 引导；引导才是技能能在恰当时机自动触发的原因，没有它，技能只是躺在磁盘上的死重，永远不会被调用。
 
-很多人现在用 Claude Code、Cursor、Codex 这类工具时，会遇到同一类问题：
+### 离线复现：这个钩子注入了什么
 
-### 1. AI 会直接冲进去写代码
-
-用户刚说一个需求，AI 还没搞清楚目标、边界和验收标准，就已经开始改文件了。
-
-superpowers 解决这个问题的方式很直接：  
-**先触发 brainstorming，让代理先把需求问清楚，再整理成设计。**
-
-### 2. AI 会写，但不一定会按工程流程写
-
-很多编码代理会做事，但不稳定：
-
-- 有时先写代码，后补测试
-- 有时没有计划，做到哪算哪
-- 有时修完一个点，顺手把别的地方也动乱了
-- 有时嘴上说“好了”，其实没验证
-
-superpowers 想解决的是：  
-**把“会写代码”推进成“会按流程开发”。**
-
-### 3. 多步骤开发时，AI 容易跑偏
-
-一旦任务稍复杂，常见问题就出来了：
-
-- 忘了前面定的设计
-- 中途偏离目标
-- 每次新任务上下文不统一
-- 子任务之间没有清晰边界
-
-superpowers 的思路是把整个过程拆成一连串技能触发点，让代理在每个阶段做固定动作，而不是全靠临场发挥。
-
-## 它用在哪些工具里
-
-README 里已经明确列出，它可以接在这些编码工具里：
-
-- **Claude Code**
-- **Cursor**
-- **Codex**
-- **OpenCode**
-- **GitHub Copilot CLI**
-- **Gemini CLI**
-
-如果只从“实用价值”看，这个项目最适合放在：
-
-- 经常让 AI 写代码的人
-- 希望 AI 别直接乱改代码的人
-- 想让 AI 先计划、再执行、再审查的人
-- 想把开发流程标准化的人
-
-换句话说，它不是给“偶尔问一句代码问题”的场景准备的，  
-它更适合 **已经把 AI 当开发搭子甚至半自动执行器来用** 的人。
-
-## 安装方式
-
-superpowers 的安装方式按平台不同而不同。
-
-### Claude 官方插件市场
-
-如果是 Claude 官方插件市场，直接安装：
+不用安装插件也能看清机制。把仓库取到本地，脚本所在的 `hooks/` 与 `skills/` 本就同级，直接执行即可（以下命令已在 macOS + GNU bash 3.2.57 上实际运行）：
 
 ```bash
-/plugin install superpowers@claude-plugins-official
+mkdir sp && cd sp && git init -q
+git remote add origin https://github.com/obra/superpowers.git
+git fetch --depth 1 origin bb92a77741419a4ab5f06e711a283343f1ada0c3
+git checkout FETCH_HEAD
+cd hooks && bash session-start > hook.json; echo "exit=$?"
+head -c 400 hook.json
 ```
 
-### Claude Code（通过插件市场）
+本次运行退出码为 0，`hook.json` 为 3547 字节。`head` 只是为了截断预览，下面这 400 字节的输出在字符串中间被切断，不是文件结尾：
 
-先注册 marketplace：
-
-```bash
-/plugin marketplace add obra/superpowers-marketplace
+```json
+{
+  "additionalContext": "<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n---\nname: using-superpowers\ndescription: Use when starting any conversation - establishes how to find and use skills, requiring skill invocation before ANY response
 ```
 
-再安装：
+也就是说，注入的不只是一句介绍，而是 `using-superpowers` 的**全文**，包括那条「只要有 1% 的可能技能适用，就必须调用它」的强制规则，以及一张把「这只是个简单问题」「技能太重了」等念头逐条驳回的对照表。[4]
 
-```bash
-/plugin install superpowers@superpowers-marketplace
-```
+### 同一个钩子，不同平台输出不同字段
 
-### Cursor
+脚本按环境变量判断当前代理平台，只输出该平台消费的字段。带上不同变量各跑一次，实测的顶层 JSON 键如下：
 
-在 Cursor Agent chat 里安装：
+| 环境变量 | 顶层 JSON 键 |
+|----------|--------------|
+| 无（SDK 标准） | `additionalContext` |
+| `CURSOR_PLUGIN_ROOT` | `additional_context` |
+| `CLAUDE_PLUGIN_ROOT`（无 Copilot / Muse 变量） | `hookSpecificOutput` |
+| `MUSE_PLUGIN_ROOT` | `hookSpecificOutput` |
 
-```text
-/add-plugin superpowers
-```
+这不是洁癖。脚本注释写明 Claude Code 会同时读 `additional_context` 和 `hookSpecificOutput` 且不去重，所以必须只发当前平台那一个字段。[3] 注入的**内容**相同，**送达方式**按平台定制。
 
-或者直接去插件市场里搜 `superpowers`。
+## 加载成功不等于会触发
 
-### Codex
+技能进了会话之后，触发是模型行为，受引导文本塑造，并不是自动保证。更麻烦的是，「装了」这件事在不同代理里的含义不同：
 
-对 Codex，它不是一条本地安装命令，而是让 Codex 去抓安装说明：
+- **这份 Hermes 适配器**通过 `pre_llm_call` 在首轮注入引导，内容附加到第一条用户消息上。[14] 该仓库 README 把压缩后不能重新注入列为集成限制，并建议触发失效时新开会话。[1] 这是固定提交下的插件设计与项目方说明，不是对所有 Hermes 版本的生命周期接口作判断；本文也没有实测压缩后的触发行为。
+- **Antigravity** 在该版本的发布说明里采用另一种接入方式：向模型展示已安装技能的描述，而非依赖会话启动钩子。项目方称在 agy 1.3.1 上做过 12 次运行验证；本文未独立复现。[13]
 
-```text
-Fetch and follow instructions from https://raw.githubusercontent.com/obra/superpowers/refs/heads/main/.codex/INSTALL.md
-```
+「已安装」并不保证引导已经加载，更不保证触发。首先要确认平台是否把引导送进了模型的合适入口。触发之后由哪条技能接管也由引导规定：遇到「Let's build X」先走 `brainstorming`，遇到「Fix this bug」先走 `systematic-debugging`，再进入领域技能。[4][11]
 
-### OpenCode
+## 验证：怎么确认它真的在按技能工作
 
-对 OpenCode 也是一样：
+仓库给的验收标准很短：新开一个会话，发送 `Let's make a react todo list`，一个可用的集成会在写任何代码之前自动触发 `brainstorming`。[2] 它同时把「手工把技能文件拷进代理」「依赖用户逐会话开启技能」这类做法排除在真实集成之外。[2]
 
-```text
-Fetch and follow instructions from https://raw.githubusercontent.com/obra/superpowers/refs/heads/main/.opencode/INSTALL.md
-```
+这条验收之所以有用，是因为它检验的是**触发**，而不是安装命令有没有执行成功。
 
-### GitHub Copilot CLI
+另外两层验证来自技能库内部：
 
-```bash
-copilot plugin marketplace add obra/superpowers-marketplace
-copilot plugin install superpowers@superpowers-marketplace
-```
+- `verification-before-completion` 规定：在同一轮里没跑过验证命令，就不能宣称它通过。[8]
+- 会话跑歪时，`diagnosing-superpowers` 会读会话记录、按行给出证据，需要的话打出一个脱敏的复现包。[1]
 
-### Gemini CLI
+## 工作流：七个阶段，成本并不一样
 
-安装：
+README 把默认流程列成七步：`brainstorming` → `using-git-worktrees` → `writing-plans` → `subagent-driven-development`（或 `executing-plans`）→ `test-driven-development` → `requesting-code-review` → `finishing-a-development-branch`。[1] 关键在这条链不是无条件全程展开的。
 
-```bash
-gemini extensions install https://github.com/obra/superpowers
-```
+**brainstorming 先给工作分级。** 它把任务划成三档：清晰的小任务（直接做）、小改动（在对话里确认后走常规流程）、需要设计文档的项目。分档之后才决定是否写设计文档，硬性门槛是「在你的人类伙伴批准完整描述之前，什么都不建」。[5] 所谓所有小任务都走重流程，并不符合它的设计——第一站本身就在缩小流程。
 
-更新：
+**执行有两种路径，审查成本不同。** `subagent-driven-development` 为每个任务派一个全新子代理，并逐任务检查规格符合度与代码质量，最后再审查整分支。[9] `executing-plans` 则在当前会话执行计划，README 将它列为开销更小的选择。[1] 选择时既要看任务能否独立交付，也要看中间审查的价值；不能为了省调用而跳过高风险改动所需的验证。
 
-```bash
-gemini extensions update superpowers
-```
+**隔离工作区先检测再创建。** `using-git-worktrees` 的顺序是：先判断自己是不是已经在隔离工作区里，再用平台原生的 worktree 工具，最后才退回 `git worktree`。[12] 创建完成后要跑一遍项目测试，确认基线是干净的——基线脏会让后续每一次失败都归因不清。[12]
 
-## 接上以后先怎么验证
+**TDD 有命名的例外。** `test-driven-development` 的铁律是「没有先失败的测试，就不写生产代码」，先写代码后补测试的产物要删掉重来。[7] 但它同时列出三类例外并要求先问你：一次性原型、生成代码、配置文件。[7]
 
-官方给的验证方式很简单：
+**计划要能独立验收。** `writing-plans` 要求每个任务都以一个可独立测试的交付物收尾，任务边界画在「审查者可以拒绝其中一个任务、却通过相邻任务」的地方，粒度细到每一步只有一个动作、一个可检查结果。[6] 计划写完后还有一次自审，逐条查设计覆盖，以及后续任务里用到的函数名是否和前面定义的一致。[6]
 
-**开一个新会话，然后给代理一个本该触发某项技能的任务。**
+**收尾是一个决策菜单，不是自动合并。** `finishing-a-development-branch` 先跑整套测试，再给出本地合并、推送并开 PR、保留分支三选一，并强调集成是人类伙伴的决定，给出菜单然后等待。[10]
 
-比如可以直接说：
+## 关于安装：不要一张万能对照表
 
-- `help me plan this feature`
-- `let's debug this issue`
+README 现在的安装小节覆盖了十几个代理（Claude Code、Antigravity、Codex、Cursor、Devin、Factory Droid、Gemini CLI、Copilot CLI、Grok、Kimi、OpenCode、Pi、Qwen、Hermes、Muse 等），每个平台命令都不同，列表还在增长。[1] 抄一张表既容易过时，也掩盖了真正重要的东西。
 
-如果安装正常，代理应该会自动调用对应的 superpowers skill，而不是直接跳进去乱写代码。
+真正的不变量只有一条：**安装必须让该平台在会话启动（或等价时机）加载引导。** README 因此要求按平台分别安装，即使你已经在另一个代理里用了它，也要为当前这个单独安装。[1] 判断一个集成是否成立，用上面那条验收测试比对照安装表更可靠。[2]
 
-所以最小验证思路就是：
+以 Hermes 为例，README 给出的是 `hermes plugins install obra/superpowers --enable`，并提示安装后重启已有会话。[1] 但这条命令本身不证明触发成功——触发要看新会话里 `brainstorming` 是否在写代码之前出现。
 
-1. 装上 superpowers
-2. 开新会话
-3. 提一个“应该先规划/先排查”的任务
-4. 看代理有没有按技能流程行动
+## 验证范围与资料版本
 
-## 它的基本工作流是什么
+- **修订日期：2026-10-17。** 保留原发布日期与路径。原稿按 README 整理了一份多平台安装命令表，并把工作流描述成对所有任务生效；本文改为追踪加载入口与各执行路径的成本差异。
+- **文档依据：** 仓库 `README.md`、`AGENTS.md`、`hooks/hooks.json`、`hooks/session-start`、`skills/*/SKILL.md`、`RELEASE-NOTES.md`、`.hermes-plugin/__init__.py` 固定到提交 `bb92a77741419a4ab5f06e711a283343f1ada0c3`，对应发布 v7.0.0（2026-10-09）。[13]
+- **实际执行：** 在临时目录中按最终成稿的命令复现了 `hooks/session-start`，捕获了四种平台分支的真实 JSON 输出，退出码均为 0（macOS，GNU bash 3.2.57，脚本取自上述提交）。
+- **未验证：** 没有在任何代理中安装 Superpowers，没有运行模型，也没有观察到真实的自动触发或那条 `Let's make a react todo list` 验收测试。触发与工作流行为按仓库文档与技能文本引用，非本文实测。
+- **版本变化提醒：** `brainstorming` 在 v7.0.0 被重写，`diagnosing-superpowers` 是较新的技能，技能集与各平台适配会继续变化。[13][1]
 
-README 里把默认工作流列得很清楚，核心顺序大概是这样：
+## Sources
 
-### 1. brainstorming
-
-在真正写代码前触发。
-
-作用：
-
-- 把模糊需求问清楚
-- 探索不同方案
-- 分块展示设计，方便人确认
-- 最后沉淀成设计文档
-
-这是整个流程里很关键的一步，因为它避免了 AI 直接误解需求后开工。
-
-### 2. using-git-worktrees
-
-设计确认后触发。
-
-作用：
-
-- 创建隔离工作区
-- 新建分支
-- 跑项目初始化
-- 确认测试基线是干净的
-
-这一步解决的是“别直接在主工作区乱改”。
-
-### 3. writing-plans
-
-有了设计后，开始拆计划。
-
-作用：
-
-- 把任务拆成小步骤
-- 每一步写清楚文件路径
-- 明确实现内容
-- 给出验证步骤
-
-它强调的是：**计划要足够具体，不能只有空泛任务名。**
-
-### 4. subagent-driven-development / executing-plans
-
-真正进入执行阶段。
-
-两种思路：
-
-- **subagent-driven-development**：每个任务交给新的子代理处理，并带两阶段审查
-- **executing-plans**：按批次执行，中间保留人工检查点
-
-如果你想让代理更自治，前者更合适。  
-如果你想中途多看几眼，后者更稳。
-
-### 5. test-driven-development
-
-实现时触发。
-
-这一步是 superpowers 很强调的核心之一：
-
-- 先写失败测试
-- 看它失败
-- 再写最小代码
-- 看测试通过
-- 再重构
-
-也就是标准的 **RED-GREEN-REFACTOR**。
-
-README 甚至直接强调：  
-如果代码不是在测试之后写出来的，就删掉重来。
-
-### 6. requesting-code-review
-
-任务阶段之间做代码审查。
-
-作用：
-
-- 对照计划检查有没有偏
-- 按严重程度报告问题
-- 严重问题会阻断继续推进
-
-也就是说，它不是“写完再象征性看看”，而是把 review 也变成强制流程的一部分。
-
-### 7. finishing-a-development-branch
-
-任务做完后触发。
-
-作用：
-
-- 验证测试
-- 给出后续选项：合并、提 PR、保留、丢弃
-- 清理 worktree
-
-这一步相当于开发收尾，不让代理做到最后留一地分支和临时工作区。
-
-## 它里面具体有哪些技能
-
-README 里的技能大致分成几类。
-
-### 测试
-
-- `test-driven-development`
-
-### 调试
-
-- `systematic-debugging`
-- `verification-before-completion`
-
-### 协作与开发流程
-
-- `brainstorming`
-- `writing-plans`
-- `executing-plans`
-- `dispatching-parallel-agents`
-- `requesting-code-review`
-- `receiving-code-review`
-- `using-git-worktrees`
-- `finishing-a-development-branch`
-- `subagent-driven-development`
-
-### 元技能
-
-- `writing-skills`
-- `using-superpowers`
-
-如果只抓重点，这套技能库实际上围绕的是 4 件事：
-
-1. 先想清楚
-2. 再拆计划
-3. 再按测试驱动去实现
-4. 做完要审查和收尾
-
-## 它的理念是什么
-
-README 提到的几个关键词，基本能概括这套方法论：
-
-- **Test-Driven Development**
-- **Systematic over ad-hoc**
-- **Complexity reduction**
-- **Evidence over claims**
-
-翻成更直接的话就是：
-
-- 先测后写，不要倒过来
-- 靠流程，不靠拍脑袋
-- 能简单就别复杂
-- 先验证，再宣布完成
-
-这个项目的味道其实很明显：  
-**它不是想让代理“更自由”，而是想让代理“更守规矩”。**
-
-## 什么情况下值得用
-
-superpowers 适合这些情况：
-
-### 1. 你已经高频用编码代理
-
-如果你每天都在用 Claude Code、Cursor、Codex 这类工具，那它有价值，因为它改的是“工作方式”。
-
-### 2. 你希望 AI 先计划再实现
-
-如果你最烦 AI 直接冲进去乱写，那这套流程正好对症。
-
-### 3. 你做的是中等以上复杂度任务
-
-任务越复杂，越需要：
-
-- 设计
-- 计划
-- 审查
-- 验证
-- 分支隔离
-
-这类场景下，superpowers 的收益更明显。
-
-### 4. 你愿意接受流程约束
-
-它的本质就是给 AI 上规矩。  
-如果你认可这件事，它就好用。
-
-## 什么情况下没必要急着上
-
-也有一些场景，没必要一上来就装。
-
-### 1. 你只是偶尔问几个代码问题
-
-如果你只是把 AI 当“代码问答工具”，那它的整套工作流可能太重。
-
-### 2. 你不想让开发流程变严格
-
-superpowers 会明显增加“先确认、先计划、先测试”的步骤。  
-如果你追求的是随手试、随手改，那可能会觉得它管太多。
-
-### 3. 你的团队还没接受这套习惯
-
-这套东西不是只改一个命令，而是改开发节奏。  
-如果你或团队本身就不习惯：
-
-- TDD
-- 计划驱动
-- 中间 code review
-- 分支/工作区隔离
-
-那它未必会马上顺手。
-
-## 日常怎么理解它的位置
-
-以后如果自己再遇到这个项目，可以把它放在这个位置理解：
-
-- **不是模型**
-- **不是 SDK**
-- **不是单个 MCP**
-- **不是普通 prompt 模板**
-- **而是一套给编码代理用的开发流程增强层**
-
-它处在“你”和“编码代理的行为方式”之间。  
-你还是照样给任务，但代理会因为 superpowers 的存在，按另一套节奏来干活。
-
-## 总结
-
-最后收成 5 句最值得记的：
-
-1. **superpowers 是一套给编码代理用的开发工作流技能库。**
-2. **它的核心不是提升聊天能力，而是约束 AI 按设计、计划、TDD、审查、收尾流程开发。**
-3. **它支持 Claude Code、Cursor、Codex、OpenCode、Copilot CLI、Gemini CLI 等平台。**
-4. **它最适合已经高频用 AI 写代码，并且想让 AI 更稳、更守流程的人。**
-5. **如果你只是偶尔问代码问题，或者不喜欢流程约束，那它可能会显得偏重。**
+[1] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/README.md
+[2] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/AGENTS.md
+[3] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/hooks/session-start
+[4] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/skills/using-superpowers/SKILL.md
+[5] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/skills/brainstorming/SKILL.md
+[6] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/skills/writing-plans/SKILL.md
+[7] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/skills/test-driven-development/SKILL.md
+[8] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/skills/verification-before-completion/SKILL.md
+[9] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/skills/subagent-driven-development/SKILL.md
+[10] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/skills/finishing-a-development-branch/SKILL.md
+[11] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/skills/systematic-debugging/SKILL.md
+[12] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/skills/using-git-worktrees/SKILL.md
+[13] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/RELEASE-NOTES.md
+[14] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/.hermes-plugin/__init__.py
+[15] https://github.com/obra/superpowers/blob/bb92a77741419a4ab5f06e711a283343f1ada0c3/hooks/hooks.json

@@ -1,472 +1,239 @@
 ---
-title: 'supermemory：给 AI 用的长期记忆与上下文引擎'
+title: 'supermemory 接入核对：从鉴权、写入到可检索与清理'
 published: 2026-04-07
-description: '根据 supermemory 官方 README 整理，重点说明它到底解决什么问题、适合接在哪些 AI 工具和 AI 产品里，以及用 MCP / SDK 时最值得先记住的接入方式。'
+updated: 2026-10-17
+description: '按 v5 文档核对鉴权、命名空间、写入就绪与检索边界。'
 tags: ['supermemory', 'AI', 'RAG', 'Memory']
 category: 工具
 draft: false
 pinned: false
 comment: true
-lang: zh-CN
+lang: 'zh-CN'
 permalink: /supermemory/
 sourceLink: https://github.com/supermemoryai/supermemory
 licenseName: CC BY-NC-SA 4.0
 licenseUrl: https://creativecommons.org/licenses/by-nc-sa/4.0/
 ---
 
-# supermemory：给 AI 用的长期记忆与上下文引擎
+接入 supermemory 最容易踩的坑，不是它记不住，而是你以为写完了。`add` 返回的 `status` 是 `"queued"`，这只说明请求被受理，不说明数据已经能被搜到。[2] 在这一步去查记忆，拿到的空结果和多轮之后才补上的画像，会被误读成“这个库不好用”。
 
-> supermemory 官方最值得先记住的一句话是：**State-of-the-art memory and context engine for AI**。
->
-> 如果翻成以后自己查资料最有用的话，就是：**supermemory 是一个给 AI 产品和 AI 助手补“长期记忆 + 用户画像 + RAG 检索 + 外部连接器”的统一上下文层。**
+这篇文章只走一条路径：开发者用官方 API 接入托管版 v5，从鉴权走到清理。每一步回答的其实是同一个问题——凭什么认为这一步真的生效了。
 
-## 什么是 supermemory
+> 本文是文档核对型的接入解读。SDK 示例没有连接真实账号运行；本地验证只覆盖示例语法和控制流。另有无鉴权的负向 HTTP 探测，均得到 4xx，没有成功写入，它们不能证明写入与检索链路可用。
 
-supermemory 不是单独的大模型，也不是一个只做向量检索的小工具。
+<!--more-->
 
-它更像一层专门给 AI 用的 **memory + context 基础服务**。它要解决的问题是：你的 AI 在跨会话时会忘事，用户偏好记不住，知识库检索和用户记忆是分裂的，接 Google Drive、Gmail、Notion、GitHub 这些外部数据源也很麻烦。
+## 先分清托管、SDK、MCP、自托管
 
-README 里把它拆得很清楚，它主要提供这几类能力：
+这四样经常被当成一回事，混着谈就会得出错误结论。
 
-- **Memory**：从对话里抽取事实，处理时间变化、矛盾、遗忘
-- **User Profiles**：自动维护用户画像，分静态事实和动态上下文
-- **Hybrid Search**：把 RAG 和 Memory 合并成一次查询
-- **Connectors**：同步 Google Drive、Gmail、Notion、OneDrive、GitHub 等数据
-- **File Processing**：处理 PDF、图片、视频、代码
-
-所以以后如果自己再回来看这篇文章，先记一句话：
-
-**supermemory 本质上是给 AI 增加“长期记忆 + 用户上下文 + 知识库检索 + 外部数据同步”的统一服务层。**
-
-## 它到底解决了什么问题
-
-### 1. AI 跨会话会忘事
-
-很多 AI 产品的问题不是单轮回答不行，而是下一次对话就忘了：
-
-- 用户喜欢什么
-- 用户正在做什么项目
-- 之前讨论过什么
-- 哪些信息已经过期
-- 哪些新事实推翻了旧事实
-
-README 直接点名这一点：
-
-**Your AI forgets everything between conversations. Supermemory fixes that.**
-
-也就是说，它解决的是 **跨会话记忆断裂**。
-
-### 2. 传统 RAG 不等于记忆
-
-README 里有一句很关键：
-
-**Memory is not RAG.**
-
-RAG 做的是“从文档库里取相关片段”，它本质是无状态的；而 memory 做的是“跟踪用户事实随时间怎么变化”。
-
-例如：
-
-- 以前住在纽约
-- 后来说搬去旧金山了
-
-RAG 不会天然理解“新事实覆盖旧事实”，但 memory 系统需要处理这个问题。
-
-supermemory 的价值就在于：**它把文档检索和用户记忆一起做了。**
-
-### 3. 想做 AI 产品时，上下文栈太散
-
-如果自己做 AI 产品，通常会遇到这些碎问题：
-
-- 要不要单独配向量库
-- embedding 流程怎么搭
-- chunking 怎么做
-- 用户画像怎么维护
-- 文件怎么抽取
-- 外部知识怎么同步
-- 记忆和文档检索怎么合并
-
-supermemory 的思路是：**把整套 context stack 一次性打包成一个系统。**
-
-README 原话就很直接：
-
-- No vector DB config
-- No embedding pipelines
-- No chunking strategies
-
-所以它适合不想自己从零拼上下文系统的人。
-
-## supermemory 用在哪些场景里
-
-按 README，supermemory 其实分两种主用法。
-
-### 场景一：给现成 AI 助手加记忆
-
-如果你不是在开发 API，而是自己平时就在用 AI 工具，那么 supermemory 可以直接作为“个人记忆层”去用。
-
-README 里对应的是：
-
-- app
-- browser extension
-- plugins
-- MCP server
-
-也就是：**给现有 AI 助手接上持久记忆。**
-
-### 场景二：给自己的 AI 产品加 memory / RAG / profile / connectors
-
-如果你在做 AI agent、AI app、客服系统、知识助手、工作流产品，那 supermemory 更像后端能力层。
-
-你可以把它理解成：
-
-- 用户记忆系统
-- 用户画像系统
-- 混合检索系统
-- 文件处理系统
-- 外部数据同步系统
-
-这些都通过同一套 API 给出来。
-
-## 它接到哪些 AI 工具里
-
-如果以后自己是按“直接用”这个角度看，最值得记的是它已经明确支持哪些客户端。
-
-README 里写到的客户端有：
-
-- Claude Desktop
-- Cursor
-- Windsurf
-- VS Code
-- Claude Code
-- OpenCode
-- OpenClaw
-
-如果是插件实现，README 明确提到这三个开源插件：
-
-- OpenClaw plugin：<https://github.com/supermemoryai/openclaw-supermemory>
-- Claude Code plugin：<https://github.com/supermemoryai/claude-supermemory>
-- OpenCode plugin：<https://github.com/supermemoryai/opencode-supermemory>
-
-所以它不是一个“理论上的 memory 项目”，而是已经明确往实际 AI 工具里接的。
-
-## 怎么把 supermemory 接进去
-
-### 1. 直接装 MCP
-
-README 给的最快方式是：
-
-```bash
-npx -y install-mcp@latest https://mcp.supermemory.ai/mcp --client claude --oauth=yes
-```
-
-如果不是 Claude，可以把 `claude` 换成：
-
-- `cursor`
-- `windsurf`
-- `vscode`
-
-这一条命令适合“先装上再说”。
-
-### 2. 手动配 MCP
-
-如果不想用安装器，也可以直接把它加进 MCP 客户端配置。
-
-```json
-{
-  "mcpServers": {
-    "supermemory": {
-      "url": "https://mcp.supermemory.ai/mcp"
-    }
-  }
-}
-```
-
-如果要用 API key：
-
-```json
-{
-  "mcpServers": {
-    "supermemory": {
-      "url": "https://mcp.supermemory.ai/mcp",
-      "headers": {
-        "Authorization": "Bearer sm_your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-### 3. 作为 App 直接用
-
-如果不想写代码，README 说可以直接去：
-
-- <https://app.supermemory.ai>
-
-这条路适合先感受产品，而不是立刻集成。
-
-## 接上以后先会得到什么能力
-
-README 里把 MCP 工具写得很直接，这里值得保留下来。
-
-### `memory`
-
-保存或遗忘信息。
-当你讲了值得记的内容时，AI 可以自动调用这个工具。
-
-### `recall`
-
-按查询词搜索相关记忆。
-返回相关 memories 和用户 profile 摘要。
-
-### `context`
-
-把用户完整画像注入到对话开头。
-在 Cursor 和 Claude Code 里可以直接用 `/context`。
-
-如果以后只是想快速判断它值不值得接，这三个工具就已经足够说明问题了。
-
-## 如果我是开发者，怎么接 API
-
-如果不是给现成 AI 客户端接 MCP，而是自己做产品，那 README 给的最短路径是 SDK。
-
-### 安装
-
-```bash
-npm install supermemory
-# 或
-pip install supermemory
-```
-
-### TypeScript 最小示例
-
-```ts
-import Supermemory from "supermemory";
-
-const client = new Supermemory();
-
-// 存一段内容
-await client.add({
-  content: "User loves TypeScript and prefers functional patterns",
-  containerTag: "user_123",
-});
-
-// 一次拿到用户画像 + 相关记忆
-const { profile, searchResults } = await client.profile({
-  containerTag: "user_123",
-  q: "What programming style does the user prefer?",
-});
-```
-
-这个例子最重要的不是代码本身，而是它说明了调用形态：
-
-1. 先 `add`
-2. 再 `profile`
-3. 同时拿到 **用户画像 + 记忆搜索结果**
-
-### Python 最小示例
-
-```python
-from supermemory import Supermemory
-
-client = Supermemory()
-
-client.add(
-    content="User loves TypeScript and prefers functional patterns",
-    container_tag="user_123"
-)
-
-result = client.profile(container_tag="user_123", q="programming style")
-
-print(result.profile.static)
-print(result.profile.dynamic)
-```
-
-如果以后自己要评估语言栈，这里至少可以确认：**它同时支持 Node 和 Python。**
-
-## 平时最值得先记的方法
-
-README 里 API 很多，但如果从“以后自己查”的角度看，先记下面几类就够了。
-
-### 1. 存内容
-
-```ts
-client.add()
-```
-
-用途：
-
-- 存文本
-- 存对话
-- 存 URL
-- 存 HTML
-
-### 2. 拿用户画像
-
-```ts
-client.profile()
-```
-
-用途：
-
-- 拿 static facts
-- 拿 dynamic context
-- 顺便按问题查相关记忆
-
-### 3. 查记忆
-
-```ts
-client.search.memories()
-```
-
-适合：
-
-- memory-only 搜索
-- hybrid 搜索
-
-### 4. 查文档
-
-```ts
-client.search.documents()
-```
-
-适合：
-
-- 纯文档检索
-- 配 metadata filter
-
-### 5. 上传文件
-
-```ts
-client.documents.uploadFile()
-```
-
-适合：
-
-- PDF
-- 图片
-- 视频
-- 代码文件
-
-### 6. 配置系统行为
-
-```ts
-client.settings.update()
-```
-
-适合：
-
-- 调 memory extraction
-- 调 chunking 行为
-
-## supermemory 在工作流里处在哪一层
-
-你可以把它放在这条链路里理解：
-
-```text
-你的应用 / AI 助手
-        ↓
-   supermemory
-        ├── Memory Engine
-        ├── User Profiles
-        ├── Hybrid Search
-        ├── Connectors
-        └── File Processing
-```
-
-也就是说，supermemory 不是最上层 Agent，也不是最底层模型。
-
-它更像中间那层 **context / memory service**：
-
-- 上面接 AI 助手、Agent、聊天产品
-- 下面接知识库、文件、外部数据源、画像系统
-
-## 已经有的框架集成
-
-如果以后是做产品接入，README 里列的框架集成值得直接记下来：
-
-- Vercel AI SDK
-- LangChain
-- LangGraph
-- OpenAI Agents SDK
-- Mastra
-- Agno
-- Claude Memory Tool
-- n8n
-
-README 甚至给了这种包装方式：
-
-```ts
-import { withSupermemory } from "@supermemory/tools/ai-sdk";
-const model = withSupermemory(openai("gpt-4o"), "user_123");
-```
-
-这说明它不是只给“自己手写 API 调用”准备的，也在往现成框架里嵌。
-
-## 配置和检索模式里最值得记的点
-
-### Search mode
-
-README 提到两种很关键的模式：
-
-- `hybrid`
-- `memories`
-
-例如：
-
-```ts
-const results = await client.search.memories({
-  q: "how do I deploy?",
-  containerTag: "user_123",
-  searchMode: "hybrid",
-});
-```
-
-`hybrid` 的意义在于：**一次查询同时拿知识库文档和用户记忆。**
-
-### User profile
-
-README 里强调 `profile` 很快，约 `~50ms`。
-
-这意味着一个很实用的用法：**在系统提示词前，先注入用户画像。**
-
-## 什么情况下值得上 supermemory
-
-更适合下面这些情况：
-
-- 你要做跨会话 AI 产品
-- 你不想自己拼 memory + RAG + profile + connectors
-- 你需要用户画像
-- 你需要让 AI 记住用户偏好、项目、近期状态
-- 你要接外部知识源，比如 Notion、Google Drive、GitHub、Gmail
-- 你要同时处理文本、PDF、图片、视频、代码
-
-## 什么情况下没必要急着上
-
-如果你现在只是：
-
-- 单轮问答
-- 没有用户长期状态
-- 不需要跨会话记忆
-- 只做一个很轻的知识库检索
-- 没有 connectors 需求
-
-那 supermemory 可能暂时有点重。
-
-这时候一个轻量 RAG 方案可能就够了。
-
-## 和普通 RAG 工具相比，差别在哪
-
-| 方案 | 更适合什么情况 | 局限 |
+| | 是什么 | 边界 |
 |---|---|---|
-| supermemory | 既要知识检索，又要用户记忆、画像、连接器、文件处理 | 系统比单纯 RAG 更重 |
-| 普通 RAG 方案 | 只做文档检索问答 | 不擅长长期用户记忆和事实更新 |
-| 自己手拼 memory + vector DB + connectors | 控制权最高 | 工程成本高，维护复杂 |
+| 托管平台 | `console.supermemory.ai` 管 key 和用量，`api.supermemory.ai` 提供 API | 目前唯一提供 Connectors 和托管 MCP 的形态[11] |
+| SDK | 客户端封装。官方 TypeScript 与 Python 包都从 `5.0.0` 起是 v5 形态[8] | 早于 `5.0.0` 的版本仍是 v3/v4 形态，装错版本会按旧字段发请求[8] |
+| MCP | 给现成助手用的远程服务，走 OAuth 授权[10] | 以 space 为单位，不给你程序化的 namespace 控制[10] |
+| 自托管 | 同一个引擎跑在自己机器上，默认监听 `localhost:6767`[11] | Connectors 与托管 MCP 在自托管版没有[11] |
 
-## 总结
+下面主线是开发者接托管 API。个人想让助手有记忆，走文末的 MCP 分支就行。
 
-最后直接收成 5 条，方便以后查：
+## 鉴权：Bearer token，和一把作用域更小的钥匙
 
-1. **supermemory 的核心定位**：给 AI 加“长期记忆 + 用户画像 + 混合检索 + 连接器”的统一上下文层。
-2. **它主要解决的问题**：AI 跨会话会忘事，RAG 和 memory 分裂，外部知识同步麻烦。
-3. **它的两种主用法**：一是给 Claude Code、Cursor、OpenClaw 这类工具接记忆；二是给自己的 AI 产品接 API。
-4. **最值得先记的接入方式**：MCP 一键安装、手动 MCP 配置、SDK 安装。
-5. **最关键的认知区别**：supermemory 不只是 RAG，它做的是“文档检索 + 用户记忆 + 用户画像”一起工作。
+所有 API 请求都用 Bearer token 鉴权，key 在 `console.supermemory.ai` 的 API Keys → Create API Key 生成，key 与用量都在这个控制台里。[3][2] 官方示例把它放进 `SUPERMEMORY_API_KEY`，值形如 `sm_...`。[2]
+
+```bash
+export SUPERMEMORY_API_KEY="sm_..."
+
+curl -X POST "https://api.supermemory.ai/ns/user_123/document" \
+  -H "Authorization: Bearer $SUPERMEMORY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Machine learning enables computers to learn from data"}'
+```
+
+要把访问权交给终端用户或第三方，就换成 scoped key：它被限制在一个或一组 namespace 内，只能在这些空间里读写，且不能读计费、不能管组织设置、不能继续签发新 key。[3] 这里有个该知道的历史包袱——文档在 v5 时代仍保留了旧名字：创建接口还是 `/v3/auth/scoped-key`，请求体里的字段也叫 `containerTag`。[3] 看到 v3 别急着“升级”，这就是当前文档的写法。
+
+另一件容易误判的事：namespace 限定不等于只读。可写的 scoped key 照样能更新、删除文档和遗忘记忆；删除或迁移 namespace 才额外需要组织管理员或所有者权限。[3]
+
+## namespace 不是命名习惯，是租户边界
+
+v5 里 namespace 是 URL 路径段，不是请求体字段，而且一个请求只能碰一个 namespace。[4] 按官方架构说明，每个 namespace 使用独立的向量索引，在存储和检索层隔离，而非检索后再过滤。[4] 这是服务方的架构说明；本文没有进行跨租户隔离测试，接入时仍需在应用层绑定用户身份与获准访问的 namespace。
+
+命名规则写在文档里：不超过 100 个字符，只允许字母、数字、`-`、`_`、`:`，匹配 `^[a-zA-Z0-9_:-]+$`。[4] 放行冒号是为了拼出层级结构，例如 `org:acme:user:john`。[4] 还有一条容易被忽略：默认的 `sm_project_default` 不能被永久删除。[4]
+
+### 无鉴权负向探测看到了什么
+
+下面是在 macOS 上对公开端点做的无鉴权负向请求观察。部分请求使用 POST，不能把方法本身叫作只读；这批请求均返回 4xx，没有成功写入，也没有发送个人资料。
+
+| 请求 | 服务端返回 |
+|---|---|
+| `POST /ns/user%20123/document`（命名空间含空格） | `400`，`pattern: "/^[a-zA-Z0-9_:-]+$/"`，消息为 "containerTag may only contain alphanumeric characters, hyphens, underscores, and colons" |
+| `POST /ns/{101 个字符}/document` | `400`，`maximum: 100`，消息为 "containerTag must be 100 characters or less" |
+| `POST /ns/{100 个字符}/document` | `401`（命名空间校验通过，接着要求鉴权） |
+| `POST /ns/org:acme:user:john/document` | `401`（层级命名合法） |
+| `POST /ns/user_123/document`，body 为 `{}` | `400`，`path: ["content"]`，提示 content 应为 string |
+| `POST /ns/user_123/search`，body 为 `{}` | `400`，`path: ["query"]` |
+| `POST /ns/user_123/profile`，body 为 `{}` | `401` |
+| 对上述 `/ns/...` 路由发 `GET` | `404`（这些是 POST 路由） |
+
+```bash
+# 上表第一行的负向请求：预期 400，无鉴权
+curl -s -X POST "https://api.supermemory.ai/ns/user%20123/document" \
+  -H 'Content-Type: application/json' -d '{"content":"x"}' -w '\n%{http_code}\n'
+```
+
+在这次探测的这些路由上，命名空间或请求体字段错误先得到 `400`，格式未被拒绝的请求随后得到 `401`。排查时，不能把所有失败都归为 API key 错误；这个观察也不代表所有端点、未来版本都采用相同校验顺序。错误文案仍使用 `containerTag`，与文档保留的旧命名相符。[4][8]
+
+## 写入：`add` 返回 queued 只代表受理
+
+v5 的写入调用是 `supermemory.add(namespace, { content, id, ... })`，namespace 是第一个参数，其余进请求体。[5] 返回体是 `{ id, status: "queued" }`。[2] `namespace` 与 `content` 必填，`id` 是推荐项：它既是你自己的去重键，也是后续更新、查询状态的句柄。[5]
+
+处理状态依次是 `queued → extracting → chunking → embedding → done`，失败落到 `failed`。[12] 除 `done` 和 `failed` 之外都算还在跑。[12]
+
+```ts
+// 文档示例整理，未端到端执行
+import { Supermemory } from "supermemory";
+
+const supermemory = new Supermemory({ apiKey: process.env.SUPERMEMORY_API_KEY });
+
+// 使用专用实验空间；不要把示例数据写进生产用户空间。
+const namespace = "demo_2026_10_17";
+const doc = await supermemory.add(namespace, {
+  content: "User loves TypeScript and prefers functional patterns",
+  id: "note_2026_10_17",
+  dreaming: "instant", // 下一步就要读记忆时才用；每篇多计一次 operation [5]
+});
+// doc.status 在返回时是 "queued"，不是"已完成" [2]
+```
+
+## 能被检索，要跨两道坎而不是一道
+
+这是整条链路上最容易误判的一处。
+
+`status: "done"` 说明这个文档的分块已经进索引、可以被搜到。[13] 但记忆是第二个阶段产出的，这个阶段叫 dreaming。[13]
+
+文档单独给了它一个状态字段 `system.dreamingStatus`，取值只有 `dreaming` 和 `done`，并且明确了 `system.status: "done"` 本身不代表记忆就绪。[12]
+
+如果下一步要读记忆或画像，还要等 `dreamingStatus` 变成 `done`。[12] 该状态也可能表示这份内容不需要生成记忆，不保证结果一定非空。[12] 两种处理模式的区别是：
+
+- `dynamic`（默认）：将相关文档凑成批次再生成记忆。文档称这有利于多轮、多文档场景，但新 namespace 可能暂时没有记忆或画像；本文没有对比两种模式的质量与等待时间。[5]
+- `instant`：这篇文档单独立刻处理，处理完就能读；代价是每篇多计一次 operation，官方建议只用于演示、测试、调试和基准对比。[5]
+
+写入时还有 `taskType: "superrag"`：只做分块、嵌入、索引，跳过事实抽取与画像更新。文档把它的 token 单价描述为默认 `"memory"` 模式的五分之一，这是服务方口径，不是本文核对过的账单。[5] 参考资料如果只需检索、不应影响用户画像，可以评估这条路径；这种文档不应再等待记忆生成。
+
+```ts
+// 文档示例整理，未端到端执行
+async function waitForDocument<
+  T extends { system: { status: string; dreamingStatus?: string } },
+>(read: () => Promise<T>, waitForMemories = false): Promise<T> {
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const current = await read();
+    if (current.system.status === "failed") {
+      throw new Error("Document processing failed");
+    }
+    if (
+      current.system.status === "done" &&
+      (!waitForMemories || current.system.dreamingStatus === "done")
+    ) return current;
+    if (attempt < 29) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+  }
+  throw new Error("Document not ready within the polling budget");
+}
+```
+
+这段等待最多查询 30 次，区分处理失败、分块就绪与记忆就绪，预算耗尽就报错，不会无限轮询。它不替代单次 HTTP 请求超时，也不实现限流重试；SDK 抛出的鉴权、网络等错误会直接向上传递。次数是示例预算，不是服务的完成时限承诺。
+
+动手前值得先查一遍版本：Python SDK `5.0.0` 的模型里没有 `dreaming_status` 字段，TypeScript SDK `5.0.1` 也没有生成 `system.dreamingStatus` 类型，要升到 `5.0.2` 才有；在满足这些版本之前想监控记忆生成状态，只能直接看原始 HTTP 响应。[12]
+
+## 取回：search 和 profile 回答的不是同一个问题
+
+这两个调用常被当成“一个带 query、一个不带 query 的同一个东西”，其实检索面不同。
+
+`supermemory.search(namespace, { query, searchMode })` 做语义检索，默认模式 `hybrid`，同时搜记忆和文档分块。[6] 返回结果里两种内容只会出现其一：命中记忆时有 `memory` 字段，命中文档分块时有 `chunk` 字段，代码要按字段存在与否分支。[6] 从 v4 迁过来的要格外注意默认值已经变了：`searchMode` 从 `memories` 变成 `hybrid`，`threshold` 从 `0.6` 变成 `0.3`。[6]
+
+`supermemory.profile(namespace)` 完全不接受 query，返回的是持续维护的画像：`static`、`dynamic`、`buckets` 三段。[7] 需要按 query 排序的记忆，就在它旁边再发一次 search。[7] 官方文档把两条路的分工概括成一句话：RAG 回答"我知道什么"，记忆回答"我记得你什么"。[9]
+
+| 你的问题 | 要调用的东西 |
+|---|---|
+| 文档里写了什么 | `search` + `searchMode: "chunks"`[6] |
+| 这个人是谁、有什么偏好 | `profile`[7] |
+| 与他相关的历史记忆 | `search` + `searchMode: "memories"`[6] |
+| 画像与按 query 检索的结果都要 | `profile` 加 `search` 两次调用[7] |
+
+接着前面的写入，下面展示等待记忆处理完成后检索；它仍是未连接真实服务的文档示例。SDK 至少要暴露 `system.dreamingStatus`，再使用这一判断。[12]
+
+```ts
+await waitForDocument(
+  () => supermemory.documents.get(namespace, doc.id),
+  true,
+);
+const found = await supermemory.search(namespace, {
+  query: "TypeScript functional patterns",
+  searchMode: "hybrid",
+  limit: 5,
+});
+for (const hit of found.results) {
+  if ("memory" in hit) console.log("memory", hit.memory);
+  else if ("chunk" in hit) console.log("chunk", hit.chunk);
+}
+```
+
+验收不能停在请求返回成功：应在正确 namespace 里看到与刚写入内容相关的结果；为空时先查状态、模式与筛选条件。相关性命中也不等于内容已经核实，仍应保留原文作为依据。
+
+## 清理示例数据
+
+实验数据和生产记忆混在同一个 namespace，是后面最难拆的麻烦。清理有两个粒度。
+
+删文档用 `supermemory.documents.delete(namespace, { ids: [...] })`，一次 1 到 100 个。[12] 三个坑：只有 `done` 或 `failed` 状态的文档能删，还在处理的会被报成 `Document is still processing`；HTTP 成功也可能包含部分失败，要同时看 `count` 和每个 ID 的 `errors`；派生于被删文档的记忆会被遗忘。[12]
+
+要清掉整个实验空间，用 `supermemory.namespaces.delete(namespace)`，连同其中的文档和记忆一起删，而且不可恢复。[12] 删除或迁移 namespace 需要组织管理员或所有者权限，默认的 `sm_project_default` 不能永久删除。[4]
+
+所以更省事的做法是：一开始就把示例数据关进一个专门的 namespace，而不是事后从生产空间里挑。
+
+## 几个具体的失败模式
+
+**拿 v4 的写法发 v5 请求。** `containerTag` 不再是请求体字段，改成 URL 路径，而且 v5 不提供别名。官方把这次变更定义为破坏性迁移：字段位置变了、检索默认值变了、响应封装也变了。[8]
+
+**用 `status === "done"` 判断“记忆可用”。** 还要看 `dreamingStatus`。[12]
+
+**把版本号塞进路径。** v5 的应用路由不带版本前缀，`/v5/reference` 是交互式文档入口，不是 API 路径前缀。[8]
+
+**以为接上 MCP 就等于接上了 API。** MCP 用 space + OAuth，程序化接入用 namespace + key，是两套东西。[10]
+
+## 分支一：个人给助手加记忆，走 MCP
+
+如果目标是给现有助手加跨会话记忆，可以在支持远程 MCP 与 OAuth 的客户端中接入 `https://mcp.supermemory.ai/mcp`，再完成授权。[10] 它用 OAuth，连接时客户端会打开浏览器让你登录并选择授权哪些 space，不需要 API key，也不需要自定义 header。[10]
+
+两个和旧资料对不上的地方。组织数据的单位是 **space**，不是 namespace。[10] 工具也不是早期文档里的那三个，现在的集合包括 `search_memory`、`get_profile`、`add_memory`、`list_documents`、`get_document`、`list_memories`、`list_spaces`、`who_am_i`。[10] 存和忘共用一个工具：`add_memory` 默认保存，把 `action` 设为 `forget` 才是遗忘，没有单独的遗忘工具。[10]
+
+另外，本次对 MCP 端点发起的未鉴权只读请求返回 `401`，与“连接需要先完成 OAuth”一致。
+
+## 分支二：自托管
+
+自托管跑的是同一个引擎，接口也相同：把 `baseURL` 指到 `http://localhost:6767`，代码基本不用改。[11] 本地默认带嵌入模型，不需要额外的 API key，也可以完全离线，把模型指向本地推理服务。[11] 数据集中在一个目录里，便于备份或迁移。[11]
+
+边界必须说清楚：**Connectors（Google Drive、Notion、Gmail、OneDrive 等）和托管 MCP 只在平台版提供**，自托管没有。[11] 另外自托管的记忆抽取用的是你自己接的模型，平台版用的是官方调优过的长程抽取模型，文档自称后者质量更高、规模化后更省——这是官方口径，不是我的对比测试结果。[11]
+
+## 验证范围与资料版本
+
+- **文档依据：** 仓库 README 固定到提交 `00f48d0378cf2c536cfcd0bb628ad80c41d6f602`[1]；官方文档各页读取于 2026-10-17。文档站没有 commit 概念，页面后续会变。
+- **实际执行：** 无鉴权负向 HTTP 探测均返回 4xx，结果摘录在上文。另外做了本地离线语法与控制流检查，包括命名空间规则、轮询的失败/成功/预算耗尽分支和 memory/chunk 字段分支。这些检查使用合成夹具，不是服务端成功响应。
+- **未验证：** 任何需要鉴权的行为——真实写入、`done` 与 `dreamingStatus` 在真实负载下的时序、检索与画像的内容质量、删除的级联效果、计费与限流、并发与延迟。文中 SDK 代码块是按文档整理的示例，没有跑通。
+- **官方自述，未复现：** README 提到用户画像约 `~50ms`，以及长记忆基准上的召回率与上下文压缩比。[1] 这些是官方给出的数字，既不是我的实测，也不构成你在自己网络下的延迟承诺。
+- **文档口径有冲突：** 检索文档页写着“目前还没有 v5 Python SDK，Python 标签展示的是旧客户端”[6]，迁移文档页则说 Python SDK 从 `5.0.0` 起就是 v5 形态[8]。两页当前不一致，以你实际安装到的版本行为为准。
+
+## Sources
+
+[1] https://github.com/supermemoryai/supermemory/blob/00f48d0378cf2c536cfcd0bb628ad80c41d6f602/README.md — supermemory README (pinned 00f48d0)
+[2] https://supermemory.ai/docs/quickstart — Quickstart
+[3] https://supermemory.ai/docs/authentication — API keys & auth
+[4] https://supermemory.ai/docs/concepts/container-tags — Namespaces
+[5] https://supermemory.ai/docs/ingestion/add-memories — Ingesting context
+[6] https://supermemory.ai/docs/recall/search — Search
+[7] https://supermemory.ai/docs/recall/user-profiles — User profiles
+[8] https://supermemory.ai/docs/migration/api-v5 — Migrate v3/v4 to v5
+[9] https://supermemory.ai/docs/concepts/memory-vs-rag — Memory vs RAG
+[10] https://supermemory.ai/docs/supermemory-mcp/mcp — MCP overview
+[11] https://supermemory.ai/docs/self-hosting/overview — Supermemory local
+[12] https://supermemory.ai/docs/ingestion/document-operations — Document operations
+[13] https://supermemory.ai/docs/concepts/how-it-works — How Supermemory works

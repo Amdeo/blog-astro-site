@@ -1,7 +1,8 @@
 ---
-title: 'Graphify：把代码、文档、PDF 和图片串成知识图谱'
+title: 'Graphify 的抽取链路：结构关系、模型推断和关系证据怎么分开'
 published: 2026-04-09
-description: '介绍 Graphify 这个面向 Claude Code 的知识图谱工具：它可以读取代码、文档、论文 PDF、截图与图像，抽取概念与关系，生成可视化图谱、Wiki 与结构化报告。'
+updated: 2026-10-17
+description: '追踪 Graphify 的抽取与建图链路：三类置信标签和分数到底代表什么。'
 tags: ['AI', '知识图谱', 'Claude Code', 'Python', '工具']
 category: 'python'
 draft: false
@@ -13,285 +14,125 @@ licenseName: 'MIT'
 licenseUrl: 'https://github.com/safishamsi/graphify/blob/main/LICENSE'
 ---
 
-# Graphify
+读知识图谱时，图里连上的边不一定是事实，边上的分数也不一定是概率。Graphify 把关系分成三类标签，并要求每条边标出来源文件。[2][5] 沿着这些字段往回查，比直接相信一张连线图更可靠。
 
-[Graphify](https://github.com/safishamsi/graphify) 是一个围绕 **Claude Code** 使用场景设计的知识图谱工具。它的目标很直接：
+这篇沿代码看一遍链路：哪些部分是确定性的结构抽取，哪些部分依赖模型，以及标签和分数各自的真实含义。
 
-> 把原本分散在代码、Markdown、PDF、截图、白板照片甚至多语言图片里的信息，抽取成一张可以查询、浏览和持续更新的知识图谱。
+> 取材说明：所有引文固定到 graphify 提交 `91f4d120`。文中“实际执行”限于我在本地离线跑通的部分（schema 校验函数、已提交输出文件的统计），没有安装或运行完整的 Graphify，也没有调用模型。
 
-如果你平时会把资料、论文、代码片段、临时截图一股脑丢进一个目录里，等需要的时候再靠人脑硬翻，那么 Graphify 这类工具就很有意思。它试图把这些“原始材料”变成一个更适合人和 AI 一起阅读的结构化知识层。
+<!--more-->
 
-项目作者在 README 里提了一个很形象的场景：像 Andrej Karpathy 那样维护一个 `/raw` 文件夹，里面放论文、推文、截图、笔记和代码。Graphify 想解决的，就是这种“资料很多，但难以整体理解”的问题。
+## 链路和它的输入依赖
 
-## 它能做什么
-
-Graphify 支持把一个目录中的多种文件统一处理，然后输出一组可继续使用的结果。
-
-典型输出包括：
+架构文档给出的流水线是七个阶段：
 
 ```text
-graphify-out/
-├── graph.html       交互式图谱，可点击、可搜索、可按社区过滤
-├── obsidian/        可直接作为 Obsidian vault 打开
-├── wiki/            生成适合 AI 或人类继续浏览的 Wiki 文章
-├── GRAPH_REPORT.md  图谱摘要报告，包含关键节点与有趣连接
-├── graph.json       持久化后的图结构数据
-└── cache/           基于 SHA256 的缓存，只重复处理变更内容
+detect() → extract() → build_graph() → cluster() → analyze() → report() → export()
 ```
 
-一句话概括就是：
+每个阶段是独立模块里的一个函数，阶段之间用普通 Python dict 和 NetworkX 图通信。[2] 这条链上真正的分叉点在第 2 步。
 
-- **把杂乱输入转成结构化图谱**
-- **把图谱转成适合浏览和查询的产物**
-- **尽量避免每次都从头重新读取所有原始材料**
+`extract()` 只处理代码：按后缀分派到各语言提取器（`.py .js .ts .tsx .go .rs .java .c .h .cpp .cc .cxx .hpp .rb .cs .kt .kts .scala .php`），用 tree-sitter 解析 AST，不调用模型。[3] 同一个文件里的 `collect_files()` 也只收集这些后缀，并跳过路径中任何以点开头的目录段（`.git` 之类不会进来）。[3]
 
-这对大型代码仓库、研究资料库、个人知识库，或者 AI 辅助开发流程都挺有吸引力。
+文档、论文、图片不走这条函数，它们由 skill 交给 Claude 子代理抽取。`skill.md` 里的子代理提示词按文件类型分工：代码文件只抽“AST 找不到的语义边”，不要重复抽 import；图片要用视觉理解它是什么（截图抽布局决策、图表抽指标与结论、白板抽想法和箭头，不确定的读法标 AMBIGUOUS）。[7]
 
-## 支持哪些输入
+这条分叉决定了一件事：**代码路径可以在没有模型的情况下离线复跑，文档与图片路径不行**。README 自己也承认这个分层——`--watch` 在代码文件保存时即时重建（只跑 AST，不调模型），文档或图片变更则只提醒你去跑 `--update` 重走模型那一遍。[1]
 
-根据项目说明，Graphify 可处理的内容不仅限于代码：
+## 节点与边的 schema
 
-| 类型 | 常见格式 | 处理方式 |
-| --- | --- | --- |
-| 代码 | `.py` `.ts` `.js` `.go` `.rs` `.java` `.c` `.cpp` 等 | 基于 tree-sitter 做 AST 和调用图分析 |
-| 文档 | `.md` `.txt` `.rst` | 通过模型抽取概念与关系 |
-| 论文 | `.pdf` | 提取引用、术语与概念关联 |
-| 图片 | `.png` `.jpg` `.webp` `.gif` | 借助视觉能力理解截图、图表、手写板书等 |
+`validate.py` 是构图前的门，它强制节点必填 `id`、`label`、`file_type`、`source_file`（`file_type` 只能是 `code|document|paper|image`），边必填 `source`、`target`、`relation`、`confidence`、`source_file`（`confidence` 只能是 `EXTRACTED|INFERRED|AMBIGUOUS`）。[5]
 
-这点是它比较有意思的地方：它不只是“代码索引工具”，也不只是“文档问答工具”，而是想做一个**跨模态的信息连接层**。
+边上的 **`source_file`** 是必填字段，而 `source_location`（形如 `L42`）不是这份校验器强制要求的字段。[2][5] 因此，schema 合格最多保证记录了来源路径，不保证每条关系都有准确行号，更不保证该行真的支持这条关系。复核时仍须打开源文件检查上下文。
 
-比如你可以把这些内容放在同一个目录里：
+我用仓库里的 `validate.py` 原文件离线跑了三组样例：
 
-- 源码仓库
-- 架构说明 Markdown
-- 一篇论文 PDF
-- 几张设计图截图
-- 一些白板照片
+```text
+== case A: schema-conformant extraction ==
+errors: []
+assert_valid: passed
 
-然后让 Graphify 把它们中的概念、实体和关系连接起来。这样在回看时，得到的不是一堆孤立文件，而是一张更接近“知识网络”的结构图。
+== case B: invented confidence label ==
+  - Edge 0 has invalid confidence 'PROBABLY' - must be one of ['AMBIGUOUS', 'EXTRACTED', 'INFERRED']
 
-## 使用方式
-
-Graphify 当前依赖：
-
-- **Python 3.10+**
-- **Claude Code**
-
-安装方式如下：
-
-```bash
-pip install graphifyy && graphify install
+== case C: edge to an external/stdlib node never emitted as a node ==
+  - Edge 1 target 'ext_urllib3_PoolManager' does not match any node id
 ```
 
-需要注意的是，README 提到 PyPI 包名暂时是 `graphifyy`，但安装后的 CLI 和技能名仍然是 `graphify`。
+第三组有个后续值得注意：构图层 `build_from_json()` 会把这类 “does not match any node id” 的错误过滤掉，直接跳过这条边，而不是让整次运行失败——因为指向标准库或外部依赖的悬空边本来就是预期情况。[4] 所以校验器和构图层是两道不同的门：前者报给你看，后者容忍并丢弃。排查 import 边为何没有进入图时，应把这种跳过逻辑列入检查。
 
-在 Claude Code 中，最基本的用法是：
+## 三类标签的实际含义
 
-```bash
-/graphify .
+架构文档对三者的定义写得很短：[2]
+
+| 标签 | 含义 |
+| --- | --- |
+| `EXTRACTED` | 关系在源文件里显式存在：import、直接调用、引用、“see §3.2” |
+| `INFERRED` | 合理推断：调用图第二遍、上下文共现、共享数据结构 |
+| `AMBIGUOUS` | 不确定，标记待人工复核，而不是删掉 |
+
+代码路径里的 `INFERRED` 值得单独说清楚，因为它和“模型猜的”不是一回事。`extract.py` 的注释写得很直白：第二遍解析把文件级 import 提升成类级边——
+
+```text
+auth.py --imports_from--> models.py          （太直白，被过滤掉）
+DigestAuth --uses--> Response [INFERRED]     （跨文件，才有信息量）
 ```
 
-也可以指定目录：
+也就是说，这类 `INFERRED` 表示“两个实体之间确实存在跨文件的结构关联（import 链加类名解析），但没有直接调用语句”。它是确定性规则跑出来的，不是模型判断。[3]
 
-```bash
-/graphify ./raw
+## 分数不是概率
+
+这里要分开读三种分数：提取器的权重、模型自评，以及报告的排序分数。
+
+**代码路径的 `weight` 是常量。** 每个语言的提取器在构造 INFERRED 的 `calls` 边时都写死 `"weight": 0.8`，EXTRACTED 的 import 边则是 `"weight": 1.0`。[3] 仓库提交的 `worked/httpx/graph.json` 可以印证：144 个节点、330 条边，其中 174 条 EXTRACTED、156 条 INFERRED，随便抽一条 INFERRED 边长这样——
+
+```json
+{
+  "relation": "uses",
+  "confidence": "INFERRED",
+  "source_file": "worked/httpx/raw/client.py",
+  "source_location": "L6",
+  "weight": 0.8
+}
 ```
 
-一些更进一步的用法包括：
+0.8 是每个提取器里都一样的字面量，不是“八成的把握”。[3][8]
 
-```bash
-/graphify ./raw --mode deep        # 更激进地提取推断关系
-/graphify ./raw --update           # 仅处理变更文件
-/graphify ./raw --watch            # 监听目录变化并自动更新
-/graphify ./raw --wiki             # 生成 Wiki 形式的知识页面
-/graphify ./raw --svg              # 导出 SVG 图
-/graphify ./raw --graphml          # 导出 GraphML，便于导入 Gephi / yEd
-/graphify ./raw --neo4j            # 生成可供 Neo4j 使用的 cypher
-/graphify ./raw --mcp              # 以 MCP server 形式运行
-```
+**模型路径的 `confidence_score` 是自评分档。** `skill.md` 要求模型自己给分，档位是写死的：EXTRACTED 必须 1.0；INFERRED 落在 0.4–0.9（强结构推断 0.8–0.9、合理但不确定 0.6–0.7、弱推断 0.4–0.5）；AMBIGUOUS 是 0.1–0.3。[7] 这是被规定出来的分档，不是校准过的概率，拿它当阈值开关会误导自己。
 
-它还支持把外部链接直接加入图谱：
+**“意外连接”的分数是手工加权和。** `analyze.py` 的 `_surprise_score()` 把一条跨文件边拆成几个加分项：置信度（AMBIGUOUS +3 / INFERRED +2 / EXTRACTED +1）、跨文件类型 +2、跨顶层目录 +2、跨 Leiden 社区 +1、peripheral 节点连到 hub +1，`semantically_similar_to` 再乘 1.5。[6] 它的用途是排序给人看，所以“不确定的边”反而加分最高——分数越高表示越值得人工看一眼，不是越可信。
 
-```bash
-/graphify add https://arxiv.org/abs/1706.03762
-/graphify add https://x.com/karpathy/status/...
-```
+这一点在报告里也能看到：`worked/httpx/GRAPH_REPORT.md` 的 Suggested Questions 直接生成“Are the 12 inferred relationships involving Client ... actually correct?”这类问题，把 INFERRED 边当成待验证项交回读者。[9]
 
-从设计上看，这已经不只是一个“一次性分析工具”，而是在往**持续维护的知识底座**方向走。
+## 图存下来长什么样
 
-## Graphify 的核心价值
+导出物包括 `graph.html`、`obsidian/`、`wiki/`、`GRAPH_REPORT.md`、`graph.json` 和缓存目录。[1] 持久化那份 `graph.json` 是无向图（顶层 `"directed": false`），方向信息保存在每条边的 `_src` / `_tgt` 属性上——因为 NetworkX 的无向图会丢方向，而展示函数还需要它。[4]
 
-我觉得这个项目最值得关注的，不是“会不会画图”，而是它想解决下面几个真实问题。
+我核对了仓库里提交的那份：节点属性有 `community`、`file_type`、`source_file`、`source_location` 等，边的属性有 `_src`、`_tgt`、`confidence`、`relation`、`source_file`、`source_location`、`weight`。[8]
 
-### 1. 降低上下文噪音
+顺带一个仓库自带的诚实样本：`worked/httpx/` 是合成的 6 文件 Python 库，提取结果是 53% EXTRACTED / 47% INFERRED / 0% AMBIGUOUS，token 成本 0——因为语料全是代码，走的正是无模型的 AST 路径。[9] 该目录的 README 也不打圆场：合成语料约 1x，“6 个文件本来就装得进上下文，这里的收益是结构清晰，不是压缩”。[10]
 
-当一个项目规模大起来之后，原始文件越来越多，AI 或人要重新建立全局理解的成本会不断上升。
+## 头条数字怎么读
 
-Graphify 的思路是先把内容抽成图，再围绕图做查询、路径解释、社区划分和摘要。这意味着在很多场景下，你不必每次都把全部原始材料重新塞进上下文窗口里。
+README 最显眼的数字是每条查询少 71.5 倍 token。[1] 同一份 README 的对照表给出了它的边界：52 个文件（代码加论文加图片）是 71.5x，4 个文件是 5.4x，6 文件合成语料约 1x，并写明“token 减少量随语料规模放大”。[1]
 
-项目 README 里提到一个案例：面对混合代码、论文和图片的语料库，查询时的 token 成本相比直接读取原文件可显著下降。
+这是项目方报告的案例结果。`worked/` 目录提供了输入与输出，但不同案例的复跑依赖不同：混合材料的语义抽取依赖代理和模型，前面的纯代码 AST 路径则不需要模型。本文两种路径都没有完整重跑，因此不提供压缩比的独立验证。
 
-这件事对 AI 开发流程尤其有意义。
+## 验证范围与资料版本
 
-### 2. 让关系显性化
+- **修订日期：2026-10-17。** 原发布日期保留；删去场景枚举、技术栈罗列和结尾的口号式收束。
+- **取材版本：** graphify 提交 `91f4d120b630ee35c79bf3c75ccd186870a808f9`（2026-05-14）。README、ARCHITECTURE、各模块源码与 worked 样例的引文均来自该提交。
+- **实际执行：** 使用该提交的 `graphify/validate.py` 离线运行三组 schema 样例，结果摘录在上文；解析仓库提交的 `worked/httpx/graph.json` 做属性与置信标签统计。这些离线检查不联网、不调用模型。
+- **未验证：** tree-sitter 的 AST 提取与跨文件解析、Leiden 聚类、模型侧抽取与 `confidence_score` 的实际取值、可视化与 MCP/Wiki 输出，以及任何 token 压缩比。文中没有宣称跑通过真实项目。
 
-很多知识其实不是“某个单点是什么”，而是“它和谁相关、为什么相关、通过什么路径相关”。
+## Sources
 
-例如：
-
-- 某个模块为何依赖另一个模块
-- 某个论文概念如何映射到具体代码实现
-- 某段架构说明和几张设计图之间是否存在共同主题
-
-Graphify 适合处理的，恰恰是这种“关系型理解”问题。
-
-### 3. 对 AI 更友好
-
-它输出的不止有 `graph.json`，还有：
-
-- `GRAPH_REPORT.md`
-- `wiki/`
-- `obsidian/`
-- 可视化的 `graph.html`
-
-这说明作者并不打算把结果锁死在某种图数据库或某个 Web UI 里，而是同时考虑了：
-
-- 人类浏览
-- Obsidian 知识管理
-- AI 继续读取 Markdown/Wiki
-- 图分析工具接入
-
-这种“结果尽量开放”的做法，我个人挺喜欢。少一些封闭平台味，多一些可以继续折腾的空间。
-
-## 它输出了哪些信息
-
-根据项目说明，Graphify 会重点产出这些内容：
-
-### God nodes
-
-也就是图里连接度最高、最关键的一批概念节点。它们可以帮助你快速判断：
-
-- 这个资料库最核心的话题是什么
-- 哪些概念是多处内容的共同中心
-- 哪些点最值得优先理解
-
-### Surprising connections
-
-这是个很有趣的设计。工具会尝试找出“意外但有价值”的连接，并附上自然语言解释，说明为什么这条连接值得关注。
-
-如果做得好，这部分会很适合：
-
-- 代码审查
-- 阅读论文
-- 总结复杂项目
-- 探索跨领域资料之间的关联
-
-### Suggested questions
-
-Graphify 还会给出一些该图谱特别适合回答的问题。这个思路挺像“基于知识图的下一步查询建议”，对于人类和 AI 都有帮助。
-
-### 边的可信度标记
-
-README 里还提到，每条边会被标记为：
-
-- `EXTRACTED`
-- `INFERRED`
-- `AMBIGUOUS`
-
-这点非常重要。
-
-做知识抽取的工具最怕一本正经地胡说八道。Graphify 至少试图把“明确抽取到的关系”和“模型推断出来的关系”区分开来，这对结果可信度会有很大帮助。
-
-## 适合哪些场景
-
-我觉得它尤其适合以下几类工作：
-
-### 1. 大型代码仓库理解
-
-当你接手一个不熟悉的项目时，Graphify 可以帮助你更快建立：
-
-- 核心模块
-- 关键依赖
-- 重要概念
-- 模块间关系
-
-特别是那些“代码 + 文档 + 架构图”混在一起的项目，它的价值会比单纯代码索引更明显。
-
-### 2. 研究型资料整理
-
-比如一个目录里放了：
-
-- 多篇论文 PDF
-- 个人笔记
-- 代码实验
-- 截图和图示
-
-如果只是靠文件夹和文件名管理，后期基本都得靠考古。Graphify 更适合把这些内容整理成“概念网络”。
-
-### 3. AI 协作开发
-
-README 里提到 `--watch` 模式和 git hook，这说明作者也在考虑多 agent 或持续开发场景：
-
-- 代码变更后自动更新图谱
-- 让 agent 下次查询时直接站在新的结构之上继续工作
-
-这类能力对于长期项目来说，比一次性的“总结一下仓库”更实用。
-
-## 这个项目的技术栈
-
-根据 README，Graphify 主要基于：
-
-- **NetworkX**
-- **Leiden / graspologic**
-- **tree-sitter**
-- **Claude**
-- **vis.js**
-
-并且强调：
-
-- 不依赖 Neo4j
-- 不要求常驻服务
-- 可以本地运行
-
-这一点会让它更容易上手。很多知识图谱方案死在“部署比问题还复杂”，而 Graphify 明显在努力避免这种情况。
-
-## 我对 Graphify 的看法
-
-这个项目的方向，我是看好的。
-
-原因不是它“又一个 AI 工具”，而是它抓住了一个很真实的矛盾：
-
-> 我们拥有的原始信息越来越多，但真正可用的结构越来越少。
-
-代码、文档、论文、截图这些东西本身当然重要，但它们天然是分散的。人脑会自己补关系，AI 也会尝试补关系，但只要没有一层持久化的结构，很多理解都得反复重来。
-
-Graphify 想做的，就是把这种理解过程“沉淀”下来。
-
-当然，这类工具也会有几个绕不开的挑战：
-
-- 抽取质量是否稳定
-- 推断关系的误报率高不高
-- 大规模语料下性能如何
-- 多模态内容混合时是否容易引入噪音
-- 实际使用时，图谱是否真的比直接全文检索更高效
-
-这些都得看真实项目里的表现。
-
-但从产品方向来说，它不是那种“演示很炫、落地很虚”的东西，至少它对准的是一个足够真实的痛点。
-
-## 项目地址
-
-- GitHub：<https://github.com/safishamsi/graphify>
-
-如果你正在折腾：
-
-- AI 辅助编程
-- 代码仓库知识沉淀
-- 论文与源码联动阅读
-- 个人知识库结构化
-
-那这个项目值得看一眼。
-
-至少，它提供了一个挺有意思的思路：
-
-**别只存文件，开始存“关系”。**
+[1] https://raw.githubusercontent.com/safishamsi/graphify/91f4d120b630ee35c79bf3c75ccd186870a808f9/README.md — graphify README @91f4d12
+[2] https://raw.githubusercontent.com/safishamsi/graphify/91f4d120b630ee35c79bf3c75ccd186870a808f9/ARCHITECTURE.md — graphify ARCHITECTURE.md @91f4d12
+[3] https://raw.githubusercontent.com/safishamsi/graphify/91f4d120b630ee35c79bf3c75ccd186870a808f9/graphify/extract.py — graphify/extract.py @91f4d12
+[4] https://raw.githubusercontent.com/safishamsi/graphify/91f4d120b630ee35c79bf3c75ccd186870a808f9/graphify/build.py — graphify/build.py @91f4d12
+[5] https://raw.githubusercontent.com/safishamsi/graphify/91f4d120b630ee35c79bf3c75ccd186870a808f9/graphify/validate.py — graphify/validate.py @91f4d12
+[6] https://raw.githubusercontent.com/safishamsi/graphify/91f4d120b630ee35c79bf3c75ccd186870a808f9/graphify/analyze.py — graphify/analyze.py @91f4d12
+[7] https://raw.githubusercontent.com/safishamsi/graphify/91f4d120b630ee35c79bf3c75ccd186870a808f9/graphify/skill.md — graphify/skill.md @91f4d12
+[8] https://raw.githubusercontent.com/safishamsi/graphify/91f4d120b630ee35c79bf3c75ccd186870a808f9/worked/httpx/graph.json — worked/httpx/graph.json @91f4d12
+[9] https://raw.githubusercontent.com/safishamsi/graphify/91f4d120b630ee35c79bf3c75ccd186870a808f9/worked/httpx/GRAPH_REPORT.md — worked/httpx/GRAPH_REPORT.md @91f4d12
+[10] https://raw.githubusercontent.com/safishamsi/graphify/91f4d120b630ee35c79bf3c75ccd186870a808f9/worked/httpx/README.md — worked/httpx/README.md @91f4d12

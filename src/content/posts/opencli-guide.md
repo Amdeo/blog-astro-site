@@ -1,8 +1,9 @@
 ---
-title: 'OpenCLI：把网站和本地工具变成 CLI 的工具'
+title: 'OpenCLI 的浏览器桥接：命令从哪来，权限到哪停'
 published: 2026-04-07
-description: '基于 jackwener/opencli 的 README 整理，重点说明它是什么、解决什么问题、能接到哪些 AI 编程工具里、怎么安装验证，以及接上后先跑什么命令。'
-tags: ['OpenCLI', 'AI Agent', 'CLI', 'Browser Bridge', 'Claude Code', 'Cursor']
+updated: 2026-10-17
+description: '拆开 OpenCLI 的命令发现与浏览器桥接，讲清零配置到哪一步为止。'
+tags: ['OpenCLI', 'AI Agent', '浏览器自动化', 'CLI']
 category: '工具'
 draft: false
 pinned: false
@@ -13,322 +14,73 @@ licenseName: CC BY-NC-SA 4.0
 licenseUrl: https://creativecommons.org/licenses/by-nc-sa/4.0/
 ---
 
-# OpenCLI：把网站和本地工具变成 CLI 的工具
 
-一句话说，OpenCLI 是一个把**网站、Electron 应用、本地 CLI 工具**统一接进命令行的工具。它的目标不是再做一个聊天界面，而是把原本需要手动点网页、开桌面应用、切不同命令行工具的动作，收进一个可以脚本化、可复用、适合 AI 代理调用的统一入口。
+OpenCLI 的 README 把自己定位成面向 AI agent 的通用浏览器自动化 CLI，也是 agent-browser 的替代品。[1] 它的宣传语"把任意网站变成 CLI"容易被读成"装上就能零配置操作任意站点"。按当前代码追一遍会发现，这句话其实对应三条不同的边界：命令从哪来、浏览器桥接依赖什么、登录态能授权到哪。
 
-## 它是什么
+本文固定到仓库提交 `c1052f67`（npm 包 `1.8.8`）。本机没有安装 OpenCLI，下面是文档与源码解读，不包含真实浏览器调用。
 
-按照项目 README 的原始定位，OpenCLI 的核心是：
+<!--more-->
 
-- 把任意网站变成 CLI
-- 把 Electron 应用变成 CLI
-- 把本地已有工具挂进统一 CLI Hub
-- 让 AI 代理能直接发现、调用、编排这些能力
+## 命令从哪来：一个预编译清单
 
-它不是单一网站爬虫，也不是浏览器自动化脚本集合，更不是一个只会“问答”的 AI 壳。更接近的理解是：**一个面向 AI 代理和重度终端用户的命令行适配层**。
+`opencli list` 能快速检索一堆站点命令，是因为它默认读的是预编译清单，而不是现场扫描目录。
 
-## 它解决什么问题
+构建脚本 `build-manifest.ts` 扫描 `clis/` 下的 JS CLI 定义，将命令写进 `cli-manifest.json`。[5] `discovery.ts` 再尝试清单快速路径、按需加载 JS 模块；清单不可用时退回文件系统扫描。[7]
 
-很多工具其实都能做事，但入口很散：
+所以"有多少命令"是可数的。固定的 `cli-manifest.json` 里当前有 1222 条命令、覆盖 170 个站点；每一条都声明了站点、名称、`access`（read/write）、是否依赖浏览器（`browser`）和认证策略（`strategy`）。[3]
 
-- 一部分能力在网页里
-- 一部分能力在本地命令行里
-- 一部分能力在 Electron 桌面应用里
-- AI 编程工具虽然会写代码，但不一定天然知道你本机有哪些可直接调用的工具
+发现入口就是 `opencli list`，支持关键词、`--site` 过滤和 `--limit`/`--offset` 分页；要读某个命令的参数用 `<command> --help -f json`。[1]
 
-OpenCLI 要解决的，就是把这些分散入口收拢成统一命令，并且尽量保留 CLI 的几个优点：
+## 零配置指的是桥接，不是站点
 
-- 输出稳定，适合管道和脚本
-- 能复用浏览器登录态，不用重复折腾授权
-- 能被 AI 代理发现和调用
-- 能在 CI、自动化和日常命令行里复用
+README 说浏览器桥接是"一个轻量扩展加一个小 daemon"，daemon 需要时自动启动。[1] "零配置、自动启动"针对的是扩展和 daemon 这一层，不等于任意网站开箱可用。
 
-如果您平时已经在用 Claude Code、Cursor、终端脚本、浏览器登录态复用这套工作方式，OpenCLI 的位置就比较清楚：**它不是替代这些工具，而是把它们之间的操作入口打通。**
+把清单统计一下，三类命令的区别就出来了：1222 条里有 924 条声明需要浏览器，其余 298 条不需要（纯 fetch 或 SSR 解析即可）；认证策略分布是 cookie 785、public 339、ui 70、intercept 22、local 6；307 条声明为 write。[3]
 
-## 它用在哪些工具和场景里
+桥接本身的成本写在扩展的 `manifest.json` 里：Manifest V3，权限包含 `debugger`、`tabs`、`cookies`、`activeTab`、`storage`、`downloads`、`tabGroups`，`host_permissions` 是 `<all_urls>`。[2] 桥接拿的不是"被动读页面"的权限，而是调试器级别的能力。
 
-### 1. 给 AI 编程工具接浏览器和网站能力
+## 登录态授权到哪
 
-README 里明确强调，它可以配合 AI 代理使用，尤其是这类工具：
+浏览器桥接文档写得很直白：browser 命令复用 Chrome 的登录 session，跑之前你必须在 Chrome 里登录目标站点。[4]
 
-- Claude Code
-- Cursor
-- 其他能读取 skill / rules / AGENT.md 的编码代理
+但"有登录态"不等于"授权任意操作"，原因有三层：
 
-接法不是“把 OpenCLI 当聊天对象”，而是把它当一套可以被代理直接调用的命令系统。比如：
+- 内置站点命令是逐个适配器实现的。清单没有覆盖的站点，不能假设已有专用命令；可能需要通用浏览器操作或另写适配器。
+- write 命令具备修改账号状态的能力，例如 `clis/twitter/post.js` 实现了 X 发帖流程。[10] 这不表示所有 307 条 write 命令都依赖浏览器，或都能在当前环境成功。
+- `opencli browser` 提供的 `click`、`type`、`eval` 等原语本身就能在页面上执行写操作。能做什么由"登录了哪个站点"加"你给什么指令"决定，不是某个权限令牌。
 
-- 让代理列出本机可用命令：`opencli list`
-- 让代理通过 `opencli-operate` skill 直接操作网页
-- 让代理把某个网站逐步固化成可复用命令
+`access: read|write` 是适配器声明的元数据，`list` 会把它展示出来。[8] `capabilityRouting` 中的 `shouldUseBrowserSession()` 则检查 `browser`、函数、导航和 pipeline 步骤，不检查 `access`。[9] 这两处代码没有显示按 read/write 实施的运行时门禁，但不足以证明整个仓库都没有其他检查。不能仅凭清单里写着 read 就认定已有强制安全边界；调用方仍需限制命令与审批写操作。
 
-### 2. 把网站变成可复用 CLI
+## 真实命令面
 
-这个方向适合：
+本次核对的命令与含义：
 
-- 热榜抓取
-- 信息读取
-- 站点数据提取
-- 登录态网页能力复用
-- 需要稳定输出 JSON / CSV 的场景
+- `opencli doctor`：检查扩展和 daemon 的连通性。[4]
+- `opencli list`：发现命令，支持 `--site` 与分页。[1]
+- `opencli browser --session <name> open <url>`：页面操作原语，页面级操作要求显式 `--session`。[1][4]
+- `opencli <site> <command>`：运行某个站点适配器；参数用 `--help -f json` 查。[1]
 
-README 给出的例子包括 Bilibili、Zhihu、小红书、Twitter/X、Reddit、YouTube 等网站。
+退出码沿用 `sysexits.h`，方便脚本分支：66 空结果、69 桥接不可用、75 超时、77 需要登录、78 配置错误。[6]
 
-### 3. 把 Electron 应用变成 CLI
+这些是文档与源码核对的结果。本机没有安装扩展，也没有在真实 Chrome 上调用过这些命令，所以本文不声称"运行通过"。文档参数核对和真实浏览器调用是两件事：参数对不对可以从源码确认，扩展连不连得上、登录态在不在、站点会不会改版，只能在实际环境里验证。
 
-这是它比较特别的一点。项目不只盯网页，也想把 Electron 应用接进命令行。对已经形成本地工作流的人来说，这意味着某些原本只能点界面的桌面工具，可以被脚本和 AI 代理重新编排。
+## 验证范围与资料版本
 
-### 4. 把本地 CLI 接进统一入口
+- 修订日期 2026-10-17，原发布日期保留。
+- 文档依据固定到提交 `c1052f67c0320ac240bfb650be4933101e615eda`；npm 包 `1.8.8`，扩展 manifest `1.0.24`。站点适配器和命令列表会继续变。
+- 实际执行：仅在本地读取仓库源码与清单。OpenCLI 未安装，未运行任何 `opencli` 命令，未启动扩展或 daemon，未连接真实浏览器。
+- 统计数字（1222 条命令、170 站点、924/298 浏览器分布、307 write）由仓库内 `cli-manifest.json` 直接统计得出。[3]
+- 未验证：浏览器桥接的实际连通性、各站点适配器在真实环境下的成功率、以及 write 命令对账号的实际影响。
 
-README 里把这部分叫 CLI Hub。它支持把本地命令注册进 OpenCLI，让 AI 代理和人都从统一入口发现并调用。
+## Sources
 
-## 这些工具怎么接入 OpenCLI
-
-如果您是按“给自己以后直接用”的标准来接，先看下面这条最短路径。
-
-### 第一步：安装 Browser Bridge 扩展
-
-OpenCLI 依赖一个 Browser Bridge 扩展加微型 daemon，来连接 Chrome / Chromium 的真实浏览器环境。
-
-最短流程：
-
-1. 打开 GitHub Releases 页面
-2. 下载最新的 `opencli-extension.zip`
-3. 解压后打开 `chrome://extensions`
-4. 开启开发者模式
-5. 选择 **Load unpacked** 加载解压目录
-
-这一步的意义很直接：**让 OpenCLI 能接上真实浏览器和真实登录态。**
-
-### 第二步：安装 OpenCLI
-
-README 推荐安装方式：
-
-```bash
-npm install -g @jackwener/opencli
-```
-
-如果您还要给 Claude Code / Cursor 这类 AI 编程工具一起装配套技能，README 直接给了这条：
-
-```bash
-npx skills add jackwener/opencli
-```
-
-### 第三步：先验证，不要急着正式用
-
-安装后先跑这两个命令：
-
-```bash
-opencli doctor
-opencli daemon status
-```
-
-它们分别用来：
-
-- 检查扩展和 daemon 是否连通
-- 看 daemon 当前状态、进程、运行情况
-
-如果这两步没过，先别继续折腾更高层命令。
-
-## 接上以后先跑哪些命令
-
-README 给的最小上手顺序很清楚，可以直接照着走。
-
-### 先看有哪些命令
-
-```bash
-opencli list
-```
-
-这一步适合先建立整体感，尤其是要让 AI 代理自动发现本机可用工具时，这条命令很重要。
-
-### 先跑一个不依赖浏览器的命令
-
-```bash
-opencli hackernews top --limit 5
-```
-
-这个更像冒烟测试：先验证 OpenCLI 自己的命令体系可用。
-
-### 再跑一个依赖浏览器扩展的命令
-
-```bash
-opencli bilibili hot --limit 5
-```
-
-如果这一条跑通，说明浏览器连接、扩展、daemon 这一层大概率已经接好了。
-
-## 给 AI 代理时，先接哪一层
-
-如果目标是让 Claude Code、Cursor 这类工具真正用起来，建议按 README 的两层来理解。
-
-### 第一层：把 OpenCLI 当命令发现入口
-
-让代理先知道你机器上有哪些命令可用：
-
-```bash
-opencli list
-```
-
-README 还明确建议把这类信息放进：
-
-- `AGENT.md`
-- `.cursorrules`
-
-这样代理更容易自动发现 OpenCLI 这套能力。
-
-### 第二层：给代理接浏览器操作能力
-
-README 提到 `skills/opencli-operate/SKILL.md`，把它定位成给 AI 代理的浏览器操作技能。
-
-可用动作包括：
-
-- `open`
-- `state`
-- `click`
-- `type`
-- `select`
-- `keys`
-- `wait`
-- `get`
-- `screenshot`
-- `scroll`
-- `back`
-- `eval`
-- `network`
-- `init`
-- `verify`
-- `close`
-
-这部分的价值在于：**不是只把网页数据读回来，而是让代理真的能操作网页。**
-
-## 日常最常用的命令分组
-
-### 基础检查
-
-```bash
-opencli doctor
-opencli daemon status
-opencli list
-```
-
-### 公共站点数据读取
-
-```bash
-opencli hackernews top --limit 5
-opencli bilibili hot --limit 5
-```
-
-### 输出格式控制
-
-README 里也给了适合脚本和后处理的格式示例：
-
-```bash
-opencli bilibili hot -f json
-opencli bilibili hot -f csv
-opencli bilibili hot -v
-```
-
-适合的用途分别是：
-
-- `-f json`：接 `jq`、脚本、LLM
-- `-f csv`：导表格
-- `-v`：看调试步骤
-
-### 插件管理
-
-```bash
-opencli plugin install github:user/opencli-plugin-my-tool
-opencli plugin list
-opencli plugin update --all
-opencli plugin uninstall my-tool
-```
-
-如果您要把 OpenCLI 作为长期入口，这组命令很实用，因为它决定了这套 CLI 能不能继续长大。
-
-### 面向 AI 代理 / 适配器开发
-
-README 给出的核心命令有这几条：
-
-```bash
-opencli explore https://example.com --site mysite
-opencli synthesize mysite
-opencli generate https://example.com --goal "hot"
-opencli cascade https://api.example.com/data
-```
-
-这几条分别对应：
-
-- `explore`：发现站点 API 与能力
-- `synthesize`：生成 YAML 适配器
-- `generate`：一条命令完成 explore → synthesize → register
-- `cascade`：自动探测认证策略
-
-这部分说明 OpenCLI 不只是“拿现成命令来用”，还想覆盖“发现 → 生成 → 注册”的适配器生产流程。
-
-## 配置、验证、日志、排障入口
-
-这部分是 README 里最值得直接记住的内容之一。
-
-### 环境要求
-
-- Node.js >= 20
-
-### 浏览器连接失败时先看什么
-
-如果报：
-
-- `Extension not connected`
-- `attach failed: Cannot access a chrome-extension:// URL`
-
-先检查：
-
-1. Chrome / Chromium 扩展是否正确安装并启用
-2. 是否有别的扩展干扰
-3. 是否真的在浏览器里保留了目标站点的登录态
-
-### 登录态失效时
-
-如果出现空结果或者未授权，README 建议直接回到目标站点重新登录，再重试命令。
-
-### daemon 诊断入口
-
-README 直接给了两个地址：
-
-```bash
-curl localhost:19825/status
-curl localhost:19825/logs
-```
-
-一个看状态，一个看日志。真排障时，这两个入口比空猜更有用。
-
-## 它什么时候值得上
-
-比较适合用 OpenCLI 的情况：
-
-- 您已经是终端重度用户
-- 您希望复用浏览器登录态，而不是反复手填 cookie
-- 您要把网站能力、桌面应用能力、本地 CLI 能力收进一个统一入口
-- 您想让 Claude Code、Cursor 这类 AI 编程工具直接调用这些能力
-- 您在意可脚本化、可复用、可管道化输出
-
-## 什么情况下没必要急着上
-
-如果您只是：
-
-- 偶尔手动打开网页看一眼
-- 没有命令行工作流
-- 不打算让 AI 代理直接调工具
-- 也不打算维护自己的适配器或插件
-
-那 OpenCLI 就不一定是最优先装的东西。它更适合已经进入“把能力沉淀成命令”这一步的人，而不是只想找一个更花的聊天壳。
-
-## 总结
-
-如果只记 5 点，可以记这几个：
-
-1. OpenCLI 是把网站、Electron 应用、本地工具统一接进 CLI 的工具
-2. 它特别适合 AI 代理和重度终端用户，不是普通聊天壳
-3. 安装顺序是：扩展 → `npm install -g @jackwener/opencli` → `opencli doctor`
-4. 如果要给 Claude Code、Cursor 这类工具接能力，别忘了 `npx skills add jackwener/opencli`
-5. 真排障时先看 `opencli daemon status`、`curl localhost:19825/status`、`curl localhost:19825/logs`
+[1] https://github.com/jackwener/opencli/blob/c1052f67c0320ac240bfb650be4933101e615eda/README.md — jackwener/OpenCLI README @1.8.8
+[2] https://github.com/jackwener/opencli/blob/c1052f67c0320ac240bfb650be4933101e615eda/extension/manifest.json — Browser Bridge extension manifest (MV3)
+[3] https://github.com/jackwener/opencli/blob/c1052f67c0320ac240bfb650be4933101e615eda/cli-manifest.json — cli-manifest.json (command registry)
+[4] https://github.com/jackwener/opencli/blob/c1052f67c0320ac240bfb650be4933101e615eda/docs/guide/browser-bridge.md — Browser Bridge setup guide
+[5] https://github.com/jackwener/opencli/blob/c1052f67c0320ac240bfb650be4933101e615eda/src/build-manifest.ts — build-manifest.ts (manifest compiler)
+[6] https://github.com/jackwener/opencli/blob/c1052f67c0320ac240bfb650be4933101e615eda/docs/guide/exit-codes.md — exit-codes.md
+[7] https://github.com/jackwener/opencli/blob/c1052f67c0320ac240bfb650be4933101e615eda/src/discovery.ts — OpenCLI command discovery
+[8] https://github.com/jackwener/opencli/blob/c1052f67c0320ac240bfb650be4933101e615eda/src/commands/list.ts — OpenCLI list command
+[9] https://github.com/jackwener/opencli/blob/c1052f67c0320ac240bfb650be4933101e615eda/src/capabilityRouting.ts — OpenCLI browser-session routing
+[10] https://github.com/jackwener/opencli/blob/c1052f67c0320ac240bfb650be4933101e615eda/clis/twitter/post.js — OpenCLI X post adapter
