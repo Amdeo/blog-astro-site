@@ -1,0 +1,45 @@
+---
+import PostListItem from "@components/features/posts/PostListItem.astro";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { getSortedPostsList } from "@utils/content-utils";
+
+const posts = (await getSortedPostsList()).filter(
+	(post) => post.data.category === "技术收纳",
+);
+---
+
+<MainGridLayout
+	title="技术收纳"
+	description="从技术视频中提炼工具、方法与实践，结合官方资料整理成可独立阅读的技术文章。"
+>
+	<header class="card-base px-6 md:px-9 py-8 mb-6 onload-animation">
+		<h1 class="text-4xl md:text-5xl font-bold text-black/90 dark:text-white/90 mb-4">
+			技术收纳
+		</h1>
+		<p class="text-base md:text-lg text-black/65 dark:text-white/65 leading-8 max-w-4xl">
+			从技术视频中提炼值得了解的工具、方法与实践，结合官方资料，整理成可以独立阅读的文章。
+			先讲清是什么、能做什么，再沿具体场景理解用法与边界。
+		</p>
+		<p class="mt-6 text-sm text-black/45 dark:text-white/45">
+			已收纳 {posts.length} 篇文章
+		</p>
+	</header>
+
+	<section
+		id="tech-collection-posts"
+		aria-label="技术收纳文章"
+		class="card-base px-6 md:px-8 py-6 onload-animation"
+	>
+		{
+			posts.length > 0 ? (
+				<div class="grid gap-1">
+					{posts.map((post, index) => (
+						<PostListItem post={post} index={index} showCategory={false} />
+					))}
+				</div>
+			) : (
+				<p class="text-black/60 dark:text-white/60">文章整理中，完成后会收纳到这里。</p>
+			)
+		}
+	</section>
+</MainGridLayout>

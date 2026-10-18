@@ -3,7 +3,7 @@ title: 'Easy Stock：把行情、资讯与 AI 复盘放进一个桌面工作台'
 published: 2026-10-18
 description: '认识一款面向个人的 A 股研究桌面应用，用一次盘后复盘理解它的功能、技术和使用边界。'
 tags: ['AI', '桌面应用', '投研工具', 'Electron', 'Go']
-category: '工具'
+category: '技术收纳'
 draft: false
 pinned: false
 comment: true

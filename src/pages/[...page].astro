@@ -19,6 +19,10 @@ export const getStaticPaths = (async ({ paginate }) => {
 	initPostIdMap(allBlogPosts);
 
 	const homepagePosts = allBlogPosts.filter((post) => {
+		// 专栏文章保留公开链接，但不进入首页及其分页文章流。
+		if (post.data.category === "技术收纳") {
+			return false;
+		}
 		const postUrl = stripBase(getPostUrl(post));
 		return !homepageHiddenPrefixes.some((prefix) =>
 			postUrl.startsWith(prefix),

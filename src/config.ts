@@ -282,6 +282,11 @@ export const navBarConfig: NavBarConfig = {
 					url: "/system-design/",
 					icon: "material-symbols:account-tree",
 				},
+				{
+					name: "技术收纳",
+					url: "/tech-collection/",
+					icon: "material-symbols:auto-stories",
+				},
 			],
 		},
 		// 支持自定义导航栏链接，支持多级菜单
