@@ -46,7 +46,7 @@
 		"@swup/astro": "^1.8.0",
 		"@tailwindcss/typography": "^0.5.15",
 		"@tailwindcss/vite": "^4.0.0",
-		"astro": "6.1.2",
+		"astro": "6.4.8",
 		"astro-expressive-code": "^0.41.7",
 		"astro-icon": "^1.1.5",
 		"axios": "^1.13.6",
@@ -72,7 +72,7 @@
 		"remark-math": "^6.0.0",
 		"remark-sectionize": "^2.1.0",
 		"sanitize-html": "^2.17.1",
-		"satori": "^0.19.2",
+		"satori": "^0.33.5",
 		"sharp": "^0.34.5",
 		"stylus": "^0.64.0",
 		"svelte": "^5.53.6",
@@ -116,7 +116,8 @@
 	"packageManager": "pnpm@10.22.0",
 	"pnpm": {
 		"overrides": {
-			"@emmetio/css-parser": "https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660"
+			"@emmetio/css-parser": "https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660",
+			"devalue@<5.9.3": "5.9.3"
 		}
 	}
 }
